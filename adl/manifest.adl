@@ -1,0 +1,22 @@
+module dnt.manifest {
+  import sys.types.Map;
+
+  newtype TaskName = String;
+  newtype TrackedFileName = String;
+  newtype TrackedFileHash = String;
+  newtype Timestamp = String;
+
+  struct TaskData {
+    Map<TrackedFileName, TrackedFileData> trackedFiles;
+  };
+
+  struct TrackedFileData {
+    TrackedFileHash hash;
+    Timestamp timestamp;
+  };
+
+  struct Manifest {
+    Map<TaskName, TaskData> tasks = [];
+    // Map<TrackedFileName, TrackedFileData> trackedFiles = [];
+  };
+};
