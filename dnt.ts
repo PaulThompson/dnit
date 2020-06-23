@@ -4,65 +4,10 @@ import * as log from "https://deno.land/std/log/mod.ts";
 import * as fs  from "https://deno.land/std/fs/mod.ts";
 import { createHash } from "https://deno.land/std/hash/mod.ts";
 
+import { textTable } from "./textTable.ts";
+
 import * as A from './adl-gen/dnt/manifest.ts';
-import {RESOLVER} from './adl-gen/resolver.ts';
-import * as ADL from './adl-gen/runtime/adl.ts';
-import * as sys_types from './adl-gen/runtime/sys/types.ts';
-import * as J from './adl-gen/runtime/json.ts';
-import { ADLMap } from "./ADLMap.ts";
-
-class Manifest {
-  readonly filename = ".dnt-manifest.json";
-  readonly jsonBinding = J.createJsonBinding(RESOLVER, A.texprManifest());
-
-  tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap([], (k1,k2)=>k1===k2);
-
-  constructor() {
-  }
-
-  async load() {
-    if(await fs.exists(this.filename)) {
-      const json : J.Json = await fs.readJson(this.filename) as J.Json;
-      const mdata = this.jsonBinding.fromJson(json);
-
-      for(const p of mdata.tasks) {
-        const taskName : A.TaskName = p.v1;
-        const taskData : A.TaskData = p.v2;
-        this.tasks.set(taskName, new TaskManifest(taskData));
-      }
-    }
-  }
-
-  async save() {
-    const mdata : A.Manifest = {
-      tasks: this.tasks.entries().map(p=>({v1: p[0], v2: p[1].toData()}))
-    };
-    const json = this.jsonBinding.toJson(mdata);
-    await fs.writeJson(this.filename, json, {spaces:2});
-  }
-}
-
-class TaskManifest {
-  trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap([], (k1,k2)=>k1===k2);
-
-  constructor(data: A.TaskData) {
-    this.trackedFiles = new ADLMap(data.trackedFiles, (k1,k2)=>k1===k2);
-  };
-
-  getFileData(fn: A.TrackedFileName) : A.TrackedFileData|undefined {
-    return this.trackedFiles.get(fn);
-  }
-
-  setFileData(fn: A.TrackedFileName, d: A.TrackedFileData) {
-    const x = this.trackedFiles.set(fn, d);
-  }
-
-  toData() : A.TaskData {
-    return {
-      trackedFiles: this.trackedFiles.toData()
-    };
-  }
-}
+import { Manifest, TaskManifest } from "./manifest.ts";
 
 const manifest = new Manifest();
 
@@ -89,6 +34,7 @@ export type TaskParams = {
   action: Action;
   task_deps?: Task[];
   file_deps?: TrackedFile[];
+  deps?: (Task|TrackedFile)[];
   targets?: TrackedFile[];
   uptodate?: IsUpToDate;
 };
@@ -96,7 +42,7 @@ export type TaskParams = {
 /// Convenience function: an up to date always false to run always
 export const runAlways : IsUpToDate = async ()=>false;
 
-class Task {
+export class Task {
   name: A.TaskName;
   description?: string;
   action: Action;
@@ -111,10 +57,24 @@ class Task {
     this.name = taskParams.name;
     this.action = taskParams.action;
     this.description = taskParams.description;
-    this.task_deps = new Set(taskParams.task_deps || []);
-    this.file_deps = new Set(taskParams.file_deps || []);
+    this.task_deps = new Set(this.getTaskDeps(taskParams.task_deps, taskParams.deps));
+    this.file_deps = new Set(this.getTrackedFiles(taskParams.file_deps, taskParams.deps));
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate || runAlways;
+  }
+
+  private isTask = (dep: Task|TrackedFile) : dep is Task => {
+    return dep instanceof Task;
+  }
+  private isTrackedFile = (dep: Task|TrackedFile) : dep is TrackedFile => {
+    return dep instanceof TrackedFile;
+  }
+
+  private getTaskDeps(task_deps?: Task[], deps?: (Task|TrackedFile)[]) : Task[] {
+    return (task_deps || []).concat( (deps || []).filter(this.isTask) );
+  }
+  private getTrackedFiles(file_deps?: TrackedFile[], deps?: (Task|TrackedFile)[]) : TrackedFile[] {
+    return (file_deps || []).concat( (deps || []).filter(this.isTrackedFile) );
   }
 
   async setup() : Promise<void> {
@@ -355,92 +315,7 @@ export async function exec(cliArgs: string[]) : Promise<void> {
   return;
 }
 
-
-function textTable(headings: string[], cells: string[][] ) : string {
-  const corners = [['┌','┐'],['└','┘']];
-  const hbar = '─';
-  const vbar = '│';
-  const ttop = '┬';
-  const tbottom = '┴';
-  const cross = '┼';
-  const tleft = '├';
-  const tright = '┤';
-
-  const maxWidths : number[] = headings.map(t=>t.length);
-
-  for(const row of cells) {
-    let colInd = 0;
-    for(const col of row) {
-      maxWidths[colInd] = Math.max(maxWidths[colInd], col.length);
-      ++colInd;
-    }
-  }
-
-  const output : string[] = [];
-
-  // corner & top bars
-  {
-    const textrow : string[] = [];
-    textrow.push(corners[0][0]);
-    textrow.push(maxWidths.map(n=>hbar.repeat(n+2)).join(ttop));
-    textrow.push(corners[0][1]);
-    output.push(textrow.join(''));
-  }
-
-  // mid
-  {
-    const textrow : string[] = [];
-    textrow.push(vbar);
-    textrow.push(headings.map((h,i)=>{
-      const curLength = h.length;
-      const maxWidth = maxWidths[i];
-      const curSpaces = (maxWidth - curLength);
-      const spaceBefore = Math.floor(curSpaces/2);
-      const spaceAfter = curSpaces - spaceBefore;
-      return ' '.repeat(1+spaceBefore) + h + ' '.repeat(1+spaceAfter);
-    }).join(vbar));
-    textrow.push(vbar);
-    output.push(textrow.join(''));
-  }
-  // cross bar
-  {
-    const textrow : string[] = [];
-    textrow.push(tleft);
-    textrow.push(maxWidths.map(n=>hbar.repeat(n+2)).join(cross));
-    textrow.push(tright);
-    output.push(textrow.join(''));
-  }
-
-  // cells
-  for(const row of cells)
-  {
-    const textrow : string[] = [];
-    textrow.push(vbar);
-    textrow.push(row.map((t,i)=>{
-      const curLength = t.length;
-      const maxWidth = maxWidths[i];
-      const curSpaces = (maxWidth - curLength);
-      const spaceBefore = Math.floor(curSpaces/2);
-      const spaceAfter = curSpaces - spaceBefore;
-      return ' '.repeat(1+spaceBefore) + t + ' '.repeat(1+spaceAfter);
-    }).join(vbar));
-    textrow.push(vbar);
-    output.push(textrow.join(''));
-  }
-
-  // corner & bottom bars
-  {
-    const textrow : string[] = [];
-    textrow.push(corners[1][0]);
-    textrow.push(maxWidths.map(n=>hbar.repeat(n+2)).join(tbottom));
-    textrow.push(corners[1][1]);
-    output.push(textrow.join(''));
-  }
-
-
-  return output.join('\n');
-}
-
+// On execute of dnt as main, execute the user dnit.ts script
 if(import.meta.main) {
   const proc = Deno.run({
     cmd: ["deno", "run", "--unstable", "--allow-read", "--allow-write", "--allow-run", "dnit.ts"].concat(Deno.args),

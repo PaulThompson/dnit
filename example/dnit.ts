@@ -32,7 +32,7 @@ const helloWorld2 = task({
     await delay(1000);
     console.log("hello world222 done");
   },
-  file_deps: [
+  deps: [
     foo
   ],
   uptodate: ()=>true
@@ -64,7 +64,7 @@ const goodBye = task({
       await action();
     }
   },
-  task_deps: [helloWorld, helloWorld, helloWorld, helloWorld2, helloWorld3, helloWorld]
+  deps: [helloWorld, helloWorld, helloWorld, helloWorld2, helloWorld3, helloWorld]
 })
 
 exec(Deno.args);
