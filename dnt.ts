@@ -86,7 +86,7 @@ export type GetFileTimestamp = (filename: A.TrackedFileName) => Promise<A.Timest
 export type TaskParams = {
   name: A.TaskName;
   description?: string;
-  actions?: Action[];
+  action: Action;
   task_deps?: Task[];
   file_deps?: TrackedFile[];
   targets?: TrackedFile[];
@@ -99,7 +99,7 @@ export const runAlways : IsUpToDate = async ()=>false;
 class Task {
   name: A.TaskName;
   description?: string;
-  actions: Action[];
+  action: Action;
   task_deps: Set<Task>;
   file_deps: Set<TrackedFile>;
   targets: Set<TrackedFile>;
@@ -109,7 +109,7 @@ class Task {
 
   constructor(taskParams: TaskParams) {
     this.name = taskParams.name;
-    this.actions = taskParams.actions || [];
+    this.action = taskParams.action;
     this.description = taskParams.description;
     this.task_deps = new Set(taskParams.task_deps || []);
     this.file_deps = new Set(taskParams.file_deps || []);
@@ -162,9 +162,7 @@ class Task {
       log.info(`--- ${this.name}`);
     } else {
       log.info(`starting ${this.name}`);
-      for (const action of this.actions) {
-        await action();
-      }
+      await this.action();
       log.info(`completed ${this.name}`);
 
       {
