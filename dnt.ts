@@ -234,9 +234,17 @@ export class TrackedFile {
   }
 
   async getTimestamp() : Promise<A.Timestamp> {
-    const stat = await Deno.lstat(this.path);
-    const mtime = stat.mtime;
-    return mtime?.toISOString() || "";
+    try {
+      const stat = await Deno.lstat(this.path);
+      const mtime = stat.mtime;
+      return mtime?.toISOString() || "";
+    }
+    catch(err) {
+      if(err instanceof Deno.errors.NotFound) {
+        return "";
+      }
+      throw err;
+    }
   }
 
   async exists() {
