@@ -1,4 +1,4 @@
-import { task, exec, file } from "./dnt.ts";
+import { task, exec, file } from "https://raw.githubusercontent.com/PaulThompson/dnt/main/dnt.ts";
 import {delay} from "https://deno.land/std/async/delay.ts";
 import * as log from "https://deno.land/std/log/mod.ts";
 import * as fs  from "https://deno.land/std/fs/mod.ts";
