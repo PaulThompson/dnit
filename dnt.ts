@@ -1,4 +1,4 @@
-import { parse } from "https://deno.land/std/flags/mod.ts";
+import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import * as path from "https://deno.land/std/path/mod.ts";
 import * as log from "https://deno.land/std/log/mod.ts";
 import * as fs  from "https://deno.land/std/fs/mod.ts";
@@ -283,19 +283,32 @@ export function task(taskParams: TaskParams): Task {
   return task;
 }
 
+export function showTaskList() {
+  console.log(textTable(['Name','Description'], Array.from(taskRegister.values()).map(t=>([
+    t.name,
+    t.description||""
+  ]))));
+}
+
 /** Execute given commandline args */
 export async function exec(cliArgs: string[]) : Promise<void> {
   const args = parse(cliArgs);
-  const taskName = `${args["_"][0]}`;
+
+  let taskName : string|null = null;
+  const positionalArgs = args["_"];
+  if(positionalArgs.length > 0) {
+    taskName = `${positionalArgs[0]}`;
+  }
+
+  if(taskName===null) {
+    log.error("no task name given");
+    showTaskList();
+    Deno.exit(1);
+  }
 
 
   if(taskName==='list') {
-
-    console.log(textTable(['Name','Description'], Array.from(taskRegister.values()).map(t=>([
-      t.name,
-      t.description||""
-    ]))));
-
+    showTaskList();
     return;
   }
 
@@ -315,13 +328,40 @@ export async function exec(cliArgs: string[]) : Promise<void> {
   return;
 }
 
+function findUserSource(args: Args) : string|null {
+  const defaultSources = [
+    'dnit.ts',      // default in present directory
+    'dnit/main.ts', // subdirectory (preferred so that subdir is a deno only typescript tree)
+    'dnit/dnit.ts', // subdirectory (alternate)
+  ];
+
+  for(const sourceName of defaultSources) {
+    if(fs.existsSync(sourceName)) {
+      return sourceName;
+    }
+  }
+
+  log.error(`no dnit source found.  Use ${defaultSources.join(' or ')} or provide on commandline`);
+  return null;
+}
+
 // On execute of dnt as main, execute the user dnit.ts script
 if(import.meta.main) {
-  const proc = Deno.run({
-    cmd: ["deno", "run", "--unstable", "--allow-read", "--allow-write", "--allow-run", "dnit.ts"].concat(Deno.args),
-  });
+  const args = parse(Deno.args);
 
-  proc.status().then(st => {
-    Deno.exit(st.code);
-  })
+  const userSource = findUserSource(args);
+  if(userSource !== null) {
+    log.info('running user source:' + userSource);
+
+    const proc = Deno.run({
+      cmd: ["deno", "run", "--unstable", "--allow-read", "--allow-write", "--allow-run", userSource].concat(Deno.args),
+    });
+
+    proc.status().then(st => {
+      Deno.exit(st.code);
+    })
+  }
+  else {
+    Deno.exit(1);
+  }
 }
