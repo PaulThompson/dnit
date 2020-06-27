@@ -21,6 +21,8 @@ class ExecContext {
 
   /// In progress tasks
   inprogressTasks = new Set<Task>();
+
+  logger = log.getLogger("dnit");
 };
 
 export type Action = () => Promise<void>|void;
@@ -111,29 +113,29 @@ export class Task {
 
     let actualUpToDate = true;
 
-    actualUpToDate = actualUpToDate && await this.checkFileDeps();
-    log.info(`${this.name} checkFileDeps ${actualUpToDate}`);
+    actualUpToDate = actualUpToDate && await this.checkFileDeps(ctx);
+    ctx.logger.info(`${this.name} checkFileDeps ${actualUpToDate}`);
 
-    actualUpToDate = actualUpToDate && await this.targetsExist();
-    log.info(`${this.name} targetsExist ${actualUpToDate}`);
+    actualUpToDate = actualUpToDate && await this.targetsExist(ctx);
+    ctx.logger.info(`${this.name} targetsExist ${actualUpToDate}`);
 
     if(this.uptodate !== undefined) {
       actualUpToDate = actualUpToDate && await this.uptodate();
     }
-    log.info(`${this.name} uptodate ${actualUpToDate}`);
+    ctx.logger.info(`${this.name} uptodate ${actualUpToDate}`);
 
     if(actualUpToDate) {
-      log.info(`--- ${this.name}`);
+      ctx.logger.info(`--- ${this.name}`);
     } else {
-      log.info(`starting ${this.name}`);
+      ctx.logger.info(`starting ${this.name}`);
       await this.action();
-      log.info(`completed ${this.name}`);
+      ctx.logger.info(`completed ${this.name}`);
 
       {
         /// recalc & save data of deps:
         let promisesInProgress: Promise<void>[] = [];
         for (const fdep of this.file_deps) {
-          const p = fdep.getFileData().then(x=>{
+          const p = fdep.getFileData(ctx).then(x=>{
             this.taskManifest?.setFileData(fdep.path, x);
           });
         }
@@ -145,20 +147,20 @@ export class Task {
     ctx.inprogressTasks.delete(this);
   }
 
-  private async targetsExist() : Promise<boolean> {
-    const tex = await Promise.all( Array.from(this.targets).map(async tf=>tf.exists()));
+  private async targetsExist(ctx: ExecContext) : Promise<boolean> {
+    const tex = await Promise.all( Array.from(this.targets).map(async tf=>tf.exists(ctx)));
     // all exist: NOT some NOT exist
     return !tex.some(t=>!t);
   }
 
-  private async checkFileDeps() : Promise<boolean> {
+  private async checkFileDeps(ctx: ExecContext) : Promise<boolean> {
     let fileDepsUpToDate = true;
     let promisesInProgress: Promise<void>[] = [];
 
     const taskManifest = this.taskManifest!;
 
     for (const fdep of this.file_deps) {
-      const p = fdep.getFileDataOrCached(taskManifest.getFileData(fdep.path))
+      const p = fdep.getFileDataOrCached(ctx, taskManifest.getFileData(fdep.path))
       .then(r=>{
         taskManifest.setFileData(fdep.path, r.tData);
         return r.upToDate;
@@ -209,22 +211,22 @@ export class TrackedFile {
     }
   }
 
-  async exists() {
-    log.info(`checking exists ${this.path}`);
+  async exists(ctx: ExecContext) {
+    ctx.logger.info(`checking exists ${this.path}`);
     return fs.exists(this.path);
   }
 
-  async getHash() {
-    if(!await this.exists()) {
+  async getHash(ctx: ExecContext) {
+    if(!await this.exists(ctx)) {
       return "";
     }
 
-    log.info(`checking hash on ${this.path}`);
+    ctx.logger.info(`checking hash on ${this.path}`);
     return this.gethash(this.path);
   }
 
   /// whether this is up to date w.r.t. the given TrackedFileData
-  async isUpToDate(tData: A.TrackedFileData|undefined) : Promise<boolean> {
+  async isUpToDate(ctx: ExecContext, tData: A.TrackedFileData|undefined) : Promise<boolean> {
     if(tData === undefined) {
       return false;
     }
@@ -232,31 +234,31 @@ export class TrackedFile {
     if(mtime === tData.timestamp) {
       return true;
     }
-    const hash = await this.getHash();
+    const hash = await this.getHash(ctx);
     return hash === tData.hash;
   }
 
   /// Recalculate timestamp and hash data
-  async getFileData() : Promise<A.TrackedFileData> {
+  async getFileData(ctx: ExecContext) : Promise<A.TrackedFileData> {
     return {
-      hash: await this.getHash(),
+      hash: await this.getHash(ctx),
       timestamp: await this.getTimestamp()
     };
   }
 
   /// return given tData if up to date or re-calculate
-  async getFileDataOrCached(tData: A.TrackedFileData|undefined) : Promise<{
+  async getFileDataOrCached(ctx: ExecContext, tData: A.TrackedFileData|undefined) : Promise<{
     tData: A.TrackedFileData,
     upToDate: boolean
   }> {
-    if(tData !== undefined && await this.isUpToDate(tData)) {
+    if(tData !== undefined && await this.isUpToDate(ctx, tData)) {
       return {
         tData,
         upToDate: true
       };
     }
     return {
-      tData: await this.getFileData(),
+      tData: await this.getFileData(ctx),
       upToDate: false
     };
   }
@@ -306,6 +308,11 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   const args = flags.parse(cliArgs);
 
   const ctx = register(tasks);
+  ctx.logger.level = log.LogLevels.WARNING;
+
+  if(args["verbose"] !== undefined) {
+    ctx.logger.level = log.LogLevels.INFO;
+  }
 
   let taskName : string|null = null;
   const positionalArgs = args["_"];
@@ -314,7 +321,7 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   }
 
   if(taskName===null) {
-    log.error("no task name given");
+    ctx.logger.error("no task name given");
     showTaskList(ctx);
     Deno.exit(1);
   }
@@ -333,7 +340,7 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   if(task !== undefined) {
     await task.exec(ctx);
   } else {
-    log.error(`task ${taskName} not found`);
+    ctx.logger.error(`task ${taskName} not found`);
   }
 
   await ctx.manifest.save();
