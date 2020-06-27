@@ -1,6 +1,5 @@
-import { task } from "./deps.ts";
-
-import { msg, helloWorld } from "./helloWorld.ts";
+import { task, fs } from "./deps.ts";
+import { msg } from "./helloWorld.ts";
 
 export const goodbye = task({
   name: 'goodbye',
@@ -8,15 +7,16 @@ export const goodbye = task({
     // use ordinary typescript idiomatically if several actions are required
     const actions = [
       async () => {
-        console.log("good world");
+        const txt = await fs.readFileStr(msg.path);
+        console.log(txt);
       },
       async () => {
-        console.log("bye world");
+        console.log("...");
       },
     ];
     for (const action of actions) {
       await action();
     }
   },
-  deps: [helloWorld]
+  deps: [msg]
 });

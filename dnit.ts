@@ -1,13 +1,10 @@
-import * as flags from "https://deno.land/std@0.59.0/flags/mod.ts";
-import * as path from "https://deno.land/std@0.59.0/path/mod.ts";
-import * as log from "https://deno.land/std@0.59.0/log/mod.ts";
-import * as fs  from "https://deno.land/std@0.59.0/fs/mod.ts";
-import * as hash from "https://deno.land/std@0.59.0/hash/mod.ts";
+import {flags, path, log, fs, hash} from './deps.ts';
 
 import { textTable } from "./textTable.ts";
 
 import * as A from './adl-gen/dnt/manifest.ts';
 import { Manifest, TaskManifest } from "./manifest.ts";
+import {launch} from './launch.ts';
 
 class ExecContext {
   /// loaded hash manifest
@@ -288,7 +285,7 @@ export function task(taskParams: TaskParams): Task {
   return task;
 }
 
-export function showTaskList(ctx : ExecContext) {
+function showTaskList(ctx : ExecContext) {
   console.log(textTable(['Name','Description'], Array.from(ctx.taskRegister.values()).map(t=>([
     t.name,
     t.description||""
@@ -342,40 +339,9 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   return;
 }
 
-function findUserSource(args: flags.Args) : string|null {
-  const defaultSources = [
-    'dnit.ts',      // default in present directory
-    'dnit/main.ts', // subdirectory (preferred so that subdir is a deno only typescript tree)
-    'dnit/dnit.ts', // subdirectory (alternate)
-  ];
-
-  for(const sourceName of defaultSources) {
-    if(fs.existsSync(sourceName)) {
-      return sourceName;
-    }
-  }
-
-  log.error(`no dnit source found.  Use ${defaultSources.join(' or ')} or provide on commandline`);
-  return null;
-}
-
 // On execute of dnt as main, execute the user dnit.ts script
 if(import.meta.main) {
-  const args = flags.parse(Deno.args);
-
-  const userSource = findUserSource(args);
-  if(userSource !== null) {
-    log.info('running user source:' + userSource);
-
-    const proc = Deno.run({
-      cmd: ["deno", "run", "--unstable", "--allow-read", "--allow-write", "--allow-run", userSource].concat(Deno.args),
-    });
-
-    proc.status().then(st => {
-      Deno.exit(st.code);
-    })
-  }
-  else {
-    Deno.exit(1);
-  }
+  launch().then(st=>{
+    Deno.exit(st.code);
+  });
 }

@@ -1,6 +1,4 @@
-import { task, exec, file } from "./deps.ts";
-import * as log from "https://deno.land/std/log/mod.ts";
-import * as fs  from "https://deno.land/std/fs/mod.ts";
+import { task, file } from "./deps.ts";
 
 export const msg = file({
   path: './msg.txt'
@@ -21,6 +19,5 @@ export const helloWorld = task({
   ],
   targets: [
     msg
-  ],
-  uptodate: () => false
+  ]
 });
