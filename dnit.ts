@@ -58,7 +58,7 @@ export class Task {
   targets: Set<TrackedFile>;
 
   taskManifest : TaskManifest|null = null;
-  uptodate: IsUpToDate;
+  uptodate?: IsUpToDate;
 
   constructor(taskParams: TaskParams) {
     this.name = taskParams.name;
@@ -67,7 +67,7 @@ export class Task {
     this.task_deps = new Set(this.getTaskDeps(taskParams.task_deps, taskParams.deps));
     this.file_deps = new Set(this.getTrackedFiles(taskParams.file_deps, taskParams.deps));
     this.targets = new Set(taskParams.targets || []);
-    this.uptodate = taskParams.uptodate || runAlways;
+    this.uptodate = taskParams.uptodate;
   }
 
 
@@ -117,7 +117,9 @@ export class Task {
     actualUpToDate = actualUpToDate && await this.targetsExist();
     log.info(`${this.name} targetsExist ${actualUpToDate}`);
 
-    actualUpToDate = actualUpToDate && await this.uptodate();
+    if(this.uptodate !== undefined) {
+      actualUpToDate = actualUpToDate && await this.uptodate();
+    }
     log.info(`${this.name} uptodate ${actualUpToDate}`);
 
     if(actualUpToDate) {
