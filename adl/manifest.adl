@@ -1,4 +1,4 @@
-module dnt.manifest {
+module dnit.manifest {
   import sys.types.Map;
 
   newtype TaskName = String;

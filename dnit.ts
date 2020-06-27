@@ -1,8 +1,8 @@
-import { parse, Args } from "https://deno.land/std/flags/mod.ts";
-import * as path from "https://deno.land/std/path/mod.ts";
-import * as log from "https://deno.land/std/log/mod.ts";
-import * as fs  from "https://deno.land/std/fs/mod.ts";
-import { createHash } from "https://deno.land/std/hash/mod.ts";
+import * as flags from "https://deno.land/std@0.59.0/flags/mod.ts";
+import * as path from "https://deno.land/std@0.59.0/path/mod.ts";
+import * as log from "https://deno.land/std@0.59.0/log/mod.ts";
+import * as fs  from "https://deno.land/std@0.59.0/fs/mod.ts";
+import * as hash from "https://deno.land/std@0.59.0/hash/mod.ts";
 
 import { textTable } from "./textTable.ts";
 
@@ -265,9 +265,9 @@ export class TrackedFile {
 
 export const filehash = async (filename:string)=>{
   const str = await fs.readFileStr(filename);
-  const hash = createHash("sha1");
-  hash.update(str);
-  const hashInHex = hash.toString();
+  const hashsha1 = hash.createHash("sha1");
+  hashsha1.update(str);
+  const hashInHex = hashsha1.toString();
   return hashInHex;
 }
 
@@ -304,7 +304,7 @@ function register( tasks: Task[] ) : ExecContext {
 
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
-  const args = parse(cliArgs);
+  const args = flags.parse(cliArgs);
 
   const ctx = register(tasks);
 
@@ -342,7 +342,7 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   return;
 }
 
-function findUserSource(args: Args) : string|null {
+function findUserSource(args: flags.Args) : string|null {
   const defaultSources = [
     'dnit.ts',      // default in present directory
     'dnit/main.ts', // subdirectory (preferred so that subdir is a deno only typescript tree)
@@ -361,7 +361,7 @@ function findUserSource(args: Args) : string|null {
 
 // On execute of dnt as main, execute the user dnit.ts script
 if(import.meta.main) {
-  const args = parse(Deno.args);
+  const args = flags.parse(Deno.args);
 
   const userSource = findUserSource(args);
   if(userSource !== null) {

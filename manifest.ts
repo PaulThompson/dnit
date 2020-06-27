@@ -1,4 +1,4 @@
-import * as fs  from "https://deno.land/std/fs/mod.ts";
+import * as fs  from "https://deno.land/std@0.59.0/fs/mod.ts";
 
 import * as A from './adl-gen/dnt/manifest.ts';
 import * as J from './adl-gen/runtime/json.ts';
@@ -6,7 +6,7 @@ import * as J from './adl-gen/runtime/json.ts';
 import { RESOLVER } from './adl-gen/resolver.ts';
 import { ADLMap } from "./ADLMap.ts";
 export class Manifest {
-  readonly filename = ".dnt-manifest.json";
+  readonly filename = ".dnit-manifest.json";
   readonly jsonBinding = J.createJsonBinding(RESOLVER, A.texprManifest());
   tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap([], (k1, k2) => k1 === k2);
   constructor() {
