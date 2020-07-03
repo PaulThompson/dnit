@@ -303,15 +303,47 @@ function register( tasks: Task[] ) : ExecContext {
   return ctx;
 }
 
+class StdErrHandler extends log.handlers.ConsoleHandler {
+  log(msg: string): void {
+    Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
+  }
+}
+
+async function setupLogging() {
+  await log.setup({
+    handlers: {
+      stderr: new StdErrHandler("DEBUG"),
+    },
+
+    loggers: {
+      dnit: {
+        level: "WARNING",
+        handlers: ["stderr"],
+      },
+
+      tasks: {
+        level: "INFO",
+        handlers: ["stderr"],
+      },
+    },
+  });
+}
+
+/** Convenience access to a setup logger for tasks */
+export function getLogger() : log.Logger {
+  return log.getLogger("tasks");
+}
+
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   const args = flags.parse(cliArgs);
 
-  const ctx = register(tasks);
-  ctx.logger.level = log.LogLevels.WARNING;
+  await setupLogging();
+  const intLogger = log.getLogger("dnit");
 
+  const ctx = register(tasks);
   if(args["verbose"] !== undefined) {
-    ctx.logger.level = log.LogLevels.INFO;
+    ctx.logger.levelName = "INFO";
   }
 
   let taskName : string|null = null;
@@ -321,7 +353,7 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   }
 
   if(taskName===null) {
-    ctx.logger.error("no task name given");
+    intLogger.error("no task name given");
     showTaskList(ctx);
     Deno.exit(1);
   }
@@ -350,7 +382,16 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
 
 // On execute of dnt as main, execute the user dnit.ts script
 if(import.meta.main) {
-  launch().then(st=>{
+  await setupLogging();
+  const intLogger = log.getLogger("dnit");
+
+  const args = flags.parse(Deno.args);
+
+  if(args["verbose"] !== undefined) {
+    intLogger.levelName = "INFO";
+  }
+
+  launch(intLogger).then(st=>{
     Deno.exit(st.code);
   });
 }

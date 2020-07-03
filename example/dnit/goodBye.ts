@@ -1,6 +1,10 @@
 import { task, fs } from "./deps.ts";
 import { msg } from "./helloWorld.ts";
 
+import { red } from "fmt/colors.ts";
+
+console.log(red("hello world"));
+
 export const goodbye = task({
   name: 'goodbye',
   action: async () => {
