@@ -1,4 +1,4 @@
-import * as fs  from "https://deno.land/std@0.59.0/fs/mod.ts";
+import * as fs  from "https://deno.land/std@0.61.0/fs/mod.ts";
 
 import * as A from './adl-gen/dnt/manifest.ts';
 import * as J from './adl-gen/runtime/json.ts';
