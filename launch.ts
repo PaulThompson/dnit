@@ -15,7 +15,6 @@ function findUserSource(dir: string) : UserSource|null {
 
   const subdirs = [
     "dnit", // subdirectory (preferred so that subdir is a deno only typescript tree)
-    ".",
   ];
 
   const defaultSources = [
