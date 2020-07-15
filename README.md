@@ -57,11 +57,39 @@ export const goodbye = task({
 exec(Deno.args, [helloWorld, goodbye]);
 ```
 
+## Sample Usage - CLI
+
+* List tasks available:
+```
+dnit list
+```
+
+* Execute a task by name:
+```
+dnit helloWorld
+```
+
+* Verbose logging:
+```
+dnit list --verbose
+```
+In verbose mode the tool logs to stderr (fd #2)
 
 ## Installation:
 
-    deno install --allow-read --allow-write --allow-run --unstable -f https://raw.githubusercontent.com/PaulThompson/dnit/dnit-v1.0.0/dnit.ts
+### Pre-Requisites
+* Requires deno v1.2.0 or greater
 
+### Install
+
+It is recommended to use `deno install` to install the tool, which provides a convenient entrypoint script and aliases the permission flags.
+
+```
+deno install --allow-read --allow-write --allow-run --unstable -f https://raw.githubusercontent.com/PaulThompson/dnit/dnit-v1.0.0/dnit.ts
+```
+
+* Read, Write and Run permissions are required in order to operate on files and execute tasks.
+* Unstable flag is currently required in order to support import maps.
 
 ## Tasks and Files in Detail
 
