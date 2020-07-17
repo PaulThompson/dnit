@@ -85,7 +85,7 @@ In verbose mode the tool logs to stderr (fd #2)
 It is recommended to use `deno install` to install the tool, which provides a convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --allow-read --allow-write --allow-run --unstable -f https://raw.githubusercontent.com/PaulThompson/dnit/dnit-v1.0.0/dnit.ts
+deno install --allow-read --allow-write --allow-run --unstable -f https://deno.land/x/dnit@dnit-v1.0.1/dnit.ts
 ```
 
 * Read, Write and Run permissions are required in order to operate on files and execute tasks.
