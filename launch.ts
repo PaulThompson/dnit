@@ -8,8 +8,30 @@ type UserSource = {
   importmap: string|null;
 };
 
-function findUserSource(dir: string) : UserSource|null {
-  if(!fs.existsSync(dir)) {
+type FindUserSourceContext = {
+  stat: Deno.FileInfo;
+  path: string;
+}
+
+function findUserSourceContext(dir:string) : FindUserSourceContext {
+  const pathParts = dir.split(path.SEP);
+  return {
+    path: dir,
+    stat: Deno.lstatSync(dir),
+  };
+}
+
+function findUserSource(dir: string, startCtxArg:FindUserSourceContext|null) : UserSource|null {
+  const startCtx = (startCtxArg === null) ? findUserSourceContext(dir) : startCtxArg;
+  const dirStat = Deno.lstatSync(dir);
+
+  /// Do not cross filesystems (this is how git stops looking for a git dir)
+  if(dirStat.dev !== startCtx.stat.dev) {
+    return null;
+  }
+
+  /// Abort at root:
+  if(path.resolve(path.join(dir,'..')) === dir) {
     return null;
   }
 
@@ -55,13 +77,13 @@ function findUserSource(dir: string) : UserSource|null {
   }
 
   // recurse to parent directory to find dnit script
-  return findUserSource(path.join(dir,'..'));
+  return findUserSource(path.join(dir,'..'), startCtx);
 }
 
 export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
   const args = flags.parse(Deno.args);
 
-  const userSource = findUserSource(Deno.cwd());
+  const userSource = findUserSource(Deno.cwd(), null);
   if(userSource !== null) {
     logger.info('running source:' + userSource.mainSrc);
     logger.info('running wd:' + userSource.baseDir);
