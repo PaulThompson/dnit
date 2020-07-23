@@ -6,7 +6,7 @@ Dnit is a task runner based on typescript and Deno.  It uses typescript variable
 ## Sample Usage
 
 ```
-import {task, exec, file} from  "https://raw.githubusercontent.com/PaulThompson/dnit/dnit-v1.0.0/dnit.ts";
+import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.0.2/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({
