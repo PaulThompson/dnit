@@ -8,7 +8,7 @@ import {launch} from './launch.ts';
 
 class ExecContext {
   /// loaded hash manifest
-  manifest = new Manifest();
+  manifest : Manifest;
 
   /// All tasks by name
   taskRegister = new Map<A.TaskName, Task>();
@@ -23,6 +23,10 @@ class ExecContext {
   inprogressTasks = new Set<Task>();
 
   logger = log.getLogger("dnit");
+
+  constructor(dnitDir: string) {
+    this.manifest = new Manifest(dnitDir);
+  }
 };
 
 export type Action = () => Promise<void>|void;
@@ -319,13 +323,6 @@ function showTaskList(ctx : ExecContext) {
   ]))));
 }
 
-function register( tasks: Task[] ) : ExecContext {
-  const ctx = new ExecContext();
-  tasks.forEach(t=>ctx.taskRegister.set(t.name, t));
-
-  return ctx;
-}
-
 class StdErrHandler extends log.handlers.ConsoleHandler {
   log(msg: string): void {
     Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
@@ -364,7 +361,10 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   await setupLogging();
   const intLogger = log.getLogger("dnit");
 
-  const ctx = register(tasks);
+  const dnitDir = args["dnitDir"] || "./dnit";
+  const ctx = new ExecContext(dnitDir);
+  tasks.forEach(t=>ctx.taskRegister.set(t.name, t));
+
   if(args["verbose"] !== undefined) {
     ctx.logger.levelName = "INFO";
   }

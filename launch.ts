@@ -4,6 +4,7 @@ import {flags, log, fs, path} from './deps.ts';
 
 type UserSource = {
   baseDir: string;
+  dnitDir: string;
   mainSrc: string;
   importmap: string|null;
 };
@@ -54,6 +55,7 @@ function findUserSource(dir: string, startCtxArg:FindUserSourceContext|null) : U
 
       const res = {
         baseDir: path.resolve(dir),
+        dnitDir: path.resolve(subdir),
         mainSrc: path.resolve(path.join(dir, subdir, sourceName)),
       };
 
@@ -111,6 +113,7 @@ export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
       .concat(permissions)
       .concat(importmap)
       .concat([userSource.mainSrc])
+      .concat(['--dnitDir', userSource.dnitDir])
       .concat(Deno.args),
     });
 
