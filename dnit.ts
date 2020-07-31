@@ -286,7 +286,7 @@ export class TrackedFile {
 };
 
 export const filehash = async (filename:string)=>{
-  const str = await fs.readFileStr(filename);
+  const str = await Deno.readTextFile(filename);
   const hashsha1 = hash.createHash("sha1");
   hashsha1.update(str);
   const hashInHex = hashsha1.toString();

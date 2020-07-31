@@ -11,7 +11,7 @@ export const goodbye = task({
     // use ordinary typescript idiomatically if several actions are required
     const actions = [
       async () => {
-        const txt = await fs.readFileStr(msg.path);
+        const txt = await Deno.readTextFile(msg.path);
         console.log(txt);
       },
       async () => {
