@@ -329,7 +329,7 @@ class StdErrHandler extends log.handlers.ConsoleHandler {
   }
 }
 
-async function setupLogging() {
+export async function setupLogging() {
   await log.setup({
     handlers: {
       stderr: new StdErrHandler("DEBUG"),
