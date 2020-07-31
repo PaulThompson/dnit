@@ -55,7 +55,7 @@ function findUserSource(dir: string, startCtxArg:FindUserSourceContext|null) : U
 
       const res = {
         baseDir: path.resolve(dir),
-        dnitDir: path.resolve(subdir),
+        dnitDir: path.resolve(path.join(dir, subdir)),
         mainSrc: path.resolve(path.join(dir, subdir, sourceName)),
       };
 
@@ -90,6 +90,7 @@ export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
     logger.info('running source:' + userSource.mainSrc);
     logger.info('running wd:' + userSource.baseDir);
     logger.info('running importmap:' + userSource.importmap);
+    logger.info('running dnitDir:' + userSource.dnitDir);
 
     Deno.chdir(userSource.baseDir);
 
