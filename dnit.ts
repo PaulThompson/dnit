@@ -2,9 +2,14 @@ import {flags, path, log, fs, hash} from './deps.ts';
 
 import { textTable } from "./textTable.ts";
 
-import * as A from './adl-gen/dnt/manifest.ts';
+import * as A from './adl-gen/dnit/manifest.ts';
 import { Manifest, TaskManifest } from "./manifest.ts";
 import {launch} from './launch.ts';
+
+export interface TaskContext {
+  args: flags.Args;
+  task: Task
+};
 
 class ExecContext {
   /// loaded hash manifest
@@ -24,13 +29,26 @@ class ExecContext {
 
   logger = log.getLogger("dnit");
 
-  constructor(dnitDir: string) {
+  /// commandline args
+  args: flags.Args;
+
+  constructor(dnitDir: string, args: flags.Args) {
     this.manifest = new Manifest(dnitDir);
+    this.args = args;
   }
 };
 
-export type Action = () => Promise<void>|void;
-export type IsUpToDate = () => Promise<boolean>|boolean;
+function taskContext(ctx: ExecContext, task: Task) : TaskContext {
+  return {
+    args: ctx.args,
+    task
+  };
+}
+
+export type Action = (ctx: TaskContext) => Promise<void>|void;
+
+
+export type IsUpToDate = (ctx: TaskContext) => Promise<boolean>|boolean;
 export type GetFileHash = (filename: A.TrackedFileName) => Promise<A.TrackedFileHash>|A.TrackedFileHash;
 export type GetFileTimestamp = (filename: A.TrackedFileName) => Promise<A.Timestamp>|A.Timestamp;
 
@@ -73,15 +91,15 @@ function isTrackedFile(dep: Task|TrackedFile) : dep is TrackedFile {
 }
 
 export class Task {
-  name: A.TaskName;
-  description?: string;
-  action: Action;
-  task_deps: Set<Task>;
-  file_deps: Set<TrackedFile>;
-  targets: Set<TrackedFile>;
+  public name: A.TaskName;
+  public description?: string;
+  public action: Action;
+  public task_deps: Set<Task>;
+  public file_deps: Set<TrackedFile>;
+  public targets: Set<TrackedFile>;
 
-  taskManifest : TaskManifest|null = null;
-  uptodate?: IsUpToDate;
+  public taskManifest : TaskManifest|null = null;
+  public uptodate?: IsUpToDate;
 
   constructor(taskParams: TaskParams) {
     this.name = taskParams.name;
@@ -92,8 +110,6 @@ export class Task {
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate;
   }
-
-
 
   private getTaskDeps(task_deps?: Task[], deps?: (Task|TrackedFile)[]) : Task[] {
     return (task_deps || []).concat( (deps || []).filter(isTask) );
@@ -108,6 +124,7 @@ export class Task {
     }
 
     this.taskManifest = ctx.manifest.tasks.getOrInsert(this.name, new TaskManifest({
+      lastExecution: null,
       trackedFiles: []
     }));
   }
@@ -141,7 +158,7 @@ export class Task {
     ctx.logger.info(`${this.name} targetsExist ${actualUpToDate}`);
 
     if(this.uptodate !== undefined) {
-      actualUpToDate = actualUpToDate && await this.uptodate();
+      actualUpToDate = actualUpToDate && await this.uptodate(taskContext(ctx, this));
     }
     ctx.logger.info(`${this.name} uptodate ${actualUpToDate}`);
 
@@ -149,11 +166,12 @@ export class Task {
       ctx.logger.info(`--- ${this.name}`);
     } else {
       ctx.logger.info(`starting ${this.name}`);
-      await this.action();
+      await this.action(taskContext(ctx, this));
       ctx.logger.info(`completed ${this.name}`);
 
       {
         /// recalc & save data of deps:
+        this.taskManifest?.setExecutionTimestamp();
         let promisesInProgress: Promise<void>[] = [];
         for (const fdep of this.file_deps) {
           const p = fdep.getFileData(ctx).then(x=>{
@@ -182,13 +200,13 @@ export class Task {
 
     for (const fdep of this.file_deps) {
       const p = fdep.getFileDataOrCached(ctx, taskManifest.getFileData(fdep.path))
-      .then(r=>{
-        taskManifest.setFileData(fdep.path, r.tData);
-        return r.upToDate;
-      })
-      .then(uptodate => {
-        fileDepsUpToDate = fileDepsUpToDate && uptodate;
-      });
+        .then(r=>{
+          taskManifest.setFileData(fdep.path, r.tData);
+          return r.upToDate;
+        })
+        .then(uptodate => {
+          fileDepsUpToDate = fileDepsUpToDate && uptodate;
+        });
 
       promisesInProgress.push(p.then(() => { }));
     }
@@ -354,15 +372,20 @@ export function getLogger() : log.Logger {
   return log.getLogger("tasks");
 }
 
+export type ExecResult = {
+  success:boolean;
+};
+
 /** Execute given commandline args and array of items (task & trackedfile) */
-export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
+export async function exec(cliArgs: string[], tasks: Task[]) : Promise<ExecResult> {
   const args = flags.parse(cliArgs);
 
   await setupLogging();
   const intLogger = log.getLogger("dnit");
 
   const dnitDir = args["dnitDir"] || "./dnit";
-  const ctx = new ExecContext(dnitDir);
+  delete args["dnitDir"];
+  const ctx = new ExecContext(dnitDir, args);
   tasks.forEach(t=>ctx.taskRegister.set(t.name, t));
 
   if(args["verbose"] !== undefined) {
@@ -378,29 +401,32 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void> {
   if(taskName===null) {
     intLogger.error("no task name given");
     showTaskList(ctx);
-    Deno.exit(1);
+    return {success:false};
   }
 
 
   if(taskName==='list') {
     showTaskList(ctx);
-    return;
+    return {success:true};
   }
 
-  await ctx.manifest.load();
+  try {
+    await ctx.manifest.load();
 
-  await Promise.all(Array.from(ctx.taskRegister.values()).map(t=>t.setup(ctx)));
-
-  const task = ctx.taskRegister.get(taskName);
-  if(task !== undefined) {
-    await task.exec(ctx);
-  } else {
-    ctx.logger.error(`task ${taskName} not found`);
+    await Promise.all(Array.from(ctx.taskRegister.values()).map(t=>t.setup(ctx)));
+    const task = ctx.taskRegister.get(taskName);
+    if(task !== undefined) {
+      await task.exec(ctx);
+    } else {
+      ctx.logger.error(`task ${taskName} not found`);
+    }
+    await ctx.manifest.save();
+    return {success:true};
   }
-
-  await ctx.manifest.save();
-
-  return;
+  catch(err) {
+    intLogger.error(`${err}`);
+    return {success:false};
+  }
 }
 
 // On execute of dnt as main, execute the user dnit.ts script

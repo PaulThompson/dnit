@@ -1,6 +1,6 @@
 import {path, fs} from './deps.ts'
 
-import * as A from './adl-gen/dnt/manifest.ts';
+import * as A from './adl-gen/dnit/manifest.ts';
 import * as J from './adl-gen/runtime/json.ts';
 
 import { RESOLVER } from './adl-gen/resolver.ts';
@@ -32,19 +32,25 @@ export class Manifest {
   }
 }
 export class TaskManifest {
+  public lastExecution: A.Timestamp|null = null;
   trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap([], (k1, k2) => k1 === k2);
   constructor(data: A.TaskData) {
     this.trackedFiles = new ADLMap(data.trackedFiles, (k1, k2) => k1 === k2);
   }
-  ;
+
   getFileData(fn: A.TrackedFileName): A.TrackedFileData | undefined {
     return this.trackedFiles.get(fn);
   }
   setFileData(fn: A.TrackedFileName, d: A.TrackedFileData) {
-    const x = this.trackedFiles.set(fn, d);
+    this.trackedFiles.set(fn, d);
   }
+  setExecutionTimestamp() {
+    this.lastExecution = (new Date()).toISOString();
+  }
+
   toData(): A.TaskData {
     return {
+      lastExecution: this.lastExecution,
       trackedFiles: this.trackedFiles.toData()
     };
   }

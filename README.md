@@ -88,6 +88,11 @@ It is recommended to use `deno install` to install the tool, which provides a co
 deno install --allow-read --allow-write --allow-run --unstable -f https://deno.land/x/dnit@dnit-v1.2.0/dnit.ts
 ```
 
+Install from source checkout:
+```
+deno install --allow-read --allow-write --allow-run --unstable -f ./dnit.ts
+```
+
 * Read, Write and Run permissions are required in order to operate on files and execute tasks.
 * Unstable flag is currently required in order to support import maps.
 
