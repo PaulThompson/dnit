@@ -323,7 +323,10 @@ export type FileParams = {
 };
 
 /** Generate a trackedfile for tracking */
-export function file(fileParams: FileParams) : TrackedFile {
+export function file(fileParams: FileParams|string) : TrackedFile {
+  if(typeof fileParams === 'string') {
+    return new TrackedFile({path:fileParams});
+  }
   return new TrackedFile(fileParams);
 }
 
