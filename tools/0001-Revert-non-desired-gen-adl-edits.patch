@@ -1,0 +1,108 @@
+From 90071082cfedd7517670aec7054fd3ee988e1035 Mon Sep 17 00:00:00 2001
+From: Paul Thompson <paul.thompson773@gmail.com>
+Date: Sat, 8 Aug 2020 23:48:37 +1000
+Subject: [PATCH] Revert "..."
+
+This reverts commit 096b822dc5c332dda247cf1889a5c6a0e3c8c010.
+---
+ adl-gen/runtime/adl.ts   |  7 +++++++
+ adl-gen/runtime/json.ts  |  8 +++++---
+ adl-gen/runtime/utils.ts | 34 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 46 insertions(+), 3 deletions(-)
+
+diff --git a/adl-gen/runtime/adl.ts b/adl-gen/runtime/adl.ts
+index 4b44aff..1a1a460 100644
+--- a/adl-gen/runtime/adl.ts
++++ b/adl-gen/runtime/adl.ts
+@@ -1,4 +1,5 @@
+ import * as AST from "./sys/adlast.ts";
++import * as utils from "./utils.ts";
+ 
+ export type ScopedName = AST.ScopedName;
+ export type ScopedDecl = AST.ScopedDecl;
+@@ -82,3 +83,9 @@ export function texprStringMap<T>(etype: ATypeExpr<T>) : ATypeExpr<{[key:string]
+ export function texprNullable<T>(etype: ATypeExpr<T>) : ATypeExpr<T|null> {
+   return texprPrimitive1("Nullable", etype);
+ }
++// "Flavoured" nominal typing.
++// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
++export type Flavored0<A, Name> = utils.Flavored0<A, Name>;
++export type Flavored1<A, Name, T> = utils.Flavored1<A, Name, T>;
++export type Flavored2<A, Name, T,U> = utils.Flavored2<A, Name, T,U>;
++export type Flavored3<A, Name, T,U,V> = utils.Flavored3<A, Name, T,U,V>;
+diff --git a/adl-gen/runtime/json.ts b/adl-gen/runtime/json.ts
+index a551879..86b1f2c 100644
+--- a/adl-gen/runtime/json.ts
++++ b/adl-gen/runtime/json.ts
+@@ -1,6 +1,6 @@
+ import {DeclResolver,ATypeExpr} from "./adl.ts";
+ import * as AST from "./sys/adlast.ts";
+-import * as b64 from "base64-js.ts";
++//import * as b64 from 'base64-js';
+ import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
+ 
+ /** A type for json serialised values */
+@@ -193,14 +193,16 @@ function identityJsonBinding<T>(expected : string, predicate : (json : Json) =>
+ 
+ function bytesJsonBinding() : JsonBinding0<Uint8Array> {
+   function toJson(v : Uint8Array) : Json {
+-    return b64.fromByteArray(v);
++    //return b64.fromByteArray(v);
++    throw new Error("bytesJsonBinding not implemented");
+   }
+ 
+   function fromJson(json : Json) : Uint8Array {
+     if (typeof(json) != 'string') {
+       throw jsonParseException('expected a string');
+     }
+-    return b64.toByteArray(json);
++    //return b64.toByteArray(json);
++    throw new Error("bytesJsonBinding not implemented");
+   }
+ 
+   return {toJson, fromJson};
+diff --git a/adl-gen/runtime/utils.ts b/adl-gen/runtime/utils.ts
+index 6d2eacb..d03e7d7 100644
+--- a/adl-gen/runtime/utils.ts
++++ b/adl-gen/runtime/utils.ts
+@@ -75,3 +75,37 @@ export function typeExprToStringUnscoped(te: AST.TypeExpr) : string {
+   return typeExprToStringImpl(te, false);
+ }
+ 
++// "Flavoured" nominal typing.
++// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
++const symS = Symbol();
++const symT = Symbol();
++const symU = Symbol();
++const symV = Symbol();
++
++/// Zero ADL type params - literal string type Name (fully scoped module name)
++/// eg for 'newtype X = string' -> 'type X = Flavouring0<"X">;'
++type Flavoring0<Name> = {
++  readonly [symS]?: Name;
++}
++
++/// 1 ADL type param
++/// eg for 'newtype X<T> = string' -> 'type X<T> = Flavouring1<"X",T>;'
++type Flavoring1<Name, T> = Flavoring0<Name> & {
++  readonly [symT]?: T;
++}
++
++/// 2 ADL type params
++/// eg for 'newtype X<T,U> = string' -> 'type X<T,U> = Flavouring2<"X",T,U>;'
++type Flavoring2<Name,T,U> = Flavoring1<Name, T> & {
++  readonly [symU]?: U;
++}
++
++/// 3 ADL type params
++/// eg for 'newtype X<T,U,V> = string' -> 'type X<T,U,V> = Flavouring3<"X",T,U,V>;'
++type Flavoring3<Name,T,U,V> = Flavoring2<Name, T,U> & {
++  readonly [symV]?: V;
++}
++export type Flavored0<A, Name> = A & Flavoring0<Name>;
++export type Flavored1<A, Name, T> = A & Flavoring1<Name, T>;
++export type Flavored2<A, Name, T,U> = A & Flavoring2<Name, T,U>;
++export type Flavored3<A, Name, T,U,V> = A & Flavoring3<Name, T,U,V>;
+-- 
+2.20.1
+

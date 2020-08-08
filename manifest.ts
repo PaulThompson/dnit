@@ -36,6 +36,7 @@ export class TaskManifest {
   trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap([], (k1, k2) => k1 === k2);
   constructor(data: A.TaskData) {
     this.trackedFiles = new ADLMap(data.trackedFiles, (k1, k2) => k1 === k2);
+    this.lastExecution = data.lastExecution;
   }
 
   getFileData(fn: A.TrackedFileName): A.TrackedFileData | undefined {

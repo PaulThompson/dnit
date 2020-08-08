@@ -1,7 +1,7 @@
 import { BufReader } from "https://deno.land/std@0.63.0/io/mod.ts";
 
-import { task, exec, file, log, utils, semver} from "./deps.ts";
-import { TaskContext } from "../dnit.ts";
+import { task, exec, log, utils, semver} from "./deps.ts";
+import { TaskContext, file } from "../dnit.ts";
 
 const tagPrefix = "dnit-v";
 
@@ -119,8 +119,24 @@ const push = task({
   uptodate: ()=>false
 });
 
+const genadl = task({
+  name: 'genadl',
+  description: 'Code generate from ADL definition',
+  action: async ()=> {
+    await utils.run(['./tools/gen-adl.sh']);
+    await utils.run(['git','apply','./tools/0001-Revert-non-desired-gen-adl-edits.patch']);
+  },
+  targets: [
+    file({path:'./adl-gen/dnit/manifest.ts'}),
+  ],
+  deps: [
+    file({path:'./adl/manifest.adl'}),
+    file({path:'./tools/0001-Revert-non-desired-gen-adl-edits.patch'}),
+  ]
+});
 
 const tasks = [
+  genadl,
   tag,
   push
 ];

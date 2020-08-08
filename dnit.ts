@@ -330,7 +330,6 @@ export function file(fileParams: FileParams) : TrackedFile {
 /** Generate a task */
 export function task(taskParams: TaskParams): Task {
   const task = new Task(taskParams);
-  // taskRegister.set(task.name, task);
   return task;
 }
 
