@@ -97,7 +97,9 @@ export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
     const permissions = [
       "--allow-read",
       "--allow-write",
-      "--allow-run"
+      "--allow-run",
+      "--allow-env",
+      "--allow-net"
     ];
     const flags = [
       "--quiet",
