@@ -113,8 +113,8 @@ const tag = task({
 const push = task({
   name: "push",
   description: "Run git push",
-  action: () => {
-
+  action: async () => {
+    await utils.run(['git','push','origin','main']);
   },
   uptodate: ()=>false
 });
@@ -147,3 +147,4 @@ exec(Deno.args, tasks)
     Deno.exit(1);
   }
 });
+
