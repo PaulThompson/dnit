@@ -109,5 +109,3 @@ export type Flavored0<A, Name> = A & Flavoring0<Name>;
 export type Flavored1<A, Name, T> = A & Flavoring1<Name, T>;
 export type Flavored2<A, Name, T,U> = A & Flavoring2<Name, T,U>;
 export type Flavored3<A, Name, T,U,V> = A & Flavoring3<Name, T,U,V>;
-
-
