@@ -1,15 +1,56 @@
-From 90071082cfedd7517670aec7054fd3ee988e1035 Mon Sep 17 00:00:00 2001
+From 85964169b4f27f769a29083aeecf99b5e2da5e4f Mon Sep 17 00:00:00 2001
 From: Paul Thompson <paul.thompson773@gmail.com>
-Date: Sat, 8 Aug 2020 23:48:37 +1000
-Subject: [PATCH] Revert "..."
+Date: Sun, 9 Aug 2020 11:20:28 +1000
+Subject: [PATCH] Revert "non desired adl gen edits"
 
-This reverts commit 096b822dc5c332dda247cf1889a5c6a0e3c8c010.
+This reverts commit 2b61f251ee4b0c7752612fe12aca248900cb36f1.
 ---
+ adl-gen/dnit/manifest.ts |  8 ++++----
  adl-gen/runtime/adl.ts   |  7 +++++++
  adl-gen/runtime/json.ts  |  8 +++++---
  adl-gen/runtime/utils.ts | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 46 insertions(+), 3 deletions(-)
+ 4 files changed, 50 insertions(+), 7 deletions(-)
 
+diff --git a/adl-gen/dnit/manifest.ts b/adl-gen/dnit/manifest.ts
+index 8741f6e..2cd2684 100644
+--- a/adl-gen/dnit/manifest.ts
++++ b/adl-gen/dnit/manifest.ts
+@@ -3,7 +3,7 @@
+ import * as ADL from "./../runtime/adl.ts";
+ import * as sys_types from "./../sys/types.ts";
+ 
+-export type TaskName = string;
++export type TaskName = ADL.Flavored0<string, "TaskName">;
+ 
+ const TaskName_AST : ADL.ScopedDecl =
+   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TaskName","version":{"kind":"nothing"}}};
+@@ -14,7 +14,7 @@ export function texprTaskName(): ADL.ATypeExpr<TaskName> {
+   return {value : {typeRef : {kind: "reference", value : snTaskName}, parameters : []}};
+ }
+ 
+-export type TrackedFileName = string;
++export type TrackedFileName = ADL.Flavored0<string, "TrackedFileName">;
+ 
+ const TrackedFileName_AST : ADL.ScopedDecl =
+   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileName","version":{"kind":"nothing"}}};
+@@ -25,7 +25,7 @@ export function texprTrackedFileName(): ADL.ATypeExpr<TrackedFileName> {
+   return {value : {typeRef : {kind: "reference", value : snTrackedFileName}, parameters : []}};
+ }
+ 
+-export type TrackedFileHash = string;
++export type TrackedFileHash = ADL.Flavored0<string, "TrackedFileHash">;
+ 
+ const TrackedFileHash_AST : ADL.ScopedDecl =
+   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileHash","version":{"kind":"nothing"}}};
+@@ -36,7 +36,7 @@ export function texprTrackedFileHash(): ADL.ATypeExpr<TrackedFileHash> {
+   return {value : {typeRef : {kind: "reference", value : snTrackedFileHash}, parameters : []}};
+ }
+ 
+-export type Timestamp = string;
++export type Timestamp = ADL.Flavored0<string, "Timestamp">;
+ 
+ const Timestamp_AST : ADL.ScopedDecl =
+   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"Timestamp","version":{"kind":"nothing"}}};
 diff --git a/adl-gen/runtime/adl.ts b/adl-gen/runtime/adl.ts
 index 4b44aff..1a1a460 100644
 --- a/adl-gen/runtime/adl.ts
