@@ -3,7 +3,7 @@
 import * as ADL from "./../runtime/adl.ts";
 import * as sys_types from "./../sys/types.ts";
 
-export type TaskName = string;
+export type TaskName = ADL.Flavored0<string, "TaskName">;
 
 const TaskName_AST : ADL.ScopedDecl =
   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TaskName","version":{"kind":"nothing"}}};
@@ -14,7 +14,7 @@ export function texprTaskName(): ADL.ATypeExpr<TaskName> {
   return {value : {typeRef : {kind: "reference", value : snTaskName}, parameters : []}};
 }
 
-export type TrackedFileName = string;
+export type TrackedFileName = ADL.Flavored0<string, "TrackedFileName">;
 
 const TrackedFileName_AST : ADL.ScopedDecl =
   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileName","version":{"kind":"nothing"}}};
@@ -25,7 +25,7 @@ export function texprTrackedFileName(): ADL.ATypeExpr<TrackedFileName> {
   return {value : {typeRef : {kind: "reference", value : snTrackedFileName}, parameters : []}};
 }
 
-export type TrackedFileHash = string;
+export type TrackedFileHash = ADL.Flavored0<string, "TrackedFileHash">;
 
 const TrackedFileHash_AST : ADL.ScopedDecl =
   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileHash","version":{"kind":"nothing"}}};
@@ -36,7 +36,7 @@ export function texprTrackedFileHash(): ADL.ATypeExpr<TrackedFileHash> {
   return {value : {typeRef : {kind: "reference", value : snTrackedFileHash}, parameters : []}};
 }
 
-export type Timestamp = string;
+export type Timestamp = ADL.Flavored0<string, "Timestamp">;
 
 const Timestamp_AST : ADL.ScopedDecl =
   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"Timestamp","version":{"kind":"nothing"}}};
