@@ -60,6 +60,7 @@ export async function run<T extends ExecOptions>(
     const [res, stdout, stderr] = await Promise.all(
       [proc.status(), readAll(proc.stdout), readAll(proc.stderr)],
     );
+
     if (!res.success) {
       throw new ExecError(cmd, res.code);
     }
@@ -69,6 +70,8 @@ export async function run<T extends ExecOptions>(
       stderr,
     } as ExecResult<T>;
   } finally {
+    proc.stdout?.close();
+    proc.stderr?.close();
     proc.close();
   }
 }
