@@ -4,7 +4,7 @@ import { textTable } from "./textTable.ts";
 
 import * as A from './adl-gen/dnit/manifest.ts';
 import { Manifest, TaskManifest } from "./manifest.ts";
-import {launch} from './launch.ts';
+import { main } from './main.ts';
 
 export interface TaskContext {
   args: flags.Args;
@@ -429,20 +429,4 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<ExecResul
     intLogger.error(`${err}`);
     return {success:false};
   }
-}
-
-// On execute of dnt as main, execute the user dnit.ts script
-if(import.meta.main) {
-  await setupLogging();
-  const intLogger = log.getLogger("dnit");
-
-  const args = flags.parse(Deno.args);
-
-  if(args["verbose"] !== undefined) {
-    intLogger.levelName = "INFO";
-  }
-
-  launch(intLogger).then(st=>{
-    Deno.exit(st.code);
-  });
 }

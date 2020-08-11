@@ -1,3 +1,3 @@
-import {ExecOptions, ExecResult, ExecError, run, sh} from './utils/process.ts';
-
-export {ExecOptions, ExecResult, ExecError, run, sh};
+export * from "./utils/process.ts";
+export * from "./utils/git.ts";
+export * from "./utils/io.ts";

@@ -1,4 +1,4 @@
-import { task, fs } from "./deps.ts";
+import { task } from "./deps.ts";
 import { msg } from "./helloWorld.ts";
 
 //import { red } from "fmt/colors.ts";

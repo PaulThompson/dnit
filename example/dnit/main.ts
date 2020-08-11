@@ -1,4 +1,4 @@
-import { task, exec, file } from "./deps.ts";
+import { exec } from "./deps.ts";
 import { helloWorld } from "./helloWorld.ts";
 import { goodbye } from "./goodBye.ts";
 
@@ -7,4 +7,9 @@ const tasks = [
   goodbye
 ];
 
-exec(Deno.args, tasks);
+exec(Deno.args, tasks)
+.then(result=>{
+  if(!result.success) {
+    Deno.exit(1);
+  }
+});
