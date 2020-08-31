@@ -67,5 +67,5 @@ Deno.test("Process - inherit", async () => {
 
 Deno.test("Process - run", async () => {
   const str = await run(["echo","hello world"]);
-  assertEquals(str, "hello world\n");
+  assertEquals(str.trim(), "hello world");
 });
