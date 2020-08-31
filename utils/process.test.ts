@@ -20,12 +20,12 @@ Deno.test("Process - piping", async () => {
         cmd: ['cat']
       },
       {
-        cmd: ['sed','-r','-e','s/world/foobar/g']
+        cmd: ['cat']
       },
     ]
   });
 
-  assertEquals(str, "hello foobar\n");
+  assertEquals(str, "hello world\n");
 });
 
 Deno.test("Process - stdin stdout", async () => {
