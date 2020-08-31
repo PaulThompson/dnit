@@ -4,7 +4,6 @@ import { textTable } from "./textTable.ts";
 
 import * as A from './adl-gen/dnit/manifest.ts';
 import { Manifest, TaskManifest } from "./manifest.ts";
-import { main } from './main.ts';
 
 export interface TaskContext {
   args: flags.Args;

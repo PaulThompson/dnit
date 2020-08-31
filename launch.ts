@@ -124,7 +124,7 @@ export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
     return status;
   }
   else {
-    logger.error('No dnit.ts or dnit directory found)');
+    logger.error('No dnit.ts or dnit directory found');
     return {
       success: false,
       code: 1

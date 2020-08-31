@@ -1,17 +1,16 @@
 import { task, exec, log, utils, semver} from "./deps.ts";
 import { TaskContext, file } from "../dnit.ts";
 
-import { requireCleanGit, fetchTags, git_latest_tag, git_last_commit_message } from "../utils/git.ts";
+import { requireCleanGit, fetchTags, gitLatestTag, gitLastCommitMessage } from "../utils/git.ts";
 import { confirmation } from "../utils/io.ts";
 
 const tagPrefix = "dnit-v";
-
 
 const tag = task({
   name: "tag",
   description: "Run git tag",
   action: async (ctx: TaskContext) => {
-    const current = await git_latest_tag(tagPrefix);
+    const current = await gitLatestTag(tagPrefix);
 
     type Args = {
       "major"?: true;
@@ -31,15 +30,15 @@ const tag = task({
 
     const origin =  args.origin || `origin`;
 
-    const gitLastCommit = await git_last_commit_message();
+    const gitLastCommit = await gitLastCommitMessage();
     console.log('Last commit: ' + gitLastCommit);
 
     const conf = await confirmation(`Git tag and push ${tagMessage} tagName?`, false);
     if(conf) {
       const cmds = dryRun ? ['echo'] : [];
 
-      await utils.run(cmds.concat(['git','tag','-a','-m',tagMessage,tagName]));
-      await utils.run(cmds.concat(['git','push',origin,tagName]))
+      await utils.runConsole(cmds.concat(['git','tag','-a','-m',tagMessage,tagName]));
+      await utils.runConsole(cmds.concat(['git','push',origin,tagName]))
       log.info(`${dryRun ? "(dry-run) " : ""}Git tagged and pushed ${tagPrefix}${next}`);
     } else {
       throw new Error("Aborted");
@@ -60,7 +59,7 @@ const push = task({
   name: "push",
   description: "Run git push",
   action: async () => {
-    await utils.run(['git','push','origin','main']);
+    await utils.runConsole(['git','push','origin','main']);
   },
   uptodate: ()=>false
 });
@@ -69,8 +68,8 @@ const genadl = task({
   name: 'genadl',
   description: 'Code generate from ADL definition',
   action: async ()=> {
-    await utils.run(['./tools/gen-adl.sh']);
-    await utils.run(['git','apply','./tools/0001-Revert-non-desired-gen-adl-edits.patch']);
+    await utils.runConsole(['./tools/gen-adl.sh']);
+    await utils.runConsole(['git','apply','./tools/0001-Revert-non-desired-gen-adl-edits.patch']);
   },
   targets: [
     file({path:'./adl-gen/dnit/manifest.ts'}),
