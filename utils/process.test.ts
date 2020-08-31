@@ -25,7 +25,7 @@ Deno.test("Process - piping", async () => {
     ]
   });
 
-  assertEquals(str, "hello world\n");
+  assertEquals(str.trim(), "hello world");
 });
 
 Deno.test("Process - stdin stdout", async () => {
