@@ -11,9 +11,6 @@ export interface TaskContext {
 };
 
 class ExecContext {
-  /// loaded hash manifest
-  manifest : Manifest;
-
   /// All tasks by name
   taskRegister = new Map<A.TaskName, Task>();
 
@@ -28,12 +25,15 @@ class ExecContext {
 
   logger = log.getLogger("dnit");
 
-  /// commandline args
-  args: flags.Args;
+  constructor(
+    /// loaded hash manifest
+    readonly manifest: Manifest,
 
-  constructor(dnitDir: string, args: flags.Args) {
-    this.manifest = new Manifest(dnitDir);
-    this.args = args;
+    /// commandline args
+    readonly args : flags.Args) {};
+
+  getTaskByName(name: A.TaskName) : Task|undefined {
+    return this.taskRegister.get(name);
   }
 };
 
@@ -176,6 +176,7 @@ export class Task {
           const p = fdep.getFileData(ctx).then(x=>{
             this.taskManifest?.setFileData(fdep.path, x);
           });
+          promisesInProgress.push(p);
         }
         await Promise.all(promisesInProgress);
       }
@@ -228,25 +229,13 @@ export class Task {
 
 export class TrackedFile {
   path: A.TrackedFileName = "";
-  gethash: GetFileHash = filehash;
+  #getHash: GetFileHash;
+  #getTimestamp: GetFileTimestamp;
 
   constructor(fileParams : FileParams) {
     this.path = path.posix.resolve(fileParams.path);
-    this.gethash = fileParams.gethash || filehash;
-  }
-
-  async getTimestamp() : Promise<A.Timestamp> {
-    try {
-      const stat = await Deno.lstat(this.path);
-      const mtime = stat.mtime;
-      return mtime?.toISOString() || "";
-    }
-    catch(err) {
-      if(err instanceof Deno.errors.NotFound) {
-        return "";
-      }
-      throw err;
-    }
+    this.#getHash = fileParams.getHash || getFileHash;
+    this.#getTimestamp = fileParams.getTimestamp || getFileTimestamp;
   }
 
   async exists(ctx: ExecContext) {
@@ -260,7 +249,16 @@ export class TrackedFile {
     }
 
     ctx.logger.info(`checking hash on ${this.path}`);
-    return this.gethash(this.path);
+    return this.#getHash(this.path);
+  }
+
+  async getTimestamp(ctx: ExecContext) {
+    if(!await this.exists(ctx)) {
+      return "";
+    }
+
+    ctx.logger.info(`checking timestamp on ${this.path}`);
+    return this.#getTimestamp(this.path);
   }
 
   /// whether this is up to date w.r.t. the given TrackedFileData
@@ -268,7 +266,7 @@ export class TrackedFile {
     if(tData === undefined) {
       return false;
     }
-    const mtime = await this.getTimestamp();
+    const mtime = await this.getTimestamp(ctx);
     if(mtime === tData.timestamp) {
       return true;
     }
@@ -280,7 +278,7 @@ export class TrackedFile {
   async getFileData(ctx: ExecContext) : Promise<A.TrackedFileData> {
     return {
       hash: await this.getHash(ctx),
-      timestamp: await this.getTimestamp()
+      timestamp: await this.getTimestamp(ctx)
     };
   }
 
@@ -302,12 +300,26 @@ export class TrackedFile {
   }
 };
 
-export const filehash = async (filename:string)=>{
-  const str = await Deno.readTextFile(filename);
+export async function getFileHash(filename: string) : Promise<A.TrackedFileHash> {
+  const data = await Deno.readFile(filename);
   const hashsha1 = hash.createHash("sha1");
-  hashsha1.update(str);
+  hashsha1.update(data);
   const hashInHex = hashsha1.toString();
   return hashInHex;
+}
+
+export async function getFileTimestamp(filename: string) : Promise<A.Timestamp> {
+  try {
+    const stat = await Deno.lstat(filename);
+    const mtime = stat.mtime;
+    return mtime?.toISOString() || "";
+  }
+  catch(err) {
+    if(err instanceof Deno.errors.NotFound) {
+      return "";
+    }
+    throw err;
+  }
 }
 
 /** User params for a tracked file */
@@ -318,7 +330,10 @@ export type FileParams = {
 
   /// Optional function for how to hash the file.   Defaults to the sha1 hash of the file contents.
   /// A file is out of date if the file timestamp and the hash are different than that in the task manifest
-  gethash?: GetFileHash;
+  getHash?: GetFileHash;
+
+  /// Optional function for how to get the file timestamp.   Defaults to the actual file timestamp
+  getTimestamp?: GetFileTimestamp;
 };
 
 /** Generate a trackedfile for tracking */
@@ -386,7 +401,9 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<ExecResul
 
   const dnitDir = args["dnitDir"] || "./dnit";
   delete args["dnitDir"];
-  const ctx = new ExecContext(dnitDir, args);
+
+
+  const ctx = new ExecContext(new Manifest(dnitDir), args);
   tasks.forEach(t=>ctx.taskRegister.set(t.name, t));
 
   if(args["verbose"] !== undefined) {
@@ -404,7 +421,6 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<ExecResul
     showTaskList(ctx);
     return {success:false};
   }
-
 
   if(taskName==='list') {
     showTaskList(ctx);
@@ -425,7 +441,16 @@ export async function exec(cliArgs: string[], tasks: Task[]) : Promise<ExecResul
     return {success:true};
   }
   catch(err) {
-    intLogger.error(`${err}`);
+    intLogger.error(`fooo  ${err}`);
     return {success:false};
   }
+}
+
+/// No-frills setup of an ExecContext (mainly for testing)
+export async function execBasic(cliArgs: string[], tasks: Task[], manifest: Manifest) : Promise<ExecContext> {
+  const args = flags.parse(cliArgs);
+  const ctx = new ExecContext(manifest, args);
+  tasks.forEach(t=>ctx.taskRegister.set(t.name, t));
+  await Promise.all(Array.from(ctx.taskRegister.values()).map(t=>t.setup(ctx)));
+  return ctx;
 }

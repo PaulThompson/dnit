@@ -24,6 +24,10 @@ export class Manifest {
     }
   }
   async save() {
+    if(! await fs.exists(path.dirname(this.filename))) {
+
+    }
+
     const mdata: A.Manifest = {
       tasks: this.tasks.entries().map(p => ({ v1: p[0], v2: p[1].toData() }))
     };
