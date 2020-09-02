@@ -1,20 +1,20 @@
 /// Convenience util to launch a user's dnit.ts
 
-import {flags, log, fs, path} from './deps.ts';
+import { flags, log, fs, path } from "./deps.ts";
 
 type UserSource = {
   baseDir: string;
   dnitDir: string;
   mainSrc: string;
-  importmap: string|null;
+  importmap: string | null;
 };
 
 type FindUserSourceContext = {
   stat: Deno.FileInfo;
   path: string;
-}
+};
 
-function findUserSourceContext(dir:string) : FindUserSourceContext {
+function findUserSourceContext(dir: string): FindUserSourceContext {
   const pathParts = dir.split(path.SEP);
   return {
     path: dir,
@@ -22,17 +22,22 @@ function findUserSourceContext(dir:string) : FindUserSourceContext {
   };
 }
 
-function findUserSource(dir: string, startCtxArg:FindUserSourceContext|null) : UserSource|null {
-  const startCtx = (startCtxArg === null) ? findUserSourceContext(dir) : startCtxArg;
+function findUserSource(
+  dir: string,
+  startCtxArg: FindUserSourceContext | null,
+): UserSource | null {
+  const startCtx = (startCtxArg === null)
+    ? findUserSourceContext(dir)
+    : startCtxArg;
   const dirStat = Deno.lstatSync(dir);
 
   /// Do not cross filesystems (this is how git stops looking for a git dir)
-  if(dirStat.dev !== startCtx.stat.dev) {
+  if (dirStat.dev !== startCtx.stat.dev) {
     return null;
   }
 
   /// Abort at root:
-  if(path.resolve(path.join(dir,'..')) === dir) {
+  if (path.resolve(path.join(dir, "..")) === dir) {
     return null;
   }
 
@@ -41,56 +46,55 @@ function findUserSource(dir: string, startCtxArg:FindUserSourceContext|null) : U
   ];
 
   const defaultSources = [
-    'main.ts',
-    'dnit.ts',
+    "main.ts",
+    "dnit.ts",
   ];
 
   const importmaps = [
     "import_map.json",
-    ".import_map.json"    // optionally hidden file
-  ]
+    ".import_map.json", // optionally hidden file
+  ];
 
-  for(const subdir of subdirs) {
-    for(const sourceName of defaultSources) {
-
+  for (const subdir of subdirs) {
+    for (const sourceName of defaultSources) {
       const res = {
         baseDir: path.resolve(dir),
         dnitDir: path.resolve(path.join(dir, subdir)),
         mainSrc: path.resolve(path.join(dir, subdir, sourceName)),
       };
 
-      if(fs.existsSync(res.mainSrc)) {
-        for(const importMapFile of importmaps) {
+      if (fs.existsSync(res.mainSrc)) {
+        for (const importMapFile of importmaps) {
           const importmap = path.resolve(path.join(dir, subdir, importMapFile));
-          if(fs.existsSync(importmap)) {
+          if (fs.existsSync(importmap)) {
             return {
               ...res,
-              importmap
+              importmap,
             };
           }
         }
 
         return {
           ...res,
-          importmap: null
+          importmap: null,
         };
       }
     }
   }
 
   // recurse to parent directory to find dnit script
-  return findUserSource(path.join(dir,'..'), startCtx);
+  return findUserSource(path.join(dir, ".."), startCtx);
 }
 
-export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
+export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
   const args = flags.parse(Deno.args);
 
   const userSource = findUserSource(Deno.cwd(), null);
-  if(userSource !== null) {
-    logger.info('running source:' + userSource.mainSrc);
-    logger.info('running wd:' + userSource.baseDir);
-    logger.info('running importmap:' + userSource.importmap);
-    logger.info('running dnitDir:' + userSource.dnitDir);
+  if (userSource !== null) {
+    logger.info("running source:" + userSource.mainSrc);
+    logger.info("running wd:" + userSource.baseDir);
+    logger.info("running importmap:" + userSource.importmap);
+    logger.info("running dnitDir:" + userSource.dnitDir);
 
     Deno.chdir(userSource.baseDir);
 
@@ -99,35 +103,36 @@ export async function launch(logger: log.Logger) : Promise<Deno.ProcessStatus> {
       "--allow-write",
       "--allow-run",
       "--allow-env",
-      "--allow-net"
+      "--allow-net",
     ];
     const flags = [
       "--quiet",
       "--unstable",
     ];
-    const importmap = userSource.importmap ? [
-      "--importmap",
-      userSource.importmap
-    ] : [];
+    const importmap = userSource.importmap
+      ? [
+        "--importmap",
+        userSource.importmap,
+      ]
+      : [];
 
     const proc = Deno.run({
       cmd: ["deno", "run"]
-      .concat(flags)
-      .concat(permissions)
-      .concat(importmap)
-      .concat([userSource.mainSrc])
-      .concat(['--dnitDir', userSource.dnitDir])
-      .concat(Deno.args),
+        .concat(flags)
+        .concat(permissions)
+        .concat(importmap)
+        .concat([userSource.mainSrc])
+        .concat(["--dnitDir", userSource.dnitDir])
+        .concat(Deno.args),
     });
 
     const status = await proc.status();
     return status;
-  }
-  else {
-    logger.error('No dnit.ts or dnit directory found');
+  } else {
+    logger.error("No dnit.ts or dnit directory found");
     return {
       success: false,
-      code: 1
+      code: 1,
     };
   }
 }

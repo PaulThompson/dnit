@@ -6,7 +6,7 @@ import { msg } from "./helloWorld.ts";
 //console.log(red("hello world"));
 
 export const goodbye = task({
-  name: 'goodbye',
+  name: "goodbye",
   action: async () => {
     // use ordinary typescript idiomatically if several actions are required
     const actions = [
@@ -22,5 +22,5 @@ export const goodbye = task({
       await action();
     }
   },
-  deps: [msg]
+  deps: [msg],
 });

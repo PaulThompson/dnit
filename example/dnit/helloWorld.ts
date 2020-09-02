@@ -1,11 +1,11 @@
 import { task, file } from "./deps.ts";
 
 export const msg = file({
-  path: './msg.txt'
+  path: "./msg.txt",
 });
 
 export const helloWorld = task({
-  name: 'helloWorld',
+  name: "helloWorld",
   description: "foo",
   action: async () => {
     await Deno.run({
@@ -14,10 +14,10 @@ export const helloWorld = task({
   },
   deps: [
     file({
-      path: "./writeMsg.sh"
-    })
+      path: "./writeMsg.sh",
+    }),
   ],
   targets: [
-    msg
-  ]
+    msg,
+  ],
 });

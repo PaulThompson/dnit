@@ -1,7 +1,10 @@
-import * as sys_types from './adl-gen/runtime/sys/types.ts';
+import * as sys_types from "./adl-gen/runtime/sys/types.ts";
 
 export class ADLMap<K, V> {
-  constructor(public data: sys_types.Map<K, V>, private isEqual: (k1: K, k2: K) => boolean) {
+  constructor(
+    public data: sys_types.Map<K, V>,
+    private isEqual: (k1: K, k2: K) => boolean,
+  ) {
   }
   has(k: K): boolean {
     return this.findIndex(k) !== -1;
@@ -30,17 +33,19 @@ export class ADLMap<K, V> {
     return this;
   }
   keys(): K[] {
-    return this.data.map(p => p.v1);
+    return this.data.map((p) => p.v1);
   }
   values(): V[] {
-    return this.data.map(p => p.v2);
+    return this.data.map((p) => p.v2);
   }
   entries(): [K, V][] {
-    return this.data.map(p => [p.v1, p.v2]);
+    return this.data.map((p) => [p.v1, p.v2]);
   }
-  toData() { return this.data; }
-  ;
+  toData() {
+    return this.data;
+  }
+
   findIndex(k: K) {
-    return this.data.findIndex(p => this.isEqual(p.v1, k));
+    return this.data.findIndex((p) => this.isEqual(p.v1, k));
   }
 }

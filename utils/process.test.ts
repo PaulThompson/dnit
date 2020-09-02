@@ -1,28 +1,28 @@
 import {
-  assertEquals
+  assertEquals,
 } from "https://deno.land/std@0.67.0/testing/asserts.ts";
 
-import {processPipe, run} from './process.ts';
+import { processPipe, run } from "./process.ts";
 
 Deno.test("Process - piping", async () => {
   const str = await processPipe({
-    in: 'null',
-    out: 'piped',
+    in: "null",
+    out: "piped",
     inp: null,
     cmds: [
       {
-        cmd: ['echo','hello world']
+        cmd: ["echo", "hello world"],
       },
       {
-        cmd: ['cat']
+        cmd: ["cat"],
       },
       {
-        cmd: ['cat']
+        cmd: ["cat"],
       },
       {
-        cmd: ['cat']
+        cmd: ["cat"],
       },
-    ]
+    ],
   });
 
   assertEquals(str.trim(), "hello world");
@@ -30,17 +30,17 @@ Deno.test("Process - piping", async () => {
 
 Deno.test("Process - stdin stdout", async () => {
   const str = await processPipe({
-    in: 'piped',
-    out: 'piped',
+    in: "piped",
+    out: "piped",
     inp: "hello world",
     cmds: [
       {
-        cmd: ['cat']
+        cmd: ["cat"],
       },
       {
-        cmd: ['cat']
-      }
-    ]
+        cmd: ["cat"],
+      },
+    ],
   });
 
   assertEquals(str, "hello world");
@@ -48,17 +48,17 @@ Deno.test("Process - stdin stdout", async () => {
 
 Deno.test("Process - inherit", async () => {
   const str = await processPipe({
-    in: 'piped',
-    out: 'inherit',
+    in: "piped",
+    out: "inherit",
     inp: "hello world",
     cmds: [
       {
-        cmd: ['cat']
+        cmd: ["cat"],
       },
       {
-        cmd: ['cat']
-      }
-    ]
+        cmd: ["cat"],
+      },
+    ],
   });
 
   // output went to parent process stdout
@@ -66,6 +66,6 @@ Deno.test("Process - inherit", async () => {
 });
 
 Deno.test("Process - run", async () => {
-  const str = await run(["echo","hello world"]);
+  const str = await run(["echo", "hello world"]);
   assertEquals(str.trim(), "hello world");
 });

@@ -1,15 +1,18 @@
-import {path, fs} from './deps.ts'
+import { path, fs } from "./deps.ts";
 
-import * as A from './adl-gen/dnit/manifest.ts';
-import * as J from './adl-gen/runtime/json.ts';
+import * as A from "./adl-gen/dnit/manifest.ts";
+import * as J from "./adl-gen/runtime/json.ts";
 
-import { RESOLVER } from './adl-gen/resolver.ts';
+import { RESOLVER } from "./adl-gen/resolver.ts";
 import { ADLMap } from "./ADLMap.ts";
 export class Manifest {
-  readonly filename : string;
+  readonly filename: string;
   readonly jsonBinding = J.createJsonBinding(RESOLVER, A.texprManifest());
-  tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap([], (k1, k2) => k1 === k2);
-  constructor(dir: string, filename : string = ".manifest.json") {
+  tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap(
+    [],
+    (k1, k2) => k1 === k2,
+  );
+  constructor(dir: string, filename: string = ".manifest.json") {
     this.filename = path.join(dir, filename);
   }
   async load() {
@@ -24,20 +27,22 @@ export class Manifest {
     }
   }
   async save() {
-    if(! await fs.exists(path.dirname(this.filename))) {
-
+    if (!await fs.exists(path.dirname(this.filename))) {
     }
 
     const mdata: A.Manifest = {
-      tasks: this.tasks.entries().map(p => ({ v1: p[0], v2: p[1].toData() }))
+      tasks: this.tasks.entries().map((p) => ({ v1: p[0], v2: p[1].toData() })),
     };
     const json = this.jsonBinding.toJson(mdata);
     await fs.writeJson(this.filename, json, { spaces: 2 });
   }
 }
 export class TaskManifest {
-  public lastExecution: A.Timestamp|null = null;
-  trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap([], (k1, k2) => k1 === k2);
+  public lastExecution: A.Timestamp | null = null;
+  trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap(
+    [],
+    (k1, k2) => k1 === k2,
+  );
   constructor(data: A.TaskData) {
     this.trackedFiles = new ADLMap(data.trackedFiles, (k1, k2) => k1 === k2);
     this.lastExecution = data.lastExecution;
@@ -56,7 +61,7 @@ export class TaskManifest {
   toData(): A.TaskData {
     return {
       lastExecution: this.lastExecution,
-      trackedFiles: this.trackedFiles.toData()
+      trackedFiles: this.trackedFiles.toData(),
     };
   }
 }

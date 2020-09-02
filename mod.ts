@@ -1,2 +1,2 @@
-export * from './dnit.ts';
-export * from './deps.ts';
+export * from "./dnit.ts";
+export * from "./deps.ts";

@@ -4,12 +4,12 @@ import { goodbye } from "./goodBye.ts";
 
 const tasks = [
   helloWorld,
-  goodbye
+  goodbye,
 ];
 
 exec(Deno.args, tasks)
-.then(result=>{
-  if(!result.success) {
-    Deno.exit(1);
-  }
-});
+  .then((result) => {
+    if (!result.success) {
+      Deno.exit(1);
+    }
+  });
