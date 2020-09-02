@@ -5,11 +5,6 @@ import { textTable } from "./textTable.ts";
 import * as A from "./adl-gen/dnit/manifest.ts";
 import { Manifest, TaskManifest } from "./manifest.ts";
 
-export interface TaskContext {
-  args: flags.Args;
-  task: Task;
-}
-
 class ExecContext {
   /// All tasks by name
   taskRegister = new Map<A.TaskName, Task>();
@@ -37,10 +32,21 @@ class ExecContext {
   }
 }
 
+export interface TaskContext {
+  logger: log.Logger;
+  task: Task;
+  args: flags.Args;
+}
+
+export interface LoggerCtx {
+  logger: log.Logger;
+}
+
 function taskContext(ctx: ExecContext, task: Task): TaskContext {
   return {
-    args: ctx.args,
+    logger: ctx.logger,
     task,
+    args: ctx.args,
   };
 }
 
@@ -214,7 +220,10 @@ export class Task {
     let fileDepsUpToDate = true;
     let promisesInProgress: Promise<void>[] = [];
 
-    const taskManifest = this.taskManifest!;
+    const taskManifest = this.taskManifest;
+    if (taskManifest === null) {
+      throw new Error(`Invalid null taskManifest on ${this.name}`);
+    }
 
     for (const fdep of this.file_deps) {
       const p = fdep.getFileDataOrCached(
@@ -259,26 +268,26 @@ export class TrackedFile {
     this.#getTimestamp = fileParams.getTimestamp || getFileTimestamp;
   }
 
-  async exists(ctx: ExecContext) {
-    ctx.logger.info(`checking exists ${this.path}`);
+  async exists(lc: LoggerCtx) {
+    lc.logger.info(`checking exists ${this.path}`);
     return fs.exists(this.path);
   }
 
-  async getHash(ctx: ExecContext) {
-    if (!await this.exists(ctx)) {
+  async getHash(lc: LoggerCtx) {
+    if (!await this.exists(lc)) {
       return "";
     }
 
-    ctx.logger.info(`checking hash on ${this.path}`);
+    lc.logger.info(`checking hash on ${this.path}`);
     return this.#getHash(this.path);
   }
 
-  async getTimestamp(ctx: ExecContext) {
-    if (!await this.exists(ctx)) {
+  async getTimestamp(lc: LoggerCtx) {
+    if (!await this.exists(lc)) {
       return "";
     }
 
-    ctx.logger.info(`checking timestamp on ${this.path}`);
+    lc.logger.info(`checking timestamp on ${this.path}`);
     return this.#getTimestamp(this.path);
   }
 
