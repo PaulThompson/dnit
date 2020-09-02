@@ -120,6 +120,10 @@ export class Task {
     );
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate;
+
+    for(const f of this.targets) {
+      f.setTask(this);
+    }
   }
 
   private getTaskDeps(
@@ -136,17 +140,30 @@ export class Task {
   }
 
   async setup(ctx: ExecContext): Promise<void> {
-    for (const t of this.targets) {
-      ctx.targetRegister.set(t.path, this);
-    }
+    if(this.taskManifest === null) {
+      for (const t of this.targets) {
+        ctx.targetRegister.set(t.path, this);
+      }
 
-    this.taskManifest = ctx.manifest.tasks.getOrInsert(
-      this.name,
-      new TaskManifest({
-        lastExecution: null,
-        trackedFiles: [],
-      }),
-    );
+      this.taskManifest = ctx.manifest.tasks.getOrInsert(
+        this.name,
+        new TaskManifest({
+          lastExecution: null,
+          trackedFiles: [],
+        }),
+      );
+
+      // ensure preceding tasks are setup too
+      for(const taskDep of this.task_deps) {
+        await taskDep.setup(ctx);
+      }
+      for(const fDep of this.file_deps) {
+        const fDepTask = fDep.getTask();
+        if(fDepTask !== null) {
+          await fDepTask.setup(ctx);
+        }
+      }
+    }
   }
 
   async exec(ctx: ExecContext): Promise<void> {
@@ -262,6 +279,8 @@ export class TrackedFile {
   #getHash: GetFileHash;
   #getTimestamp: GetFileTimestamp;
 
+  fromTask: Task|null = null;
+
   constructor(fileParams: FileParams) {
     this.path = path.posix.resolve(fileParams.path);
     this.#getHash = fileParams.getHash || getFileHash;
@@ -333,6 +352,19 @@ export class TrackedFile {
       tData: await this.getFileData(ctx),
       upToDate: false,
     };
+  }
+
+  setTask(t: Task) {
+    if(this.fromTask === null) {
+      this.fromTask = t;
+    }
+    else {
+      throw new Error("Duplicate tasks generating TrackedFile as target - " + this.path);
+    }
+  }
+
+  getTask() : Task|null {
+    return this.fromTask;
   }
 }
 
