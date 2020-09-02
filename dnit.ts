@@ -485,8 +485,8 @@ export async function exec(
     await ctx.manifest.save();
     return { success: true };
   } catch (err) {
-    intLogger.error(`fooo  ${err}`);
-    return { success: false };
+    intLogger.error("Error", err);
+    throw err;
   }
 }
 
