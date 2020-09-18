@@ -1,7 +1,7 @@
 /* @generated from adl module dnit.manifest */
 
-import * as ADL from "./../runtime/adl.ts";
-import * as sys_types from "./../sys/types.ts";
+import type * as ADL from "./../runtime/adl.ts";
+import type * as sys_types from "./../sys/types.ts";
 
 export type TaskName = ADL.Flavored0<string, "TaskName">;
 

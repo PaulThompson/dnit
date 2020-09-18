@@ -1,5 +1,5 @@
-import {DeclResolver,ATypeExpr} from "./adl.ts";
-import * as AST from "./sys/adlast.ts";
+import type {DeclResolver,ATypeExpr} from "./adl.ts";
+import type * as AST from "./sys/adlast.ts";
 //import * as b64 from 'base64-js';
 import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
 

@@ -2,7 +2,7 @@ import { flags, path, log, fs, hash } from "./deps.ts";
 
 import { textTable } from "./textTable.ts";
 
-import * as A from "./adl-gen/dnit/manifest.ts";
+import type * as A from "./adl-gen/dnit/manifest.ts";
 import { Manifest, TaskManifest } from "./manifest.ts";
 
 class ExecContext {

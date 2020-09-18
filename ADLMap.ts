@@ -1,4 +1,4 @@
-import * as sys_types from "./adl-gen/runtime/sys/types.ts";
+import type * as sys_types from "./adl-gen/runtime/sys/types.ts";
 
 export class ADLMap<K, V> {
   constructor(

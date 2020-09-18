@@ -1,5 +1,5 @@
-import * as AST from "./sys/adlast.ts";
-import * as utils from "./utils.ts";
+import type * as AST from "./sys/adlast.ts";
+import type * as utils from "./utils.ts";
 
 export type ScopedName = AST.ScopedName;
 export type ScopedDecl = AST.ScopedDecl;
