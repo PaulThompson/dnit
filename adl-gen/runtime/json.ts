@@ -1,6 +1,6 @@
-import type {DeclResolver,ATypeExpr} from "./adl.ts";
-import type * as AST from "./sys/adlast.ts";
-//import * as b64 from 'base64-js';
+import {DeclResolver,ATypeExpr} from "./adl.ts";
+import * as AST from "./sys/adlast.ts";
+import * as b64 from "base64-js.ts";
 import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
 
 /** A type for json serialised values */
@@ -193,16 +193,14 @@ function identityJsonBinding<T>(expected : string, predicate : (json : Json) => 
 
 function bytesJsonBinding() : JsonBinding0<Uint8Array> {
   function toJson(v : Uint8Array) : Json {
-    //return b64.fromByteArray(v);
-    throw new Error("bytesJsonBinding not implemented");
+    return b64.fromByteArray(v);
   }
 
   function fromJson(json : Json) : Uint8Array {
     if (typeof(json) != 'string') {
       throw jsonParseException('expected a string');
     }
-    //return b64.toByteArray(json);
-    throw new Error("bytesJsonBinding not implemented");
+    return b64.toByteArray(json);
   }
 
   return {toJson, fromJson};

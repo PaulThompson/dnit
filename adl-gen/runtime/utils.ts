@@ -1,4 +1,4 @@
-import type * as AST from "./sys/adlast.ts";
+import * as AST from "./sys/adlast.ts";
 
 export function isEnum(union : AST.Union) : boolean {
   for (let field of union.fields) {
@@ -75,37 +75,3 @@ export function typeExprToStringUnscoped(te: AST.TypeExpr) : string {
   return typeExprToStringImpl(te, false);
 }
 
-// "Flavoured" nominal typing.
-// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
-const symS = Symbol();
-const symT = Symbol();
-const symU = Symbol();
-const symV = Symbol();
-
-/// Zero ADL type params - literal string type Name (fully scoped module name)
-/// eg for 'newtype X = string' -> 'type X = Flavouring0<"X">;'
-type Flavoring0<Name> = {
-  readonly [symS]?: Name;
-}
-
-/// 1 ADL type param
-/// eg for 'newtype X<T> = string' -> 'type X<T> = Flavouring1<"X",T>;'
-type Flavoring1<Name, T> = Flavoring0<Name> & {
-  readonly [symT]?: T;
-}
-
-/// 2 ADL type params
-/// eg for 'newtype X<T,U> = string' -> 'type X<T,U> = Flavouring2<"X",T,U>;'
-type Flavoring2<Name,T,U> = Flavoring1<Name, T> & {
-  readonly [symU]?: U;
-}
-
-/// 3 ADL type params
-/// eg for 'newtype X<T,U,V> = string' -> 'type X<T,U,V> = Flavouring3<"X",T,U,V>;'
-type Flavoring3<Name,T,U,V> = Flavoring2<Name, T,U> & {
-  readonly [symV]?: V;
-}
-export type Flavored0<A, Name> = A & Flavoring0<Name>;
-export type Flavored1<A, Name, T> = A & Flavoring1<Name, T>;
-export type Flavored2<A, Name, T,U> = A & Flavoring2<Name, T,U>;
-export type Flavored3<A, Name, T,U,V> = A & Flavoring3<Name, T,U,V>;

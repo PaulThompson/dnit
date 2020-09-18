@@ -1,5 +1,4 @@
-import type * as AST from "./sys/adlast.ts";
-import type * as utils from "./utils.ts";
+import * as AST from "./sys/adlast.ts";
 
 export type ScopedName = AST.ScopedName;
 export type ScopedDecl = AST.ScopedDecl;
@@ -83,9 +82,3 @@ export function texprStringMap<T>(etype: ATypeExpr<T>) : ATypeExpr<{[key:string]
 export function texprNullable<T>(etype: ATypeExpr<T>) : ATypeExpr<T|null> {
   return texprPrimitive1("Nullable", etype);
 }
-// "Flavoured" nominal typing.
-// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
-export type Flavored0<A, Name> = utils.Flavored0<A, Name>;
-export type Flavored1<A, Name, T> = utils.Flavored1<A, Name, T>;
-export type Flavored2<A, Name, T,U> = utils.Flavored2<A, Name, T,U>;
-export type Flavored3<A, Name, T,U,V> = utils.Flavored3<A, Name, T,U,V>;
