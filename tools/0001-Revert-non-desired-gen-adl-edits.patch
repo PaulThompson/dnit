@@ -1,23 +1,28 @@
-From 85964169b4f27f769a29083aeecf99b5e2da5e4f Mon Sep 17 00:00:00 2001
+From 7c5bf5d4ea664ffb475cf07653c4595a1933b5a1 Mon Sep 17 00:00:00 2001
 From: Paul Thompson <paul.thompson773@gmail.com>
-Date: Sun, 9 Aug 2020 11:20:28 +1000
-Subject: [PATCH] Revert "non desired adl gen edits"
+Date: Fri, 18 Sep 2020 18:36:06 +1000
+Subject: [PATCH] Revert non desired gen-adl edits
 
-This reverts commit 2b61f251ee4b0c7752612fe12aca248900cb36f1.
 ---
- adl-gen/dnit/manifest.ts |  8 ++++----
- adl-gen/runtime/adl.ts   |  7 +++++++
- adl-gen/runtime/json.ts  |  8 +++++---
- adl-gen/runtime/utils.ts | 34 ++++++++++++++++++++++++++++++++++
- 4 files changed, 50 insertions(+), 7 deletions(-)
+ adl-gen/dnit/manifest.ts      | 12 ++++++------
+ adl-gen/runtime/adl.ts        |  9 ++++++++-
+ adl-gen/runtime/json.ts       | 12 +++++++-----
+ adl-gen/runtime/sys/adlast.ts |  2 +-
+ adl-gen/runtime/utils.ts      | 36 ++++++++++++++++++++++++++++++++++-
+ adl-gen/sys/types.ts          |  2 +-
+ 6 files changed, 58 insertions(+), 15 deletions(-)
 
 diff --git a/adl-gen/dnit/manifest.ts b/adl-gen/dnit/manifest.ts
-index 8741f6e..2cd2684 100644
+index 8741f6e..9e70643 100644
 --- a/adl-gen/dnit/manifest.ts
 +++ b/adl-gen/dnit/manifest.ts
-@@ -3,7 +3,7 @@
- import * as ADL from "./../runtime/adl.ts";
- import * as sys_types from "./../sys/types.ts";
+@@ -1,9 +1,9 @@
+ /* @generated from adl module dnit.manifest */
+ 
+-import * as ADL from "./../runtime/adl.ts";
+-import * as sys_types from "./../sys/types.ts";
++import type * as ADL from "./../runtime/adl.ts";
++import type * as sys_types from "./../sys/types.ts";
  
 -export type TaskName = string;
 +export type TaskName = ADL.Flavored0<string, "TaskName">;
@@ -52,12 +57,13 @@ index 8741f6e..2cd2684 100644
  const Timestamp_AST : ADL.ScopedDecl =
    {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"Timestamp","version":{"kind":"nothing"}}};
 diff --git a/adl-gen/runtime/adl.ts b/adl-gen/runtime/adl.ts
-index 4b44aff..1a1a460 100644
+index 4b44aff..dd403c9 100644
 --- a/adl-gen/runtime/adl.ts
 +++ b/adl-gen/runtime/adl.ts
 @@ -1,4 +1,5 @@
- import * as AST from "./sys/adlast.ts";
-+import * as utils from "./utils.ts";
+-import * as AST from "./sys/adlast.ts";
++import type * as AST from "./sys/adlast.ts";
++import type * as utils from "./utils.ts";
  
  export type ScopedName = AST.ScopedName;
  export type ScopedDecl = AST.ScopedDecl;
@@ -72,13 +78,15 @@ index 4b44aff..1a1a460 100644
 +export type Flavored2<A, Name, T,U> = utils.Flavored2<A, Name, T,U>;
 +export type Flavored3<A, Name, T,U,V> = utils.Flavored3<A, Name, T,U,V>;
 diff --git a/adl-gen/runtime/json.ts b/adl-gen/runtime/json.ts
-index a551879..86b1f2c 100644
+index a551879..d9f50aa 100644
 --- a/adl-gen/runtime/json.ts
 +++ b/adl-gen/runtime/json.ts
 @@ -1,6 +1,6 @@
- import {DeclResolver,ATypeExpr} from "./adl.ts";
- import * as AST from "./sys/adlast.ts";
+-import {DeclResolver,ATypeExpr} from "./adl.ts";
+-import * as AST from "./sys/adlast.ts";
 -import * as b64 from "base64-js.ts";
++import type {DeclResolver,ATypeExpr} from "./adl.ts";
++import type * as AST from "./sys/adlast.ts";
 +//import * as b64 from 'base64-js';
  import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
  
@@ -102,10 +110,28 @@ index a551879..86b1f2c 100644
    }
  
    return {toJson, fromJson};
+diff --git a/adl-gen/runtime/sys/adlast.ts b/adl-gen/runtime/sys/adlast.ts
+index 2e6aac5..dc3dc95 100644
+--- a/adl-gen/runtime/sys/adlast.ts
++++ b/adl-gen/runtime/sys/adlast.ts
+@@ -1,6 +1,6 @@
+ /* @generated from adl module sys.adlast */
+ 
+-import * as sys_types from "./types.ts";
++import type * as sys_types from "./types.ts";
+ 
+ export type ModuleName = string;
+ 
 diff --git a/adl-gen/runtime/utils.ts b/adl-gen/runtime/utils.ts
-index 6d2eacb..d03e7d7 100644
+index 6d2eacb..18c9e00 100644
 --- a/adl-gen/runtime/utils.ts
 +++ b/adl-gen/runtime/utils.ts
+@@ -1,4 +1,4 @@
+-import * as AST from "./sys/adlast.ts";
++import type * as AST from "./sys/adlast.ts";
+ 
+ export function isEnum(union : AST.Union) : boolean {
+   for (let field of union.fields) {
 @@ -75,3 +75,37 @@ export function typeExprToStringUnscoped(te: AST.TypeExpr) : string {
    return typeExprToStringImpl(te, false);
  }
@@ -144,6 +170,18 @@ index 6d2eacb..d03e7d7 100644
 +export type Flavored1<A, Name, T> = A & Flavoring1<Name, T>;
 +export type Flavored2<A, Name, T,U> = A & Flavoring2<Name, T,U>;
 +export type Flavored3<A, Name, T,U,V> = A & Flavoring3<Name, T,U,V>;
+diff --git a/adl-gen/sys/types.ts b/adl-gen/sys/types.ts
+index ba23476..ba94214 100644
+--- a/adl-gen/sys/types.ts
++++ b/adl-gen/sys/types.ts
+@@ -1,6 +1,6 @@
+ /* @generated from adl module sys.types */
+ 
+-import * as ADL from "./../runtime/adl.ts";
++import type * as ADL from "./../runtime/adl.ts";
+ 
+ export interface Pair<T1, T2> {
+   v1: T1;
 -- 
 2.20.1
 
