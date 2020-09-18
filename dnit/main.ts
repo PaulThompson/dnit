@@ -1,5 +1,5 @@
 import { task, exec, log, utils, semver } from "./deps.ts";
-import { TaskContext, file } from "../dnit.ts";
+import { TaskContext, file, runAlways } from "../dnit.ts";
 
 import {
   requireCleanGit,
@@ -98,10 +98,29 @@ const genadl = task({
   ],
 });
 
+const updategenadlfix = task({
+  name: "updategenadlfix",
+  description: "Update the patch that fixes the generated code",
+  action: async () => {
+    await utils.runConsole(["./tools/gen-adl.sh"]);
+    await utils.runConsole(["git","commit","-am","Generated adl"]);
+    await utils.runConsole(["git","revert","HEAD","--no-edit"]);
+    await utils.runConsole(["git","commit","--amend","-m","Revert non desired gen-adl edits"]);
+    await utils.runConsole(["git","format-patch","-1","HEAD"]);
+    await utils.runConsole(["mv","0001-Revert-non-desired-gen-adl-edits.patch","./tools"]);
+    await utils.runConsole(["git","commit","-am","Updated gen-adl fix patch"]);
+  },
+  deps: [
+    requireCleanGit,
+  ],
+  uptodate: runAlways
+});
+
 const tasks = [
   genadl,
   tag,
   push,
+  updategenadlfix
 ];
 
 exec(Deno.args, tasks)
