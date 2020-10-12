@@ -3,6 +3,7 @@ import * as path from "https://deno.land/std@0.74.0/path/mod.ts";
 import * as log from "https://deno.land/std@0.74.0/log/mod.ts";
 import * as fs from "https://deno.land/std@0.74.0/fs/mod.ts";
 import * as hash from "https://deno.land/std@0.74.0/hash/mod.ts";
+import * as semver from "https://deno.land/x/semver@v1.0.0/mod.ts";
 
 export {
   flags,
@@ -10,4 +11,5 @@ export {
   log,
   fs,
   hash,
+  semver,
 };
