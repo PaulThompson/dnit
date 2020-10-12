@@ -17,7 +17,7 @@ export class Manifest {
   }
   async load() {
     if (await fs.exists(this.filename)) {
-      const json: J.Json = await fs.readJson(this.filename) as J.Json;
+      const json: J.Json = JSON.parse(await Deno.readTextFile(this.filename)) as J.Json;
       const mdata = this.jsonBinding.fromJson(json);
       for (const p of mdata.tasks) {
         const taskName: A.TaskName = p.v1;
@@ -33,8 +33,8 @@ export class Manifest {
     const mdata: A.Manifest = {
       tasks: this.tasks.entries().map((p) => ({ v1: p[0], v2: p[1].toData() })),
     };
-    const json = this.jsonBinding.toJson(mdata);
-    await fs.writeJson(this.filename, json, { spaces: 2 });
+    const jsonval = this.jsonBinding.toJson(mdata);
+    await Deno.writeTextFile(this.filename, JSON.stringify(jsonval, null, 2));
   }
 }
 export class TaskManifest {

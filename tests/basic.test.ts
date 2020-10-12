@@ -12,10 +12,10 @@ import {
 
 import {
   assertEquals,
-} from "https://deno.land/std@0.67.0/testing/asserts.ts";
+} from "https://deno.land/std@0.74.0/testing/asserts.ts";
 
-import * as uuid from "https://deno.land/std@0.67.0/uuid/mod.ts";
-import * as path from "https://deno.land/std@0.67.0/path/mod.ts";
+import * as uuid from "https://deno.land/std@0.74.0/uuid/mod.ts";
+import * as path from "https://deno.land/std@0.74.0/path/mod.ts";
 
 import { Manifest } from "../manifest.ts";
 
