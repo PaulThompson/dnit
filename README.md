@@ -27,7 +27,7 @@ deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./
 ## Sample Usage
 
 ```
-import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.5.0/dnit.ts";
+import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.7.0/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({
