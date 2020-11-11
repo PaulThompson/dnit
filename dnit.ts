@@ -5,6 +5,8 @@ import { textTable } from "./textTable.ts";
 import type * as A from "./adl-gen/dnit/manifest.ts";
 import { Manifest, TaskManifest } from "./manifest.ts";
 
+import {AsyncQueue} from './asyncQueue.ts';
+
 class ExecContext {
   /// All tasks by name
   taskRegister = new Map<A.TaskName, Task>();
@@ -18,6 +20,9 @@ class ExecContext {
   /// In progress tasks
   inprogressTasks = new Set<Task>();
 
+  /// Queue for scheduling async work with specified number allowable concurrently.
+  asyncQueue : AsyncQueue;
+
   logger = log.getLogger("dnit");
 
   constructor(
@@ -25,7 +30,10 @@ class ExecContext {
     readonly manifest: Manifest,
     /// commandline args
     readonly args: flags.Args,
-  ) {}
+  ) {
+    const concurrency = args["concurrency"] || 4;
+    this.asyncQueue = new AsyncQueue(concurrency);
+  }
 
   getTaskByName(name: A.TaskName): Task | undefined {
     return this.taskRegister.get(name);
@@ -212,10 +220,12 @@ export class Task {
         this.taskManifest?.setExecutionTimestamp();
         let promisesInProgress: Promise<void>[] = [];
         for (const fdep of this.file_deps) {
-          const p = fdep.getFileData(ctx).then((x) => {
-            this.taskManifest?.setFileData(fdep.path, x);
-          });
-          promisesInProgress.push(p);
+          promisesInProgress.push(
+            ctx.asyncQueue.schedule( async ()=>{
+              const trackedFileData = await fdep.getFileData(ctx)
+              this.taskManifest?.setFileData(fdep.path, trackedFileData);
+            })
+          );
         }
         await Promise.all(promisesInProgress);
       }
@@ -227,7 +237,9 @@ export class Task {
 
   private async targetsExist(ctx: ExecContext): Promise<boolean> {
     const tex = await Promise.all(
-      Array.from(this.targets).map(async (tf) => tf.exists(ctx)),
+      Array.from(this.targets).map(async (tf) => ctx.asyncQueue.schedule(()=>
+        tf.exists(ctx)
+      ))
     );
     // all exist: NOT some NOT exist
     return !tex.some((t) => !t);
@@ -243,19 +255,16 @@ export class Task {
     }
 
     for (const fdep of this.file_deps) {
-      const p = fdep.getFileDataOrCached(
-        ctx,
-        taskManifest.getFileData(fdep.path),
-      )
-        .then((r) => {
+      promisesInProgress.push(
+        ctx.asyncQueue.schedule(async ()=>{
+          const r = await fdep.getFileDataOrCached(
+            ctx,
+            taskManifest.getFileData(fdep.path),
+          );
           taskManifest.setFileData(fdep.path, r.tData);
-          return r.upToDate;
+          fileDepsUpToDate = fileDepsUpToDate && r.upToDate;
         })
-        .then((uptodate) => {
-          fileDepsUpToDate = fileDepsUpToDate && uptodate;
-        });
-
-      promisesInProgress.push(p.then(() => {}));
+      );
     }
     await Promise.all(promisesInProgress);
     promisesInProgress = [];
@@ -266,7 +275,9 @@ export class Task {
     let promisesInProgress: Promise<void>[] = [];
     for (const dep of this.task_deps) {
       if (!ctx.doneTasks.has(dep) && !ctx.inprogressTasks.has(dep)) {
-        promisesInProgress.push(dep.exec(ctx));
+        promisesInProgress.push(
+          ctx.asyncQueue.schedule(()=>dep.exec(ctx))
+        );
       }
     }
     await Promise.all(promisesInProgress);
@@ -506,7 +517,9 @@ export async function exec(
     await ctx.manifest.load();
 
     await Promise.all(
-      Array.from(ctx.taskRegister.values()).map((t) => t.setup(ctx)),
+      Array.from(ctx.taskRegister.values()).map((t) =>
+        ctx.asyncQueue.schedule(()=>t.setup(ctx))
+      )
     );
     const task = ctx.taskRegister.get(taskName);
     if (task !== undefined) {
@@ -532,7 +545,7 @@ export async function execBasic(
   const ctx = new ExecContext(manifest, args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
   await Promise.all(
-    Array.from(ctx.taskRegister.values()).map((t) => t.setup(ctx)),
+    Array.from(ctx.taskRegister.values()).map((t) => ctx.asyncQueue.schedule(()=>t.setup(ctx))),
   );
   return ctx;
 }
