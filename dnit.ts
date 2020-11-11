@@ -272,16 +272,11 @@ export class Task {
   }
 
   private async execDependencies(ctx: ExecContext) {
-    let promisesInProgress: Promise<void>[] = [];
     for (const dep of this.task_deps) {
       if (!ctx.doneTasks.has(dep) && !ctx.inprogressTasks.has(dep)) {
-        promisesInProgress.push(
-          ctx.asyncQueue.schedule(()=>dep.exec(ctx))
-        );
+        await dep.exec(ctx)
       }
     }
-    await Promise.all(promisesInProgress);
-    promisesInProgress = [];
   }
 }
 
