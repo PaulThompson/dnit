@@ -2,6 +2,27 @@
 
 Dnit is a task runner based on typescript and Deno.  It uses typescript variables for tasks and dependencies and is aimed at larger projects with tasks split across many files or shared between projects.
 
+## Installation:
+
+### Pre-Requisites
+* [Deno](https://deno.land/#installation)
+* Requires deno v1.2.0 or greater
+
+### Install
+
+It is recommended to use `deno install` to install the tool, which provides a convenient entrypoint script and aliases the permission flags.
+
+```
+deno install --allow-read --allow-write --allow-run --unstable -f --name dnit https://deno.land/x/dnit@dnit-v1.7.0/main.ts
+```
+
+Install from source checkout:
+```
+deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./main.ts
+```
+
+* Read, Write and Run permissions are required in order to operate on files and execute tasks.
+* Unstable flag is currently required in order to support import maps and current std libraries.
 
 ## Sample Usage
 
@@ -74,27 +95,6 @@ dnit helloWorld
 dnit list --verbose
 ```
 In verbose mode the tool logs to stderr (fd #2)
-
-## Installation:
-
-### Pre-Requisites
-* Requires deno v1.2.0 or greater
-
-### Install
-
-It is recommended to use `deno install` to install the tool, which provides a convenient entrypoint script and aliases the permission flags.
-
-```
-deno install --allow-read --allow-write --allow-run --unstable -f --name dnit https://deno.land/x/dnit@dnit-v1.5.0/main.ts
-```
-
-Install from source checkout:
-```
-deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./main.ts
-```
-
-* Read, Write and Run permissions are required in order to operate on files and execute tasks.
-* Unstable flag is currently required in order to support import maps.
 
 ## Tasks and Files in Detail
 
