@@ -133,6 +133,9 @@ const makeReleaseEdits = task({
       });
     }
 
+    // write version.ts:
+    await Deno.writeTextFile('./version.ts', `export const version = "${nextver}";\n`)
+
     await runConsole(["git", "commit", "-a", "--allow-empty", "-m", `Commit release edits for ${tagPrefix}${nextver}`]);
   },
   deps: [
