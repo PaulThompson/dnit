@@ -1,4 +1,4 @@
-import { task, exec, file } from "https://deno.land/x/dnit@dnit-v1.8.0/dnit.ts";
+import { task, exec, file } from "https://deno.land/x/dnit@dnit-v1.8.1/dnit.ts";
 import * as flags from "https://deno.land/std@0.77.0/flags/mod.ts";
 import * as path from "https://deno.land/std@0.77.0/path/mod.ts";
 import * as log from "https://deno.land/std@0.77.0/log/mod.ts";
