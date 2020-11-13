@@ -1,5 +1,5 @@
-import { task, exec, log, utils, semver, flags } from "./deps.ts";
-import { TaskContext, file, runAlways } from "../dnit.ts";
+import { task, log, utils, semver, flags } from "./deps.ts";
+import { TaskContext, file, runAlways, execCli } from "../dnit.ts";
 
 import {
   requireCleanGit,
@@ -200,7 +200,7 @@ const tasks = [
   release
 ];
 
-exec(Deno.args, tasks)
+execCli(Deno.args, tasks)
   .then((result) => {
     if (!result.success) {
       Deno.exit(1);

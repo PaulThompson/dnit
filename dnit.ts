@@ -74,9 +74,11 @@ export type Action = (ctx: TaskContext) => Promise<void> | void;
 export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;
 export type GetFileHash = (
   filename: A.TrackedFileName,
+  stat: Deno.FileInfo
 ) => Promise<A.TrackedFileHash> | A.TrackedFileHash;
 export type GetFileTimestamp = (
   filename: A.TrackedFileName,
+  stat: Deno.FileInfo
 ) => Promise<A.Timestamp> | A.Timestamp;
 
 /** User definition of a task */
@@ -115,6 +117,34 @@ function isTask(dep: Task | TrackedFile): dep is Task {
 function isTrackedFile(dep: Task | TrackedFile): dep is TrackedFile {
   return dep instanceof TrackedFile;
 }
+
+type StatResult =
+| {
+  kind: 'fileInfo',
+  fileInfo: Deno.FileInfo
+}
+| {
+  kind: 'nonExistent'
+}
+
+/// Stat a path - null if not exists
+async function statPath(path: A.TrackedFileName) : Promise<StatResult> {
+  try {
+    const fileInfo = await Deno.stat(path);
+    return {
+      kind:'fileInfo',
+      fileInfo
+    };
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return {
+        kind:'nonExistent'
+      };
+    }
+    throw err;
+  }
+}
+
 
 export class Task {
   public name: A.TaskName;
@@ -300,53 +330,79 @@ export class TrackedFile {
 
   constructor(fileParams: FileParams) {
     this.path = path.posix.resolve(fileParams.path);
-    this.#getHash = fileParams.getHash || getFileHash;
+    this.#getHash = fileParams.getHash || getFileSha1Sum;
     this.#getTimestamp = fileParams.getTimestamp || getFileTimestamp;
   }
 
-  async exists(lc: LoggerCtx) {
-    lc.logger.info(`checking exists ${this.path}`);
-    return fs.exists(this.path);
+  private async stat(lc: LoggerCtx) : Promise<StatResult> {
+    lc.internalLogger.info(`checking file ${this.path}`);
+    return await statPath(this.path);
   }
 
-  async getHash(lc: LoggerCtx) {
-    if (!await this.exists(lc)) {
+  async exists(lc: LoggerCtx, statInput?: StatResult) : Promise<boolean> {
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(lc);
+    }
+    return statResult.kind === 'fileInfo';
+  }
+
+  async getHash(lc: LoggerCtx, statInput?: StatResult) {
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(lc);
+    }
+    if(statResult.kind !== 'fileInfo') {
       return "";
     }
 
     lc.internalLogger.info(`checking hash on ${this.path}`);
-    return this.#getHash(this.path);
+    return this.#getHash(this.path, statResult.fileInfo);
   }
 
-  async getTimestamp(lc: LoggerCtx) {
-    if (!await this.exists(lc)) {
+  async getTimestamp(lc: LoggerCtx, statInput?: StatResult) {
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(lc);
+    }
+    if(statResult.kind !== 'fileInfo') {
       return "";
     }
-
-    return this.#getTimestamp(this.path);
+    return this.#getTimestamp(this.path, statResult.fileInfo);
   }
 
   /// whether this is up to date w.r.t. the given TrackedFileData
   async isUpToDate(
     ctx: ExecContext,
     tData: A.TrackedFileData | undefined,
+    statInput?: StatResult
   ): Promise<boolean> {
     if (tData === undefined) {
       return false;
     }
-    const mtime = await this.getTimestamp(ctx);
+
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(ctx);
+    }
+
+    const mtime = await this.getTimestamp(ctx, statResult);
     if (mtime === tData.timestamp) {
       return true;
     }
-    const hash = await this.getHash(ctx);
+    const hash = await this.getHash(ctx, statResult);
     return hash === tData.hash;
   }
 
   /// Recalculate timestamp and hash data
-  async getFileData(ctx: ExecContext): Promise<A.TrackedFileData> {
+  async getFileData(ctx: ExecContext, statInput?: StatResult): Promise<A.TrackedFileData> {
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(ctx);
+    }
     return {
-      hash: await this.getHash(ctx),
-      timestamp: await this.getTimestamp(ctx),
+      hash: await this.getHash(ctx, statResult),
+      timestamp: await this.getTimestamp(ctx, statResult),
     };
   }
 
@@ -354,18 +410,24 @@ export class TrackedFile {
   async getFileDataOrCached(
     ctx: ExecContext,
     tData: A.TrackedFileData | undefined,
+    statInput?:StatResult
   ): Promise<{
     tData: A.TrackedFileData;
     upToDate: boolean;
   }> {
-    if (tData !== undefined && await this.isUpToDate(ctx, tData)) {
+    let statResult = statInput;
+    if(statResult === undefined) {
+      statResult = await this.stat(ctx);
+    }
+
+    if (tData !== undefined && await this.isUpToDate(ctx, tData, statResult)) {
       return {
         tData,
         upToDate: true,
       };
     }
     return {
-      tData: await this.getFileData(ctx),
+      tData: await this.getFileData(ctx, statResult),
       upToDate: false,
     };
   }
@@ -384,7 +446,7 @@ export class TrackedFile {
   }
 }
 
-export async function getFileHash(
+export async function getFileSha1Sum(
   filename: string,
 ): Promise<A.TrackedFileHash> {
   const data = await Deno.readFile(filename);
@@ -394,17 +456,9 @@ export async function getFileHash(
   return hashInHex;
 }
 
-export async function getFileTimestamp(filename: string): Promise<A.Timestamp> {
-  try {
-    const stat = await Deno.lstat(filename);
-    const mtime = stat.mtime;
-    return mtime?.toISOString() || "";
-  } catch (err) {
-    if (err instanceof Deno.errors.NotFound) {
-      return "";
-    }
-    throw err;
-  }
+export async function getFileTimestamp(filename: string, stat: Deno.FileInfo): Promise<A.Timestamp> {
+  const mtime = stat.mtime;
+  return mtime?.toISOString() || "";
 }
 
 /** User params for a tracked file */
@@ -426,6 +480,9 @@ export function file(fileParams: FileParams | string): TrackedFile {
     return new TrackedFile({ path: fileParams });
   }
   return new TrackedFile(fileParams);
+}
+export function trackFile(fileParams: FileParams | string): TrackedFile {
+  return file(fileParams);
 }
 
 /** Generate a task */
@@ -506,7 +563,7 @@ export type ExecResult = {
 };
 
 /** Execute given commandline args and array of items (task & trackedfile) */
-export async function exec(
+export async function execCli(
   cliArgs: string[],
   tasks: Task[],
 ): Promise<ExecResult> {
@@ -573,4 +630,12 @@ export async function execBasic(
     Array.from(ctx.taskRegister.values()).map((t) => ctx.asyncQueue.schedule(()=>t.setup(ctx))),
   );
   return ctx;
+}
+
+/// Original name 'exec' for execCli
+export async function exec(
+  cliArgs: string[],
+  tasks: Task[],
+): Promise<ExecResult> {
+  return execCli(cliArgs, tasks);
 }
