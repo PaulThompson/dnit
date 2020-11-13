@@ -1,4 +1,5 @@
 import { flags, path, log, fs, hash } from "./deps.ts";
+import { version } from "./version.ts";
 
 import { textTable } from "./textTable.ts";
 
@@ -23,7 +24,9 @@ class ExecContext {
   /// Queue for scheduling async work with specified number allowable concurrently.
   asyncQueue : AsyncQueue;
 
-  logger = log.getLogger("dnit");
+  internalLogger = log.getLogger("internal");
+  taskLogger = log.getLogger("task");
+  userLogger = log.getLogger("user");
 
   constructor(
     /// loaded hash manifest
@@ -31,8 +34,14 @@ class ExecContext {
     /// commandline args
     readonly args: flags.Args,
   ) {
+    if (args["verbose"] !== undefined) {
+      this.internalLogger.levelName = "INFO";
+    }
+
     const concurrency = args["concurrency"] || 4;
     this.asyncQueue = new AsyncQueue(concurrency);
+
+    this.internalLogger.info(`Starting ExecContext version: ${version}`);
   }
 
   getTaskByName(name: A.TaskName): Task | undefined {
@@ -47,12 +56,14 @@ export interface TaskContext {
 }
 
 export interface LoggerCtx {
-  logger: log.Logger;
+  internalLogger: log.Logger;
+  taskLogger: log.Logger;
+  userLogger: log.Logger;
 }
 
 function taskContext(ctx: ExecContext, task: Task): TaskContext {
   return {
-    logger: ctx.logger,
+    logger: ctx.taskLogger,
     task,
     args: ctx.args,
   };
@@ -197,23 +208,23 @@ export class Task {
     let actualUpToDate = true;
 
     actualUpToDate = actualUpToDate && await this.checkFileDeps(ctx);
-    ctx.logger.info(`${this.name} checkFileDeps ${actualUpToDate}`);
+    ctx.internalLogger.info(`${this.name} checkFileDeps ${actualUpToDate}`);
 
     actualUpToDate = actualUpToDate && await this.targetsExist(ctx);
-    ctx.logger.info(`${this.name} targetsExist ${actualUpToDate}`);
+    ctx.internalLogger.info(`${this.name} targetsExist ${actualUpToDate}`);
 
     if (this.uptodate !== undefined) {
       actualUpToDate = actualUpToDate &&
         await this.uptodate(taskContext(ctx, this));
     }
-    ctx.logger.info(`${this.name} uptodate ${actualUpToDate}`);
+    ctx.internalLogger.info(`${this.name} uptodate ${actualUpToDate}`);
 
     if (actualUpToDate) {
-      ctx.logger.info(`--- ${this.name}`);
+      ctx.taskLogger.info(`--- ${this.name}`);
     } else {
-      ctx.logger.info(`starting ${this.name}`);
+      ctx.taskLogger.info(`... ${this.name}`);
       await this.action(taskContext(ctx, this));
-      ctx.logger.info(`completed ${this.name}`);
+      ctx.taskLogger.info(`=== ${this.name}`);
 
       {
         /// recalc & save data of deps:
@@ -303,7 +314,7 @@ export class TrackedFile {
       return "";
     }
 
-    lc.logger.info(`checking hash on ${this.path}`);
+    lc.internalLogger.info(`checking hash on ${this.path}`);
     return this.#getHash(this.path);
   }
 
@@ -312,7 +323,6 @@ export class TrackedFile {
       return "";
     }
 
-    lc.logger.info(`checking timestamp on ${this.path}`);
     return this.#getTimestamp(this.path);
   }
 
@@ -436,6 +446,21 @@ function showTaskList(ctx: ExecContext) {
   );
 }
 
+/// StdErr plaintext handler (no color codes)
+class StdErrPlainHandler extends log.handlers.BaseHandler {
+
+  constructor(levelName: log.LevelName) {
+    super(levelName, {
+      formatter: "{msg}"
+    })
+  }
+
+  log(msg: string): void {
+    Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
+  }
+}
+
+/// StdErr handler on top of ConsoleHandler (which uses colors)
 class StdErrHandler extends log.handlers.ConsoleHandler {
   log(msg: string): void {
     Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
@@ -446,17 +471,26 @@ export async function setupLogging() {
   await log.setup({
     handlers: {
       stderr: new StdErrHandler("DEBUG"),
+      stderrPlain: new StdErrPlainHandler("DEBUG"),
     },
 
     loggers: {
-      dnit: {
+      // internals of dnit tooling
+      internal: {
         level: "WARNING",
-        handlers: ["stderr"],
+        handlers: ["stderrPlain"],
       },
 
-      tasks: {
+      // basic events eg start of task or task already up to date
+      task: {
         level: "INFO",
-        handlers: ["stderr"],
+        handlers: ["stderrPlain"],
+      },
+
+      // for user to use within task actions
+      user: {
+        level: "INFO",
+        handlers: ["stderrPlain"],
       },
     },
   });
@@ -464,7 +498,7 @@ export async function setupLogging() {
 
 /** Convenience access to a setup logger for tasks */
 export function getLogger(): log.Logger {
-  return log.getLogger("tasks");
+  return log.getLogger("user");
 }
 
 export type ExecResult = {
@@ -479,17 +513,13 @@ export async function exec(
   const args = flags.parse(cliArgs);
 
   await setupLogging();
-  const intLogger = log.getLogger("dnit");
-
   const dnitDir = args["dnitDir"] || "./dnit";
   delete args["dnitDir"];
 
   const ctx = new ExecContext(new Manifest(dnitDir), args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
-  if (args["verbose"] !== undefined) {
-    ctx.logger.levelName = "INFO";
-  }
+
 
   let taskName: string | null = null;
   const positionalArgs = args["_"];
@@ -498,7 +528,7 @@ export async function exec(
   }
 
   if (taskName === null) {
-    intLogger.error("no task name given");
+    ctx.taskLogger.error("no task name given");
     showTaskList(ctx);
     return { success: false };
   }
@@ -520,12 +550,12 @@ export async function exec(
     if (task !== undefined) {
       await task.exec(ctx);
     } else {
-      ctx.logger.error(`task ${taskName} not found`);
+      ctx.taskLogger.error(`task ${taskName} not found`);
     }
     await ctx.manifest.save();
     return { success: true };
   } catch (err) {
-    intLogger.error("Error", err);
+    ctx.taskLogger.error("Error", err);
     throw err;
   }
 }

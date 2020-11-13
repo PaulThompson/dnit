@@ -10,13 +10,15 @@ export async function main() {
   }
 
   await setupLogging();
-  const intLogger = log.getLogger("dnit");
+  const internalLogger = log.getLogger("internal");
 
   if (args["verbose"] !== undefined) {
-    intLogger.levelName = "INFO";
+    internalLogger.levelName = "INFO";
   }
 
-  launch(intLogger).then((st) => {
+  internalLogger.info(`starting dnit launch using version: ${version}`);
+
+  launch(internalLogger).then((st) => {
     Deno.exit(st.code);
   });
 }
