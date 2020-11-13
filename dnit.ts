@@ -55,12 +55,6 @@ export interface TaskContext {
   args: flags.Args;
 }
 
-export interface LoggerCtx {
-  internalLogger: log.Logger;
-  taskLogger: log.Logger;
-  userLogger: log.Logger;
-}
-
 function taskContext(ctx: ExecContext, task: Task): TaskContext {
   return {
     logger: ctx.taskLogger,
@@ -277,7 +271,7 @@ export class Task {
   private async targetsExist(ctx: ExecContext): Promise<boolean> {
     const tex = await Promise.all(
       Array.from(this.targets).map(async (tf) => ctx.asyncQueue.schedule(()=>
-        tf.exists(ctx)
+        tf.exists()
       ))
     );
     // all exist: NOT some NOT exist
@@ -332,36 +326,36 @@ export class TrackedFile {
     this.#getTimestamp = fileParams.getTimestamp || getFileTimestamp;
   }
 
-  private async stat(lc: LoggerCtx) : Promise<StatResult> {
-    lc.internalLogger.info(`checking file ${this.path}`);
+  private async stat() : Promise<StatResult> {
+    log.getLogger('internal').info(`checking file ${this.path}`);
     return await statPath(this.path);
   }
 
-  async exists(lc: LoggerCtx, statInput?: StatResult) : Promise<boolean> {
+  async exists(statInput?: StatResult) : Promise<boolean> {
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(lc);
+      statResult = await this.stat();
     }
     return statResult.kind === 'fileInfo';
   }
 
-  async getHash(lc: LoggerCtx, statInput?: StatResult) {
+  async getHash(statInput?: StatResult) {
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(lc);
+      statResult = await this.stat();
     }
     if(statResult.kind !== 'fileInfo') {
       return "";
     }
 
-    lc.internalLogger.info(`checking hash on ${this.path}`);
+    log.getLogger('internal').info(`checking hash on ${this.path}`);
     return this.#getHash(this.path, statResult.fileInfo);
   }
 
-  async getTimestamp(lc: LoggerCtx, statInput?: StatResult) {
+  async getTimestamp(statInput?: StatResult) {
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(lc);
+      statResult = await this.stat();
     }
     if(statResult.kind !== 'fileInfo') {
       return "";
@@ -381,14 +375,14 @@ export class TrackedFile {
 
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(ctx);
+      statResult = await this.stat();
     }
 
-    const mtime = await this.getTimestamp(ctx, statResult);
+    const mtime = await this.getTimestamp(statResult);
     if (mtime === tData.timestamp) {
       return true;
     }
-    const hash = await this.getHash(ctx, statResult);
+    const hash = await this.getHash(statResult);
     return hash === tData.hash;
   }
 
@@ -396,11 +390,11 @@ export class TrackedFile {
   async getFileData(ctx: ExecContext, statInput?: StatResult): Promise<A.TrackedFileData> {
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(ctx);
+      statResult = await this.stat();
     }
     return {
-      hash: await this.getHash(ctx, statResult),
-      timestamp: await this.getTimestamp(ctx, statResult),
+      hash: await this.getHash(statResult),
+      timestamp: await this.getTimestamp(statResult),
     };
   }
 
@@ -415,7 +409,7 @@ export class TrackedFile {
   }> {
     let statResult = statInput;
     if(statResult === undefined) {
-      statResult = await this.stat(ctx);
+      statResult = await this.stat();
     }
 
     if (tData !== undefined && await this.isUpToDate(ctx, tData, statResult)) {
