@@ -127,7 +127,6 @@ type StatResult =
   kind: 'nonExistent'
 }
 
-/// Stat a path - null if not exists
 async function statPath(path: A.TrackedFileName) : Promise<StatResult> {
   try {
     const fileInfo = await Deno.stat(path);
@@ -144,7 +143,6 @@ async function statPath(path: A.TrackedFileName) : Promise<StatResult> {
     throw err;
   }
 }
-
 
 export class Task {
   public name: A.TaskName;
@@ -570,46 +568,56 @@ export async function execCli(
   const args = flags.parse(cliArgs);
 
   await setupLogging();
+
+  /// directory of user's entrypoint source as discovered by 'launch' util:
   const dnitDir = args["dnitDir"] || "./dnit";
   delete args["dnitDir"];
 
   const ctx = new ExecContext(new Manifest(dnitDir), args);
+
+  /// register tasks as provided by user's source:
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
-
-
-  let taskName: string | null = null;
+  let requestedTaskName: string | null = null;
   const positionalArgs = args["_"];
   if (positionalArgs.length > 0) {
-    taskName = `${positionalArgs[0]}`;
+    requestedTaskName = `${positionalArgs[0]}`;
   }
 
-  if (taskName === null) {
-    ctx.taskLogger.error("no task name given");
+  if (requestedTaskName === null) {
+    ctx.taskLogger.error("No task name given");
     showTaskList(ctx);
     return { success: false };
   }
 
-  if (taskName === "list") {
+  if (requestedTaskName === "list") {
     showTaskList(ctx);
     return { success: true };
   }
 
   try {
+    /// Load manifest (dependency tracking data)
     await ctx.manifest.load();
 
+    /// Run async setup on all tasks:
     await Promise.all(
       Array.from(ctx.taskRegister.values()).map((t) =>
         ctx.asyncQueue.schedule(()=>t.setup(ctx))
       )
     );
-    const task = ctx.taskRegister.get(taskName);
-    if (task !== undefined) {
-      await task.exec(ctx);
+
+    /// Find the requested task:
+    const requestedTask = ctx.taskRegister.get(requestedTaskName);
+    if (requestedTask !== undefined) {
+      /// Execute the requested task:
+      await requestedTask.exec(ctx);
     } else {
-      ctx.taskLogger.error(`task ${taskName} not found`);
+      ctx.taskLogger.error(`Task ${requestedTaskName} not found`);
     }
+
+    /// Save manifest (dependency tracking data)
     await ctx.manifest.save();
+
     return { success: true };
   } catch (err) {
     ctx.taskLogger.error("Error", err);
