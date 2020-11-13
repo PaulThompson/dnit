@@ -192,12 +192,29 @@ const updategenadlfix = task({
   uptodate: runAlways
 });
 
+const test = task({
+  name: "test",
+  description: "Run local unit tests",
+  action: async () => {
+    await utils.runConsole([
+      "deno","test",
+      "--unstable","--allow-read","--allow-write"
+    ],{
+      cwd: "./tests"
+    });
+  },
+  deps: [
+  ],
+  uptodate: runAlways
+});
+
 const tasks = [
+  test,
   genadl,
   tag,
   push,
   updategenadlfix,
-  release
+  release,
 ];
 
 execCli(Deno.args, tasks)
