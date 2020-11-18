@@ -3,7 +3,8 @@ import {
   runAlways,
   execBasic,
   file,
-  TrackedFile
+  TrackedFile,
+  asyncFiles
 } from "../dnit.ts";
 
 import {
@@ -100,4 +101,44 @@ Deno.test("task up to date", async () => {
   }
 
   await Deno.remove(testDir, { recursive: true });
+});
+
+
+Deno.test("async file deps test", async () => {
+  async function genTrackedFiles() : Promise<TrackedFile[]> {
+    return new Promise<TrackedFile[]>(resolve=>{
+      setTimeout(()=>{
+        resolve([]);
+      }, 1000);
+    });
+  }
+
+  const tasksDone: { [key: string]: boolean } = {};
+
+  const taskA = task({
+    name: "taskA",
+    description: "taskA",
+    action: () => {
+      console.log("taskA");
+      tasksDone["taskA"] = true;
+    },
+    uptodate: runAlways,
+  });
+
+  const taskB = task({
+    name: "taskB",
+    description: "taskB",
+    action: () => {
+      console.log("taskB");
+      tasksDone["taskB"] = true;
+    },
+    deps: [taskA, asyncFiles(genTrackedFiles)],
+    uptodate: runAlways,
+  });
+
+  const ctx = await execBasic(["taskB"], [taskA, taskB], new Manifest(""));
+  await ctx.getTaskByName("taskB")?.exec(ctx);
+
+  assertEquals(tasksDone["taskA"], true);
+  assertEquals(tasksDone["taskB"], true);
 });

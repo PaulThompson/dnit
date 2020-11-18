@@ -86,9 +86,8 @@ export type TaskParams = {
   /// Action executed on execution of the task (async or sync)
   action: Action;
 
-
   /// Optional list of task or file dependencies
-  deps?: (Task | TrackedFile)[];
+  deps?: (Task | TrackedFile | TrackedFilesAsync)[]
 
   /// Targets (files which will be produced by execution of this task)
   targets?: TrackedFile[];
@@ -100,11 +99,14 @@ export type TaskParams = {
 /// Convenience function: an up to date always false to run always
 export const runAlways: IsUpToDate = async () => false;
 
-function isTask(dep: Task | TrackedFile): dep is Task {
+function isTask(dep: Task | TrackedFile | TrackedFilesAsync): dep is Task {
   return dep instanceof Task;
 }
-function isTrackedFile(dep: Task | TrackedFile): dep is TrackedFile {
+function isTrackedFile(dep: Task | TrackedFile | TrackedFilesAsync): dep is TrackedFile {
   return dep instanceof TrackedFile;
+}
+function isTrackedFileAsync(dep: Task | TrackedFile | TrackedFilesAsync): dep is TrackedFilesAsync {
+  return dep instanceof TrackedFilesAsync;
 }
 
 type StatResult =
@@ -139,6 +141,7 @@ export class Task {
   public action: Action;
   public task_deps: Set<Task>;
   public file_deps: Set<TrackedFile>;
+  public async_files_deps: Set<TrackedFilesAsync>;
   public targets: Set<TrackedFile>;
 
   public taskManifest: TaskManifest | null = null;
@@ -154,6 +157,8 @@ export class Task {
     this.file_deps = new Set(
       this.getTrackedFiles(taskParams.deps || []),
     );
+    this.async_files_deps = new Set(
+      this.getTrackedFilesAsync(taskParams.deps || []),
     );
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate;
@@ -164,14 +169,19 @@ export class Task {
   }
 
   private getTaskDeps(
-    deps?: (Task | TrackedFile)[],
+    deps: (Task | TrackedFile | TrackedFilesAsync)[],
   ): Task[] {
-    return (task_deps || []).concat((deps || []).filter(isTask));
+    return deps.filter(isTask);
   }
   private getTrackedFiles(
-    deps?: (Task | TrackedFile)[],
+    deps: (Task | TrackedFile | TrackedFilesAsync)[],
   ): TrackedFile[] {
-    return (file_deps || []).concat((deps || []).filter(isTrackedFile));
+    return deps.filter(isTrackedFile);
+  }
+  private getTrackedFilesAsync(
+    deps: (Task | TrackedFile | TrackedFilesAsync)[],
+  ): TrackedFilesAsync[] {
+    return deps.filter(isTrackedFileAsync);
   }
 
   async setup(ctx: ExecContext): Promise<void> {
@@ -210,6 +220,14 @@ export class Task {
     }
 
     ctx.inprogressTasks.add(this);
+
+    // evaluate async file_deps (useful if task depends on a glob of the filesystem)
+    for (const afd of this.async_files_deps) {
+      const file_deps = await afd.getTrackedFiles();
+      for(const fd of file_deps) {
+        this.file_deps.add(fd)
+      }
+    }
 
     // add task dep on the task that makes the file if its a target
     for (const fd of this.file_deps) {
@@ -432,6 +450,19 @@ export class TrackedFile {
   }
 }
 
+export type GenTrackedFiles = ()=>Promise<TrackedFile[]>|TrackedFile[];
+
+export class TrackedFilesAsync {
+  kind: 'trackedfilesasync' = 'trackedfilesasync';
+
+  constructor(public gen: GenTrackedFiles) {
+  }
+
+  async getTrackedFiles() : Promise<TrackedFile[]> {
+    return this.gen();
+  }
+}
+
 export async function getFileSha1Sum(
   filename: string,
 ): Promise<A.TrackedFileHash> {
@@ -469,6 +500,10 @@ export function file(fileParams: FileParams | string): TrackedFile {
 }
 export function trackFile(fileParams: FileParams | string): TrackedFile {
   return file(fileParams);
+}
+
+export function asyncFiles(gen: GenTrackedFiles) : TrackedFilesAsync {
+  return new TrackedFilesAsync(gen);
 }
 
 /** Generate a task */
