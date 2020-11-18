@@ -86,11 +86,6 @@ export type TaskParams = {
   /// Action executed on execution of the task (async or sync)
   action: Action;
 
-  /// Optional list of explicit task dependencies
-  task_deps?: Task[];
-
-  /// Optional list of explicit file dependencies
-  file_deps?: TrackedFile[];
 
   /// Optional list of task or file dependencies
   deps?: (Task | TrackedFile)[];
@@ -154,10 +149,11 @@ export class Task {
     this.action = taskParams.action;
     this.description = taskParams.description;
     this.task_deps = new Set(
-      this.getTaskDeps(taskParams.task_deps, taskParams.deps),
+      this.getTaskDeps(taskParams.deps || []),
     );
     this.file_deps = new Set(
-      this.getTrackedFiles(taskParams.file_deps, taskParams.deps),
+      this.getTrackedFiles(taskParams.deps || []),
+    );
     );
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate;
@@ -168,13 +164,11 @@ export class Task {
   }
 
   private getTaskDeps(
-    task_deps?: Task[],
     deps?: (Task | TrackedFile)[],
   ): Task[] {
     return (task_deps || []).concat((deps || []).filter(isTask));
   }
   private getTrackedFiles(
-    file_deps?: TrackedFile[],
     deps?: (Task | TrackedFile)[],
   ): TrackedFile[] {
     return (file_deps || []).concat((deps || []).filter(isTrackedFile));
