@@ -1,4 +1,4 @@
-import { task, file } from "./deps.ts";
+import { file, task } from "./deps.ts";
 
 export const msg = file({
   path: "./msg.txt",

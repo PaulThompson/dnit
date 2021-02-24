@@ -1,8 +1,8 @@
-import type * as sys_types from "./adl-gen/runtime/sys/types.ts";
+import type * as sysTypes from "./adl-gen/runtime/sys/types.ts";
 
 export class ADLMap<K, V> {
   constructor(
-    public data: sys_types.Map<K, V>,
+    public data: sysTypes.Map<K, V>,
     private isEqual: (k1: K, k2: K) => boolean,
   ) {
   }

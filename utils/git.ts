@@ -9,7 +9,7 @@ export async function gitLatestTag(tagPrefix: string) {
   return describeStr.trim().replace(find, "$1");
 }
 
-export async function gitLastCommitMessage(): Promise<string> {
+export function gitLastCommitMessage(): Promise<string> {
   return run(["git", "log", "--pretty=oneline", "--abbrev-commit", "-1"]);
 }
 

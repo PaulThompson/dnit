@@ -14,7 +14,7 @@ export const goodbye = task({
         const txt = await Deno.readTextFile(msg.path);
         console.log(txt);
       },
-      async () => {
+      () => {
         console.log("...");
       },
     ];

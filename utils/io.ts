@@ -39,8 +39,8 @@ export async function copyAllClose(
     bufSize?: number;
   },
 ): Promise<number> {
-  let totalCopiedCount: number = 0;
-  let copyCount: number = 0;
+  let totalCopiedCount = 0;
+  let copyCount = 0;
   do {
     copyCount = await Deno.copy(src, dst, options);
     totalCopiedCount += copyCount;

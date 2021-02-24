@@ -1,6 +1,6 @@
-import { setupLogging, log, flags } from "./mod.ts";
+import { flags, log, setupLogging } from "./mod.ts";
 import { launch } from "./launch.ts";
-import { version } from './version.ts';
+import { version } from "./version.ts";
 
 export async function main() {
   const args = flags.parse(Deno.args);

@@ -1,18 +1,16 @@
 import {
-  task,
-  runAlways,
+  asyncFiles,
   execBasic,
   file,
+  runAlways,
+  task,
   TrackedFile,
-  asyncFiles
 } from "../dnit.ts";
 
-import {
-  assertEquals,
-} from "https://deno.land/std@0.77.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.88.0/testing/asserts.ts";
 
-import * as uuid from "https://deno.land/std@0.77.0/uuid/mod.ts";
-import * as path from "https://deno.land/std@0.77.0/path/mod.ts";
+import * as uuid from "https://deno.land/std@0.88.0/uuid/mod.ts";
+import * as path from "https://deno.land/std@0.88.0/path/mod.ts";
 
 import { Manifest } from "../manifest.ts";
 
@@ -51,7 +49,7 @@ Deno.test("task up to date", async () => {
   const testDir = path.join(".test", uuid.v4.generate());
   await Deno.mkdir(testDir, { recursive: true });
 
-  let tasksDone: { [key: string]: boolean } = {};
+  const tasksDone: { [key: string]: boolean } = {};
 
   const testFile: TrackedFile = file({
     path: path.join(testDir, "testFile.txt"),
@@ -103,11 +101,10 @@ Deno.test("task up to date", async () => {
   await Deno.remove(testDir, { recursive: true });
 });
 
-
 Deno.test("async file deps test", async () => {
-  async function genTrackedFiles() : Promise<TrackedFile[]> {
-    return new Promise<TrackedFile[]>(resolve=>{
-      setTimeout(()=>{
+  function genTrackedFiles(): Promise<TrackedFile[]> {
+    return new Promise<TrackedFile[]>((resolve) => {
+      setTimeout(() => {
         resolve([]);
       }, 1000);
     });

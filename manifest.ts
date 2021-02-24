@@ -1,4 +1,4 @@
-import { path, fs } from "./deps.ts";
+import { fs, path } from "./deps.ts";
 
 import * as A from "./adl-gen/dnit/manifest.ts";
 import * as J from "./adl-gen/runtime/json.ts";
@@ -17,7 +17,9 @@ export class Manifest {
   }
   async load() {
     if (await fs.exists(this.filename)) {
-      const json: J.Json = JSON.parse(await Deno.readTextFile(this.filename)) as J.Json;
+      const json: J.Json = JSON.parse(
+        await Deno.readTextFile(this.filename),
+      ) as J.Json;
       const mdata = this.jsonBinding.fromJson(json);
       for (const p of mdata.tasks) {
         const taskName: A.TaskName = p.v1;
@@ -28,6 +30,7 @@ export class Manifest {
   }
   async save() {
     if (!await fs.exists(path.dirname(this.filename))) {
+      await Deno.mkdir(path.dirname(this.filename));
     }
 
     const mdata: A.Manifest = {

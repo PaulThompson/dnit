@@ -1,4 +1,4 @@
-import { readAllClose, writeAllClose, copyAllClose } from "./io.ts";
+import { copyAllClose, readAllClose, writeAllClose } from "./io.ts";
 
 /** IO options for stdin/stdout/stderr on Deno.run */
 export type IoOption = "inherit" | "piped" | "null";
@@ -74,6 +74,7 @@ export async function processPipe<Inp extends IoOption, Outp extends IoOption>(
 
   let result: ProcessIoVal<Outp> = null as ProcessIoVal<Outp>;
 
+  // deno-lint-ignore no-explicit-any
   const ioJobs: Promise<any>[] = [];
   if (params.in === "piped") {
     /// setup write of first processes stdin - if requested
@@ -110,7 +111,7 @@ export async function processPipe<Inp extends IoOption, Outp extends IoOption>(
 }
 
 /// Short-form run single process - all other options for stdin, stderr, stdout, cwd and envs available.
-export async function runProcess<Inp extends IoOption, Outp extends IoOption>(
+export function runProcess<Inp extends IoOption, Outp extends IoOption>(
   params: {
     in: Inp; /// Options for stdin
     out: Outp; /// Options for stdout
@@ -135,7 +136,7 @@ export async function runProcess<Inp extends IoOption, Outp extends IoOption>(
 }
 
 /// Short-form run single process: no stdin or sterr - final output as string.
-export async function run(cmd: string[], opts?: ExecOptions): Promise<string> {
+export function run(cmd: string[], opts?: ExecOptions): Promise<string> {
   return runProcess({
     in: "null",
     out: "piped",

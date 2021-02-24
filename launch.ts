@@ -1,6 +1,6 @@
 /// Convenience util to launch a user's dnit.ts
 
-import { log, fs, path, semver } from "./deps.ts";
+import { fs, log, path, semver } from "./deps.ts";
 
 type UserSource = {
   baseDir: string;
@@ -86,28 +86,31 @@ function findUserSource(
   return findUserSource(path.join(dir, ".."), startCtx);
 }
 
-export async function parseDotDenoVersionFile(fname: string) : Promise<string> {
+export async function parseDotDenoVersionFile(fname: string): Promise<string> {
   const denoReqSemverRange = await Deno.readTextFile(fname);
   return denoReqSemverRange;
 }
 
-export async function getDenoVersion() : Promise<string> {
+export async function getDenoVersion(): Promise<string> {
   const proc = Deno.run({
     cmd: ["deno", "--version"],
-    stdout: 'piped'
+    stdout: "piped",
   });
   const [status, output] = await Promise.all([proc.status(), proc.output()]);
   const decoder = new TextDecoder();
   const denoVersionStr = decoder.decode(output);
 
   const regmatch = denoVersionStr.match(/deno[ ]+([0-9.]+)/);
-  if(regmatch) {
+  if (regmatch) {
     return regmatch[1];
   }
   throw new Error("Invalid parse of deno version output");
 }
 
-export function checkValidDenoVersion(denoVersion: string, denoReqSemverRange: string) : boolean {
+export function checkValidDenoVersion(
+  denoVersion: string,
+  denoReqSemverRange: string,
+): boolean {
   return semver.satisfies(denoVersion, denoReqSemverRange);
 }
 
@@ -122,7 +125,7 @@ export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
     const denoVersion = await getDenoVersion();
     logger.info("deno version:" + denoVersion);
 
-    const dotDenoVersionFile = path.join(userSource.dnitDir, '.denoversion');
+    const dotDenoVersionFile = path.join(userSource.dnitDir, ".denoversion");
     if (fs.existsSync(dotDenoVersionFile)) {
       const reqDenoVerStr = await parseDotDenoVersionFile(dotDenoVersionFile);
       const validDenoVer = checkValidDenoVersion(denoVersion, reqDenoVerStr);
