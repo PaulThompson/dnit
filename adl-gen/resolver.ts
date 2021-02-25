@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 /* @generated from adl */
 import { declResolver, ScopedDecl } from "./runtime/adl.ts";
 import { _AST_MAP as dnit_manifest } from "./dnit/manifest.ts";
