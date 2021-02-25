@@ -1,138 +1,2047 @@
-From 7c5bf5d4ea664ffb475cf07653c4595a1933b5a1 Mon Sep 17 00:00:00 2001
+From 02828841c7ae2492d0b3885e23317ce2a454a9b9 Mon Sep 17 00:00:00 2001
 From: Paul Thompson <paul.thompson773@gmail.com>
-Date: Fri, 18 Sep 2020 18:36:06 +1000
+Date: Thu, 25 Feb 2021 18:48:52 +1100
 Subject: [PATCH] Revert non desired gen-adl edits
 
 ---
- adl-gen/dnit/manifest.ts      | 12 ++++++------
- adl-gen/runtime/adl.ts        |  9 ++++++++-
- adl-gen/runtime/json.ts       | 12 +++++++-----
- adl-gen/runtime/sys/adlast.ts |  2 +-
- adl-gen/runtime/utils.ts      | 36 ++++++++++++++++++++++++++++++++++-
- adl-gen/sys/types.ts          |  2 +-
- 6 files changed, 58 insertions(+), 15 deletions(-)
+ adl-gen/dnit/manifest.ts       | 376 ++++++++++++++++++----
+ adl-gen/resolver.ts            |   1 +
+ adl-gen/runtime/adl.ts         | 111 +++++--
+ adl-gen/runtime/dynamic.ts     |  15 +-
+ adl-gen/runtime/json.ts        | 562 ++++++++++++++++++++++-----------
+ adl-gen/runtime/sys/adlast.ts  | 134 ++++----
+ adl-gen/runtime/sys/dynamic.ts |  10 +-
+ adl-gen/runtime/sys/types.ts   |  49 ++-
+ adl-gen/runtime/utils.ts       |  68 +++-
+ adl-gen/sys/types.ts           | 421 ++++++++++++++++++++----
+ 10 files changed, 1312 insertions(+), 435 deletions(-)
 
 diff --git a/adl-gen/dnit/manifest.ts b/adl-gen/dnit/manifest.ts
-index 8741f6e..9e70643 100644
+index 8741f6e..8b8a7f4 100644
 --- a/adl-gen/dnit/manifest.ts
 +++ b/adl-gen/dnit/manifest.ts
-@@ -1,9 +1,9 @@
+@@ -1,76 +1,245 @@
  /* @generated from adl module dnit.manifest */
++// deno-lint-ignore-file
++
++import type * as ADL from "./../runtime/adl.ts";
++import type * as sys_types from "./../sys/types.ts";
++
++export type TaskName = ADL.Flavored0<string, "TaskName">;
++
++const TaskName_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": [],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "String" },
++          "parameters": [],
++        },
++      },
++    },
++    "name": "TaskName",
++    "version": { "kind": "nothing" },
++  },
++};
  
 -import * as ADL from "./../runtime/adl.ts";
 -import * as sys_types from "./../sys/types.ts";
-+import type * as ADL from "./../runtime/adl.ts";
-+import type * as sys_types from "./../sys/types.ts";
- 
+-
 -export type TaskName = string;
-+export type TaskName = ADL.Flavored0<string, "TaskName">;
+-
+-const TaskName_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TaskName","version":{"kind":"nothing"}}};
+-
+-export const snTaskName: ADL.ScopedName = {moduleName:"dnit.manifest", name:"TaskName"};
++export const snTaskName: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "TaskName",
++};
  
- const TaskName_AST : ADL.ScopedDecl =
-   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TaskName","version":{"kind":"nothing"}}};
-@@ -14,7 +14,7 @@ export function texprTaskName(): ADL.ATypeExpr<TaskName> {
-   return {value : {typeRef : {kind: "reference", value : snTaskName}, parameters : []}};
+ export function texprTaskName(): ADL.ATypeExpr<TaskName> {
+-  return {value : {typeRef : {kind: "reference", value : snTaskName}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTaskName },
++      parameters: [],
++    },
++  };
  }
  
 -export type TrackedFileName = string;
+-
+-const TrackedFileName_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileName","version":{"kind":"nothing"}}};
 +export type TrackedFileName = ADL.Flavored0<string, "TrackedFileName">;
++
++const TrackedFileName_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": [],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "String" },
++          "parameters": [],
++        },
++      },
++    },
++    "name": "TrackedFileName",
++    "version": { "kind": "nothing" },
++  },
++};
  
- const TrackedFileName_AST : ADL.ScopedDecl =
-   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileName","version":{"kind":"nothing"}}};
-@@ -25,7 +25,7 @@ export function texprTrackedFileName(): ADL.ATypeExpr<TrackedFileName> {
-   return {value : {typeRef : {kind: "reference", value : snTrackedFileName}, parameters : []}};
+-export const snTrackedFileName: ADL.ScopedName = {moduleName:"dnit.manifest", name:"TrackedFileName"};
++export const snTrackedFileName: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "TrackedFileName",
++};
+ 
+ export function texprTrackedFileName(): ADL.ATypeExpr<TrackedFileName> {
+-  return {value : {typeRef : {kind: "reference", value : snTrackedFileName}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTrackedFileName },
++      parameters: [],
++    },
++  };
  }
  
 -export type TrackedFileHash = string;
+-
+-const TrackedFileHash_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileHash","version":{"kind":"nothing"}}};
 +export type TrackedFileHash = ADL.Flavored0<string, "TrackedFileHash">;
++
++const TrackedFileHash_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": [],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "String" },
++          "parameters": [],
++        },
++      },
++    },
++    "name": "TrackedFileHash",
++    "version": { "kind": "nothing" },
++  },
++};
  
- const TrackedFileHash_AST : ADL.ScopedDecl =
-   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"TrackedFileHash","version":{"kind":"nothing"}}};
-@@ -36,7 +36,7 @@ export function texprTrackedFileHash(): ADL.ATypeExpr<TrackedFileHash> {
-   return {value : {typeRef : {kind: "reference", value : snTrackedFileHash}, parameters : []}};
+-export const snTrackedFileHash: ADL.ScopedName = {moduleName:"dnit.manifest", name:"TrackedFileHash"};
++export const snTrackedFileHash: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "TrackedFileHash",
++};
+ 
+ export function texprTrackedFileHash(): ADL.ATypeExpr<TrackedFileHash> {
+-  return {value : {typeRef : {kind: "reference", value : snTrackedFileHash}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTrackedFileHash },
++      parameters: [],
++    },
++  };
  }
  
 -export type Timestamp = string;
+-
+-const Timestamp_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"Timestamp","version":{"kind":"nothing"}}};
 +export type Timestamp = ADL.Flavored0<string, "Timestamp">;
++
++const Timestamp_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": [],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "String" },
++          "parameters": [],
++        },
++      },
++    },
++    "name": "Timestamp",
++    "version": { "kind": "nothing" },
++  },
++};
  
- const Timestamp_AST : ADL.ScopedDecl =
-   {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":[],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}},"name":"Timestamp","version":{"kind":"nothing"}}};
+-export const snTimestamp: ADL.ScopedName = {moduleName:"dnit.manifest", name:"Timestamp"};
++export const snTimestamp: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "Timestamp",
++};
+ 
+ export function texprTimestamp(): ADL.ATypeExpr<Timestamp> {
+-  return {value : {typeRef : {kind: "reference", value : snTimestamp}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTimestamp },
++      parameters: [],
++    },
++  };
+ }
+ 
+ export interface TaskData {
+-  lastExecution: (Timestamp|null);
++  lastExecution: (Timestamp | null);
+   trackedFiles: sys_types.Map<TrackedFileName, TrackedFileData>;
+ }
+ 
+ export function makeTaskData(
+   input: {
+-    lastExecution?: (Timestamp|null),
+-    trackedFiles: sys_types.Map<TrackedFileName, TrackedFileData>,
+-  }
++    lastExecution?: (Timestamp | null);
++    trackedFiles: sys_types.Map<TrackedFileName, TrackedFileData>;
++  },
+ ): TaskData {
+   return {
+-    lastExecution: input.lastExecution === undefined ? null : input.lastExecution,
++    lastExecution: input.lastExecution === undefined
++      ? null
++      : input.lastExecution,
+     trackedFiles: input.trackedFiles,
+   };
+ }
+ 
+-const TaskData_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"struct_","value":{"typeParams":[],"fields":[{"annotations":[],"serializedName":"lastExecution","default":{"kind":"just","value":null},"name":"lastExecution","typeExpr":{"typeRef":{"kind":"primitive","value":"Nullable"},"parameters":[{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"Timestamp"}},"parameters":[]}]}},{"annotations":[],"serializedName":"trackedFiles","default":{"kind":"nothing"},"name":"trackedFiles","typeExpr":{"typeRef":{"kind":"reference","value":{"moduleName":"sys.types","name":"Map"}},"parameters":[{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"TrackedFileName"}},"parameters":[]},{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"TrackedFileData"}},"parameters":[]}]}}]}},"name":"TaskData","version":{"kind":"nothing"}}};
++const TaskData_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "struct_",
++      "value": {
++        "typeParams": [],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "lastExecution",
++          "default": { "kind": "just", "value": null },
++          "name": "lastExecution",
++          "typeExpr": {
++            "typeRef": { "kind": "primitive", "value": "Nullable" },
++            "parameters": [{
++              "typeRef": {
++                "kind": "reference",
++                "value": { "moduleName": "dnit.manifest", "name": "Timestamp" },
++              },
++              "parameters": [],
++            }],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "trackedFiles",
++          "default": { "kind": "nothing" },
++          "name": "trackedFiles",
++          "typeExpr": {
++            "typeRef": {
++              "kind": "reference",
++              "value": { "moduleName": "sys.types", "name": "Map" },
++            },
++            "parameters": [{
++              "typeRef": {
++                "kind": "reference",
++                "value": {
++                  "moduleName": "dnit.manifest",
++                  "name": "TrackedFileName",
++                },
++              },
++              "parameters": [],
++            }, {
++              "typeRef": {
++                "kind": "reference",
++                "value": {
++                  "moduleName": "dnit.manifest",
++                  "name": "TrackedFileData",
++                },
++              },
++              "parameters": [],
++            }],
++          },
++        }],
++      },
++    },
++    "name": "TaskData",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snTaskData: ADL.ScopedName = {moduleName:"dnit.manifest", name:"TaskData"};
++export const snTaskData: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "TaskData",
++};
+ 
+ export function texprTaskData(): ADL.ATypeExpr<TaskData> {
+-  return {value : {typeRef : {kind: "reference", value : snTaskData}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTaskData },
++      parameters: [],
++    },
++  };
+ }
+ 
+ export interface TrackedFileData {
+@@ -80,9 +249,9 @@ export interface TrackedFileData {
+ 
+ export function makeTrackedFileData(
+   input: {
+-    hash: TrackedFileHash,
+-    timestamp: Timestamp,
+-  }
++    hash: TrackedFileHash;
++    timestamp: Timestamp;
++  },
+ ): TrackedFileData {
+   return {
+     hash: input.hash,
+@@ -90,13 +259,61 @@ export function makeTrackedFileData(
+   };
+ }
+ 
+-const TrackedFileData_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"struct_","value":{"typeParams":[],"fields":[{"annotations":[],"serializedName":"hash","default":{"kind":"nothing"},"name":"hash","typeExpr":{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"TrackedFileHash"}},"parameters":[]}},{"annotations":[],"serializedName":"timestamp","default":{"kind":"nothing"},"name":"timestamp","typeExpr":{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"Timestamp"}},"parameters":[]}}]}},"name":"TrackedFileData","version":{"kind":"nothing"}}};
++const TrackedFileData_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "struct_",
++      "value": {
++        "typeParams": [],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "hash",
++          "default": { "kind": "nothing" },
++          "name": "hash",
++          "typeExpr": {
++            "typeRef": {
++              "kind": "reference",
++              "value": {
++                "moduleName": "dnit.manifest",
++                "name": "TrackedFileHash",
++              },
++            },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "timestamp",
++          "default": { "kind": "nothing" },
++          "name": "timestamp",
++          "typeExpr": {
++            "typeRef": {
++              "kind": "reference",
++              "value": { "moduleName": "dnit.manifest", "name": "Timestamp" },
++            },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "TrackedFileData",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snTrackedFileData: ADL.ScopedName = {moduleName:"dnit.manifest", name:"TrackedFileData"};
++export const snTrackedFileData: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "TrackedFileData",
++};
+ 
+ export function texprTrackedFileData(): ADL.ATypeExpr<TrackedFileData> {
+-  return {value : {typeRef : {kind: "reference", value : snTrackedFileData}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snTrackedFileData },
++      parameters: [],
++    },
++  };
+ }
+ 
+ export interface Manifest {
+@@ -105,29 +322,74 @@ export interface Manifest {
+ 
+ export function makeManifest(
+   input: {
+-    tasks?: sys_types.Map<TaskName, TaskData>,
+-  }
++    tasks?: sys_types.Map<TaskName, TaskData>;
++  },
+ ): Manifest {
+   return {
+     tasks: input.tasks === undefined ? [] : input.tasks,
+   };
+ }
+ 
+-const Manifest_AST : ADL.ScopedDecl =
+-  {"moduleName":"dnit.manifest","decl":{"annotations":[],"type_":{"kind":"struct_","value":{"typeParams":[],"fields":[{"annotations":[],"serializedName":"tasks","default":{"kind":"just","value":[]},"name":"tasks","typeExpr":{"typeRef":{"kind":"reference","value":{"moduleName":"sys.types","name":"Map"}},"parameters":[{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"TaskName"}},"parameters":[]},{"typeRef":{"kind":"reference","value":{"moduleName":"dnit.manifest","name":"TaskData"}},"parameters":[]}]}}]}},"name":"Manifest","version":{"kind":"nothing"}}};
++const Manifest_AST: ADL.ScopedDecl = {
++  "moduleName": "dnit.manifest",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "struct_",
++      "value": {
++        "typeParams": [],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "tasks",
++          "default": { "kind": "just", "value": [] },
++          "name": "tasks",
++          "typeExpr": {
++            "typeRef": {
++              "kind": "reference",
++              "value": { "moduleName": "sys.types", "name": "Map" },
++            },
++            "parameters": [{
++              "typeRef": {
++                "kind": "reference",
++                "value": { "moduleName": "dnit.manifest", "name": "TaskName" },
++              },
++              "parameters": [],
++            }, {
++              "typeRef": {
++                "kind": "reference",
++                "value": { "moduleName": "dnit.manifest", "name": "TaskData" },
++              },
++              "parameters": [],
++            }],
++          },
++        }],
++      },
++    },
++    "name": "Manifest",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snManifest: ADL.ScopedName = {moduleName:"dnit.manifest", name:"Manifest"};
++export const snManifest: ADL.ScopedName = {
++  moduleName: "dnit.manifest",
++  name: "Manifest",
++};
+ 
+ export function texprManifest(): ADL.ATypeExpr<Manifest> {
+-  return {value : {typeRef : {kind: "reference", value : snManifest}, parameters : []}};
++  return {
++    value: {
++      typeRef: { kind: "reference", value: snManifest },
++      parameters: [],
++    },
++  };
+ }
+ 
+ export const _AST_MAP: { [key: string]: ADL.ScopedDecl } = {
+-  "dnit.manifest.TaskName" : TaskName_AST,
+-  "dnit.manifest.TrackedFileName" : TrackedFileName_AST,
+-  "dnit.manifest.TrackedFileHash" : TrackedFileHash_AST,
+-  "dnit.manifest.Timestamp" : Timestamp_AST,
+-  "dnit.manifest.TaskData" : TaskData_AST,
+-  "dnit.manifest.TrackedFileData" : TrackedFileData_AST,
+-  "dnit.manifest.Manifest" : Manifest_AST
++  "dnit.manifest.TaskName": TaskName_AST,
++  "dnit.manifest.TrackedFileName": TrackedFileName_AST,
++  "dnit.manifest.TrackedFileHash": TrackedFileHash_AST,
++  "dnit.manifest.Timestamp": Timestamp_AST,
++  "dnit.manifest.TaskData": TaskData_AST,
++  "dnit.manifest.TrackedFileData": TrackedFileData_AST,
++  "dnit.manifest.Manifest": Manifest_AST,
+ };
+diff --git a/adl-gen/resolver.ts b/adl-gen/resolver.ts
+index 7218d79..2015aa7 100644
+--- a/adl-gen/resolver.ts
++++ b/adl-gen/resolver.ts
+@@ -1,3 +1,4 @@
++// deno-lint-ignore-file
+ /* @generated from adl */
+ import { declResolver, ScopedDecl } from "./runtime/adl.ts";
+ import { _AST_MAP as dnit_manifest } from "./dnit/manifest.ts";
 diff --git a/adl-gen/runtime/adl.ts b/adl-gen/runtime/adl.ts
-index 4b44aff..dd403c9 100644
+index 4b44aff..405aa37 100644
 --- a/adl-gen/runtime/adl.ts
 +++ b/adl-gen/runtime/adl.ts
-@@ -1,4 +1,5 @@
+@@ -1,26 +1,30 @@
 -import * as AST from "./sys/adlast.ts";
++//deno-lint-ignore-file
 +import type * as AST from "./sys/adlast.ts";
 +import type * as utils from "./utils.ts";
  
  export type ScopedName = AST.ScopedName;
  export type ScopedDecl = AST.ScopedDecl;
-@@ -82,3 +83,9 @@ export function texprStringMap<T>(etype: ATypeExpr<T>) : ATypeExpr<{[key:string]
- export function texprNullable<T>(etype: ATypeExpr<T>) : ATypeExpr<T|null> {
+-export type ATypeRef<_T> = {value: AST.TypeRef};
+-export type ATypeExpr<_T> = {value : AST.TypeExpr};
++export type ATypeRef<_T> = { value: AST.TypeRef };
++export type ATypeExpr<_T> = { value: AST.TypeExpr };
+ 
+ /**
+  * A function to obtain details on a declared type.
+  */
+ export interface DeclResolver {
+-    (decl : AST.ScopedName): AST.ScopedDecl;
+-};
++  (decl: AST.ScopedName): AST.ScopedDecl;
++}
+ 
+-export function declResolver(...astMaps : ({[key:string] : AST.ScopedDecl})[]) {
+-  const astMap :  {[key:string] : AST.ScopedDecl} = {};
++export function declResolver(
++  ...astMaps: ({ [key: string]: AST.ScopedDecl })[]
++) {
++  const astMap: { [key: string]: AST.ScopedDecl } = {};
+   for (let map of astMaps) {
+     for (let scopedName in map) {
+       astMap[scopedName] = map[scopedName];
+     }
+   }
+ 
+-  function resolver(scopedName : AST.ScopedName) : AST.ScopedDecl {
++  function resolver(scopedName: AST.ScopedName): AST.ScopedDecl {
+     const scopedNameStr = scopedName.moduleName + "." + scopedName.name;
+     const result = astMap[scopedNameStr];
+     if (result === undefined) {
+@@ -41,44 +45,85 @@ function texprPrimitive(ptype: string): ATypeExpr<Unknown> {
+   return {
+     value: {
+       typeRef: { kind: "primitive", value: ptype },
+-      parameters: []
+-    }
++      parameters: [],
++    },
+   };
+-};
++}
+ 
+-function texprPrimitive1(ptype: string, etype: ATypeExpr<Unknown>): ATypeExpr<Unknown> {
++function texprPrimitive1(
++  ptype: string,
++  etype: ATypeExpr<Unknown>,
++): ATypeExpr<Unknown> {
+   return {
+     value: {
+       typeRef: { kind: "primitive", value: ptype },
+-      parameters: [etype.value]
+-    }
++      parameters: [etype.value],
++    },
+   };
+-};
++}
+ 
+-export function texprVoid() : ATypeExpr<null> {return texprPrimitive("Void");}
+-export function texprBool() : ATypeExpr<boolean> {return texprPrimitive("Bool");}
+-export function texprInt8() : ATypeExpr<number> {return texprPrimitive("Int8");}
+-export function texprInt16() : ATypeExpr<number> {return texprPrimitive("Int16");}
+-export function texprInt32() : ATypeExpr<number> {return texprPrimitive("Int32");}
+-export function texprInt64() : ATypeExpr<number> {return texprPrimitive("Int64");}
+-export function texprWord8() : ATypeExpr<number> {return texprPrimitive("Word8");}
+-export function texprWord16() : ATypeExpr<number> {return texprPrimitive("Word16");}
+-export function texprWord32() : ATypeExpr<number> {return texprPrimitive("Word32");}
+-export function texprWord64() : ATypeExpr<number> {return texprPrimitive("Word64");}
+-export function texprFloat() : ATypeExpr<number> {return texprPrimitive("Float");}
+-export function texprDouble() : ATypeExpr<number> {return texprPrimitive("Double");}
+-export function texprJson() : ATypeExpr<Json> {return texprPrimitive("Json");}
+-export function texprByteVector() : ATypeExpr<Uint8Array> {return texprPrimitive("ByteVector");}
+-export function texprString() : ATypeExpr<string> {return texprPrimitive("String");}
++export function texprVoid(): ATypeExpr<null> {
++  return texprPrimitive("Void");
++}
++export function texprBool(): ATypeExpr<boolean> {
++  return texprPrimitive("Bool");
++}
++export function texprInt8(): ATypeExpr<number> {
++  return texprPrimitive("Int8");
++}
++export function texprInt16(): ATypeExpr<number> {
++  return texprPrimitive("Int16");
++}
++export function texprInt32(): ATypeExpr<number> {
++  return texprPrimitive("Int32");
++}
++export function texprInt64(): ATypeExpr<number> {
++  return texprPrimitive("Int64");
++}
++export function texprWord8(): ATypeExpr<number> {
++  return texprPrimitive("Word8");
++}
++export function texprWord16(): ATypeExpr<number> {
++  return texprPrimitive("Word16");
++}
++export function texprWord32(): ATypeExpr<number> {
++  return texprPrimitive("Word32");
++}
++export function texprWord64(): ATypeExpr<number> {
++  return texprPrimitive("Word64");
++}
++export function texprFloat(): ATypeExpr<number> {
++  return texprPrimitive("Float");
++}
++export function texprDouble(): ATypeExpr<number> {
++  return texprPrimitive("Double");
++}
++export function texprJson(): ATypeExpr<Json> {
++  return texprPrimitive("Json");
++}
++export function texprByteVector(): ATypeExpr<Uint8Array> {
++  return texprPrimitive("ByteVector");
++}
++export function texprString(): ATypeExpr<string> {
++  return texprPrimitive("String");
++}
+ 
+-export function texprVector<T>(etype: ATypeExpr<T>) : ATypeExpr<T[]> {
++export function texprVector<T>(etype: ATypeExpr<T>): ATypeExpr<T[]> {
+   return texprPrimitive1("Vector", etype);
+ }
+ 
+-export function texprStringMap<T>(etype: ATypeExpr<T>) : ATypeExpr<{[key:string]:T}> {
++export function texprStringMap<T>(
++  etype: ATypeExpr<T>,
++): ATypeExpr<{ [key: string]: T }> {
+   return texprPrimitive1("StringMap", etype);
+ }
+ 
+-export function texprNullable<T>(etype: ATypeExpr<T>) : ATypeExpr<T|null> {
++export function texprNullable<T>(etype: ATypeExpr<T>): ATypeExpr<T | null> {
    return texprPrimitive1("Nullable", etype);
  }
 +// "Flavoured" nominal typing.
 +// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
 +export type Flavored0<A, Name> = utils.Flavored0<A, Name>;
 +export type Flavored1<A, Name, T> = utils.Flavored1<A, Name, T>;
-+export type Flavored2<A, Name, T,U> = utils.Flavored2<A, Name, T,U>;
-+export type Flavored3<A, Name, T,U,V> = utils.Flavored3<A, Name, T,U,V>;
++export type Flavored2<A, Name, T, U> = utils.Flavored2<A, Name, T, U>;
++export type Flavored3<A, Name, T, U, V> = utils.Flavored3<A, Name, T, U, V>;
+diff --git a/adl-gen/runtime/dynamic.ts b/adl-gen/runtime/dynamic.ts
+index 2f38342..bd27593 100644
+--- a/adl-gen/runtime/dynamic.ts
++++ b/adl-gen/runtime/dynamic.ts
+@@ -1,18 +1,21 @@
+-import {typeExprsEqual} from "./utils.ts";
+-import {JsonBinding} from "./json.ts";
+-import {Dynamic} from "./sys/dynamic.ts";
++import { typeExprsEqual } from "./utils.ts";
++import { JsonBinding } from "./json.ts";
++import { Dynamic } from "./sys/dynamic.ts";
+ 
+ /**
+  * Convert an ADL value to a dynamically typed value
+  */
+-export function toDynamic<T>(jsonBinding : JsonBinding<T>, value : T) : Dynamic {
+-  return {typeExpr: jsonBinding.typeExpr, value : jsonBinding.toJson(value)};
++export function toDynamic<T>(jsonBinding: JsonBinding<T>, value: T): Dynamic {
++  return { typeExpr: jsonBinding.typeExpr, value: jsonBinding.toJson(value) };
+ }
+ 
+ /**
+  * Convert an ADL value to a dynamically typed value
+  */
+-export function fromDynamic<T>(jsonBinding : JsonBinding<T>, dynamic : Dynamic) : (T|null) {
++export function fromDynamic<T>(
++  jsonBinding: JsonBinding<T>,
++  dynamic: Dynamic,
++): (T | null) {
+   if (typeExprsEqual(jsonBinding.typeExpr, dynamic.typeExpr)) {
+     return jsonBinding.fromJson(dynamic.value);
+   }
 diff --git a/adl-gen/runtime/json.ts b/adl-gen/runtime/json.ts
-index a551879..d9f50aa 100644
+index a551879..372d84a 100644
 --- a/adl-gen/runtime/json.ts
 +++ b/adl-gen/runtime/json.ts
-@@ -1,6 +1,6 @@
+@@ -1,7 +1,9 @@
 -import {DeclResolver,ATypeExpr} from "./adl.ts";
 -import * as AST from "./sys/adlast.ts";
 -import * as b64 from "base64-js.ts";
-+import type {DeclResolver,ATypeExpr} from "./adl.ts";
+-import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
++// deno-lint-ignore-file
++
++import type { ATypeExpr, DeclResolver } from "./adl.ts";
 +import type * as AST from "./sys/adlast.ts";
 +//import * as b64 from 'base64-js';
- import {isVoid, isEnum, scopedNamesEqual} from "./utils.ts";
++import { isEnum, isVoid, scopedNamesEqual } from "./utils.ts";
  
  /** A type for json serialised values */
-@@ -193,14 +193,16 @@ function identityJsonBinding<T>(expected : string, predicate : (json : Json) =>
  
- function bytesJsonBinding() : JsonBinding0<Uint8Array> {
-   function toJson(v : Uint8Array) : Json {
+@@ -16,56 +18,62 @@ function asJsonObject(jv: Json): JsonObject | undefined {
+   return undefined;
+ }
+ 
+-function asJsonArray(jv: Json): JsonArray | undefined{
+-  if(jv instanceof Array) {
++function asJsonArray(jv: Json): JsonArray | undefined {
++  if (jv instanceof Array) {
+     return jv as JsonArray;
+   }
+   return undefined;
+ }
+ 
+ /** A type alias for values of an Unknown type */
+-type Unknown = {}|null;
++type Unknown = {} | null;
+ 
+ /**
+  * A JsonBinding is a de/serialiser for a give ADL type
+  */
+ export interface JsonBinding<T> {
+-  typeExpr : AST.TypeExpr;
++  typeExpr: AST.TypeExpr;
+ 
+   // Convert a value of type T to Json
+-  toJson (t : T): Json;
++  toJson(t: T): Json;
+ 
+   // Parse a json blob into a value of type T. Throws
+   // JsonParseExceptions on failure.
+-  fromJson(json : Json) : T;
++  fromJson(json: Json): T;
+ 
+   // Variant of fromJson that throws Errors on failure
+-  fromJsonE(json : Json) : T;
+-};
+-
+-/**
++  fromJsonE(json: Json): T;
++}/**
+  * Construct a JsonBinding for an arbitrary type expression
+  */
+-export function createJsonBinding<T>(dresolver : DeclResolver, texpr : ATypeExpr<T>) : JsonBinding<T> {
++
++export function createJsonBinding<T>(
++  dresolver: DeclResolver,
++  texpr: ATypeExpr<T>,
++): JsonBinding<T> {
+   const jb0 = buildJsonBinding(dresolver, texpr.value, {}) as JsonBinding0<T>;
+-  function fromJsonE(json :Json): T {
++  function fromJsonE(json: Json): T {
+     try {
+       return jb0.fromJson(json);
+     } catch (e) {
+       throw mapJsonException(e);
+     }
+   }
+-  return {typeExpr : texpr.value, toJson:jb0.toJson, fromJson:jb0.fromJson, fromJsonE};
+-};
+-
+-/**
++  return {
++    typeExpr: texpr.value,
++    toJson: jb0.toJson,
++    fromJson: jb0.fromJson,
++    fromJsonE,
++  };
++}/**
+  * Interface for json parsing exceptions.
+  * Any implementation should properly show the parse error tree.
+  *
+  *  @interface JsonParseException
+  */
++
+ export interface JsonParseException {
+-  kind: 'JsonParseException';
++  kind: "JsonParseException";
+   getMessage(): string;
+   pushField(fieldName: string): void;
+   pushIndex(index: number): void;
+@@ -73,8 +81,10 @@ export interface JsonParseException {
+ }
+ 
+ // Map a JsonException to an Error value
+-export function mapJsonException(exception:{}): {} {
+-  if (exception && (exception as {kind:string})['kind'] == "JsonParseException") {
++export function mapJsonException(exception: {}): {} {
++  if (
++    exception && (exception as { kind: string })["kind"] == "JsonParseException"
++  ) {
+     const jserr: JsonParseException = exception as JsonParseException;
+     return new Error(jserr.getMessage());
+   } else {
+@@ -89,24 +99,24 @@ export function jsonParseException(message: string): JsonParseException {
+   const context: string[] = [];
+   let createContextString: () => string = () => {
+     const rcontext: string[] = context.slice(0);
+-    rcontext.push('$');
++    rcontext.push("$");
+     rcontext.reverse();
+-    return rcontext.join('.');
++    return rcontext.join(".");
+   };
+   return {
+-    kind: 'JsonParseException',
++    kind: "JsonParseException",
+     getMessage(): string {
+-      return message + ' at ' + createContextString();
++      return message + " at " + createContextString();
+     },
+     pushField(fieldName: string): void {
+       context.push(fieldName);
+     },
+     pushIndex(index: number): void {
+-      context.push('[' + index + ']');
++      context.push("[" + index + "]");
+     },
+     toString(): string {
+       return this.getMessage();
+-    }
++    },
+   };
+ }
+ 
+@@ -114,133 +124,223 @@ export function jsonParseException(message: string): JsonParseException {
+  * Check if a javascript error is of the json parse exception type.
+  * @param exception The exception to check.
+  */
+-export function isJsonParseException(exception: {}): exception is JsonParseException {
+-  return (<JsonParseException> exception).kind === 'JsonParseException';
++export function isJsonParseException(
++  exception: {},
++): exception is JsonParseException {
++  return (<JsonParseException> exception).kind === "JsonParseException";
+ }
+ 
+ interface JsonBinding0<T> {
+-  toJson (t : T): Json;
+-  fromJson(json : Json) : T;
+-};
++  toJson(t: T): Json;
++  fromJson(json: Json): T;
++}
+ 
+ interface BoundTypeParams {
+   [key: string]: JsonBinding0<Unknown>;
+ }
+ 
+-function buildJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, boundTypeParams : BoundTypeParams) : JsonBinding0<Unknown> {
++function buildJsonBinding(
++  dresolver: DeclResolver,
++  texpr: AST.TypeExpr,
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
+   if (texpr.typeRef.kind === "primitive") {
+-    return primitiveJsonBinding(dresolver, texpr.typeRef.value, texpr.parameters, boundTypeParams);
++    return primitiveJsonBinding(
++      dresolver,
++      texpr.typeRef.value,
++      texpr.parameters,
++      boundTypeParams,
++    );
+   } else if (texpr.typeRef.kind === "reference") {
+     const ast = dresolver(texpr.typeRef.value);
+     if (ast.decl.type_.kind === "struct_") {
+-      return structJsonBinding(dresolver, ast.decl.type_.value, texpr.parameters, boundTypeParams);
++      return structJsonBinding(
++        dresolver,
++        ast.decl.type_.value,
++        texpr.parameters,
++        boundTypeParams,
++      );
+     } else if (ast.decl.type_.kind === "union_") {
+       const union = ast.decl.type_.value;
+       if (isEnum(union)) {
+-        return enumJsonBinding(dresolver, union, texpr.parameters, boundTypeParams);
++        return enumJsonBinding(
++          dresolver,
++          union,
++          texpr.parameters,
++          boundTypeParams,
++        );
+       } else {
+-        return unionJsonBinding(dresolver, union, texpr.parameters, boundTypeParams);
++        return unionJsonBinding(
++          dresolver,
++          union,
++          texpr.parameters,
++          boundTypeParams,
++        );
+       }
+     } else if (ast.decl.type_.kind === "newtype_") {
+-      return newtypeJsonBinding(dresolver, ast.decl.type_.value, texpr.parameters, boundTypeParams);
++      return newtypeJsonBinding(
++        dresolver,
++        ast.decl.type_.value,
++        texpr.parameters,
++        boundTypeParams,
++      );
+     } else if (ast.decl.type_.kind === "type_") {
+-      return typedefJsonBinding(dresolver, ast.decl.type_.value, texpr.parameters, boundTypeParams);
++      return typedefJsonBinding(
++        dresolver,
++        ast.decl.type_.value,
++        texpr.parameters,
++        boundTypeParams,
++      );
+     }
+   } else if (texpr.typeRef.kind === "typeParam") {
+     return boundTypeParams[texpr.typeRef.value];
+   }
+   throw new Error("buildJsonBinding : unimplemented ADL type");
+-};
+-
+-function primitiveJsonBinding(dresolver : DeclResolver, ptype : string, params : AST.TypeExpr[], boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-  if      (ptype === "String")     { return identityJsonBinding("a string", (v) => typeof(v) === 'string'); }
+-  else if (ptype === "Int8")       { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Void")       { return identityJsonBinding("a null", (v) => v === null); }
+-  else if (ptype === "Bool")       { return identityJsonBinding("a bool", (v) => typeof(v) === 'boolean'); }
+-  else if (ptype === "Int8")       { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Int16")      { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Int32")      { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Int64")      { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Word8")      { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Word16")     { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Word32")     { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Word64")     { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Float")      { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Double")     { return identityJsonBinding("a number", (v) => typeof(v) === 'number'); }
+-  else if (ptype === "Json")       { return identityJsonBinding("a json value", (_v) => true); }
+-  else if (ptype === "Bytes")      { return bytesJsonBinding(); }
+-  else if (ptype === "Vector")     { return vectorJsonBinding(dresolver, params[0], boundTypeParams); }
+-  else if (ptype === "StringMap")  { return stringMapJsonBinding(dresolver, params[0], boundTypeParams); }
+-  else if (ptype === "Nullable")   { return nullableJsonBinding(dresolver, params[0], boundTypeParams); }
+-  else throw new Error("Unimplemented json binding for primitive " + ptype);
+-};
+-
+-function identityJsonBinding<T>(expected : string, predicate : (json : Json) => boolean) : JsonBinding0<T>{
+-
+-  function toJson(v : T) : Json {
++}
++
++function primitiveJsonBinding(
++  dresolver: DeclResolver,
++  ptype: string,
++  params: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  if (ptype === "String") {
++    return identityJsonBinding("a string", (v) =>
++      typeof (v) === "string");
++  } else if (ptype === "Int8") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Void") {
++    return identityJsonBinding("a null", (v) =>
++      v === null);
++  } else if (ptype === "Bool") {
++    return identityJsonBinding("a bool", (v) =>
++      typeof (v) === "boolean");
++  } else if (ptype === "Int8") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Int16") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Int32") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Int64") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Word8") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Word16") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Word32") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Word64") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Float") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Double") {
++    return identityJsonBinding("a number", (v) =>
++      typeof (v) === "number");
++  } else if (ptype === "Json") {
++    return identityJsonBinding("a json value", (_v) =>
++      true);
++  } else if (ptype === "Bytes") return bytesJsonBinding();
++  else if (ptype === "Vector") {
++    return vectorJsonBinding(dresolver, params[0], boundTypeParams);
++  } else if (ptype === "StringMap") {
++    return stringMapJsonBinding(dresolver, params[0], boundTypeParams);
++  } else if (ptype === "Nullable") {
++    return nullableJsonBinding(dresolver, params[0], boundTypeParams);
++  } else throw new Error("Unimplemented json binding for primitive " + ptype);
++}
++
++function identityJsonBinding<T>(
++  expected: string,
++  predicate: (json: Json) => boolean,
++): JsonBinding0<T> {
++  function toJson(v: T): Json {
+     return (v as Unknown as Json);
+   }
+ 
+-  function fromJson(json : Json) : T {
+-    if( !predicate(json)) {
++  function fromJson(json: Json): T {
++    if (!predicate(json)) {
+       throw jsonParseException("expected " + expected);
+     }
+     return json as Unknown as T;
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-function bytesJsonBinding() : JsonBinding0<Uint8Array> {
+-  function toJson(v : Uint8Array) : Json {
 -    return b64.fromByteArray(v);
++function bytesJsonBinding(): JsonBinding0<Uint8Array> {
++  function toJson(v: Uint8Array): Json {
 +    //return b64.fromByteArray(v);
 +    throw new Error("bytesJsonBinding not implemented");
    }
  
-   function fromJson(json : Json) : Uint8Array {
-     if (typeof(json) != 'string') {
-       throw jsonParseException('expected a string');
+-  function fromJson(json : Json) : Uint8Array {
+-    if (typeof(json) != 'string') {
+-      throw jsonParseException('expected a string');
++  function fromJson(json: Json): Uint8Array {
++    if (typeof (json) != "string") {
++      throw jsonParseException("expected a string");
      }
 -    return b64.toByteArray(json);
 +    //return b64.toByteArray(json);
 +    throw new Error("bytesJsonBinding not implemented");
    }
  
-   return {toJson, fromJson};
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-function vectorJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, boundTypeParams : BoundTypeParams) : JsonBinding0<Unknown[]> {
+-  const elementBinding = once(() => buildJsonBinding(dresolver, texpr, boundTypeParams));
++function vectorJsonBinding(
++  dresolver: DeclResolver,
++  texpr: AST.TypeExpr,
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown[]> {
++  const elementBinding = once(() =>
++    buildJsonBinding(dresolver, texpr, boundTypeParams)
++  );
+ 
+-  function toJson(v : Unknown[]) : Json {
++  function toJson(v: Unknown[]): Json {
+     return v.map(elementBinding().toJson);
+   }
+ 
+-  function fromJson(json : Json) : Unknown[] {
+-      const jarr = asJsonArray(json);
+-      if (jarr == undefined) {
+-        throw jsonParseException('expected an array');
+-      }
+-      let result : Unknown[] = [];
+-      jarr.forEach( (eljson:Json,i:number) => {
+-        try {
+-          result.push(elementBinding().fromJson(eljson));
+-        } catch(e) {
+-          if (isJsonParseException(e)) {
+-            e.pushIndex(i);
+-          }
+-          throw e;
++  function fromJson(json: Json): Unknown[] {
++    const jarr = asJsonArray(json);
++    if (jarr == undefined) {
++      throw jsonParseException("expected an array");
++    }
++    let result: Unknown[] = [];
++    jarr.forEach((eljson: Json, i: number) => {
++      try {
++        result.push(elementBinding().fromJson(eljson));
++      } catch (e) {
++        if (isJsonParseException(e)) {
++          e.pushIndex(i);
+         }
+-      });
++        throw e;
++      }
++    });
+     return result;
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-type StringMap<T> = {[key:string]: T};
++type StringMap<T> = { [key: string]: T };
+ 
+-function stringMapJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, boundTypeParams : BoundTypeParams) : JsonBinding0<StringMap<Unknown>> {
+-  const elementBinding = once(() => buildJsonBinding(dresolver, texpr, boundTypeParams));
++function stringMapJsonBinding(
++  dresolver: DeclResolver,
++  texpr: AST.TypeExpr,
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<StringMap<Unknown>> {
++  const elementBinding = once(() =>
++    buildJsonBinding(dresolver, texpr, boundTypeParams)
++  );
+ 
+-  function toJson(v : StringMap<Unknown>) : Json {
++  function toJson(v: StringMap<Unknown>): Json {
+     const result: JsonObject = {};
+     for (let k in v) {
+       result[k] = elementBinding().toJson(v[k]);
+@@ -248,16 +348,16 @@ function stringMapJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, bo
+     return result;
+   }
+ 
+-  function fromJson(json : Json) : StringMap<Unknown> {
++  function fromJson(json: Json): StringMap<Unknown> {
+     const jobj = asJsonObject(json);
+     if (!jobj) {
+-      throw jsonParseException('expected an object');
++      throw jsonParseException("expected an object");
+     }
+-    let result: JsonObject  = {};
++    let result: JsonObject = {};
+     for (let k in jobj) {
+       try {
+         result[k] = elementBinding().fromJson(jobj[k]);
+-      } catch(e) {
++      } catch (e) {
+         if (isJsonParseException(e)) {
+           e.pushField(k);
+         }
+@@ -266,60 +366,86 @@ function stringMapJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, bo
+     return result;
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-function nullableJsonBinding(dresolver : DeclResolver, texpr : AST.TypeExpr, boundTypeParams : BoundTypeParams) : JsonBinding0<Unknown> {
+-  const elementBinding = once(() => buildJsonBinding(dresolver, texpr, boundTypeParams));
++function nullableJsonBinding(
++  dresolver: DeclResolver,
++  texpr: AST.TypeExpr,
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const elementBinding = once(() =>
++    buildJsonBinding(dresolver, texpr, boundTypeParams)
++  );
+ 
+-  function toJson(v : Unknown) : Json {
++  function toJson(v: Unknown): Json {
+     if (v === null) {
+       return null;
+     }
+     return elementBinding().toJson(v);
+   }
+ 
+-  function fromJson(json : Json) : Unknown {
++  function fromJson(json: Json): Unknown {
+     if (json === null) {
+       return null;
+     }
+     return elementBinding().fromJson(json);
+   }
+ 
+-  return {toJson,fromJson};
++  return { toJson, fromJson };
+ }
+ 
+ interface StructFieldDetails {
+-  field : AST.Field,
+-  jsonBinding : () => JsonBinding0<Unknown>,
+-  buildDefault : () => { value : Unknown } | null
+-};
+-
+-function structJsonBinding(dresolver : DeclResolver, struct : AST.Struct, params : AST.TypeExpr[], boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-  const newBoundTypeParams = createBoundTypeParams(dresolver, struct.typeParams, params, boundTypeParams);
+-  const fieldDetails : StructFieldDetails[] = [];
+-  struct.fields.forEach( (field) => {
+-    let buildDefault = once( () => {
+-      if (field.default.kind === "just")  {
++  field: AST.Field;
++  jsonBinding: () => JsonBinding0<Unknown>;
++  buildDefault: () => { value: Unknown } | null;
++}
++
++function structJsonBinding(
++  dresolver: DeclResolver,
++  struct: AST.Struct,
++  params: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const newBoundTypeParams = createBoundTypeParams(
++    dresolver,
++    struct.typeParams,
++    params,
++    boundTypeParams,
++  );
++  const fieldDetails: StructFieldDetails[] = [];
++  struct.fields.forEach((field) => {
++    let buildDefault = once(() => {
++      if (field.default.kind === "just") {
+         const json = field.default.value;
+-        return { 'value' : buildJsonBinding(dresolver, field.typeExpr, newBoundTypeParams).fromJson(json)};
++        return {
++          "value": buildJsonBinding(
++            dresolver,
++            field.typeExpr,
++            newBoundTypeParams,
++          ).fromJson(json),
++        };
+       } else {
+         return null;
+       }
+     });
+ 
+-    fieldDetails.push( {
+-      field : field,
+-      jsonBinding : once(() => buildJsonBinding(dresolver, field.typeExpr, newBoundTypeParams)),
+-      buildDefault : buildDefault,
++    fieldDetails.push({
++      field: field,
++      jsonBinding: once(() =>
++        buildJsonBinding(dresolver, field.typeExpr, newBoundTypeParams)
++      ),
++      buildDefault: buildDefault,
+     });
+   });
+ 
+-  function toJson(v0: Unknown) : Json {
+-    const v = v0 as {[key:string]:Unknown};
++  function toJson(v0: Unknown): Json {
++    const v = v0 as { [key: string]: Unknown };
+     const json: JsonObject = {};
+-    fieldDetails.forEach( (fd) => {
+-      json[fd.field.serializedName] = fd.jsonBinding().toJson(v && v[fd.field.name]);
++    fieldDetails.forEach((fd) => {
++      json[fd.field.serializedName] = fd.jsonBinding().toJson(
++        v && v[fd.field.name],
++      );
+     });
+     return json;
+   }
+@@ -330,19 +456,23 @@ function structJsonBinding(dresolver : DeclResolver, struct : AST.Struct, params
+       throw jsonParseException("expected an object");
+     }
+ 
+-    const v : {[member:string]: Unknown} = {};
+-    fieldDetails.forEach( (fd) => {
++    const v: { [member: string]: Unknown } = {};
++    fieldDetails.forEach((fd) => {
+       if (jobj[fd.field.serializedName] === undefined) {
+         const defaultv = fd.buildDefault();
+-        if (defaultv === null)  {
+-          throw jsonParseException("missing struct field " + fd.field.serializedName );
++        if (defaultv === null) {
++          throw jsonParseException(
++            "missing struct field " + fd.field.serializedName,
++          );
+         } else {
+           v[fd.field.name] = defaultv.value;
+         }
+       } else {
+         try {
+-          v[fd.field.name] = fd.jsonBinding().fromJson(jobj[fd.field.serializedName]);
+-        } catch(e) {
++          v[fd.field.name] = fd.jsonBinding().fromJson(
++            jobj[fd.field.serializedName],
++          );
++        } catch (e) {
+           if (isJsonParseException(e)) {
+             e.pushField(fd.field.serializedName);
+           }
+@@ -353,23 +483,28 @@ function structJsonBinding(dresolver : DeclResolver, struct : AST.Struct, params
+     return v;
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-function enumJsonBinding(_dresolver : DeclResolver, union : AST.Union, _params : AST.TypeExpr[], _boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-  const fieldSerializedNames : string[] = [];
+-  const fieldNumbers : {[key:string]:number} = {};
+-  union.fields.forEach( (field,i) => {
++function enumJsonBinding(
++  _dresolver: DeclResolver,
++  union: AST.Union,
++  _params: AST.TypeExpr[],
++  _boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const fieldSerializedNames: string[] = [];
++  const fieldNumbers: { [key: string]: number } = {};
++  union.fields.forEach((field, i) => {
+     fieldSerializedNames.push(field.serializedName);
+     fieldNumbers[field.serializedName] = i;
+   });
+ 
+-  function toJson(v :Unknown) : Json {
++  function toJson(v: Unknown): Json {
+     return fieldSerializedNames[v as number];
+   }
+ 
+-  function fromJson(json : Json) : Unknown {
+-    if (typeof(json) !== 'string') {
++  function fromJson(json: Json): Unknown {
++    if (typeof (json) !== "string") {
+       throw jsonParseException("expected a string for enum");
+     }
+     const result = fieldNumbers[json as string];
+@@ -379,44 +514,56 @@ function enumJsonBinding(_dresolver : DeclResolver, union : AST.Union, _params :
+     return result;
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+ interface FieldDetails {
+-  field : AST.Field;
+-  isVoid : boolean;
+-  jsonBinding : () => JsonBinding0<Unknown>;
+-};
+-
+-function unionJsonBinding(dresolver : DeclResolver, union : AST.Union, params : AST.TypeExpr[], boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-
++  field: AST.Field;
++  isVoid: boolean;
++  jsonBinding: () => JsonBinding0<Unknown>;
++}
+ 
+-  const newBoundTypeParams = createBoundTypeParams(dresolver, union.typeParams, params, boundTypeParams);
+-  const detailsByName : {[key: string]: FieldDetails} = {};
+-  const detailsBySerializedName : {[key: string]: FieldDetails} = {};
+-  union.fields.forEach( (field) => {
++function unionJsonBinding(
++  dresolver: DeclResolver,
++  union: AST.Union,
++  params: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const newBoundTypeParams = createBoundTypeParams(
++    dresolver,
++    union.typeParams,
++    params,
++    boundTypeParams,
++  );
++  const detailsByName: { [key: string]: FieldDetails } = {};
++  const detailsBySerializedName: { [key: string]: FieldDetails } = {};
++  union.fields.forEach((field) => {
+     const details = {
+-      field : field,
+-      isVoid : isVoid(field.typeExpr),
+-      jsonBinding : once(() => buildJsonBinding(dresolver, field.typeExpr, newBoundTypeParams))
++      field: field,
++      isVoid: isVoid(field.typeExpr),
++      jsonBinding: once(() =>
++        buildJsonBinding(dresolver, field.typeExpr, newBoundTypeParams)
++      ),
+     };
+     detailsByName[field.name] = details;
+     detailsBySerializedName[field.serializedName] = details;
+   });
+ 
+-  function toJson(v0 : Unknown) : Json {
+-    const v = v0 as {kind:string, value:Unknown};
++  function toJson(v0: Unknown): Json {
++    const v = v0 as { kind: string; value: Unknown };
+     const details = detailsByName[v.kind];
+     if (details.isVoid) {
+       return details.field.serializedName;
+     } else {
+       const result: JsonObject = {};
+-      result[details.field.serializedName] = details.jsonBinding().toJson(v.value);
++      result[details.field.serializedName] = details.jsonBinding().toJson(
++        v.value,
++      );
+       return result;
+     }
+   }
+ 
+-  function lookupDetails(serializedName : string) {
++  function lookupDetails(serializedName: string) {
+     let details = detailsBySerializedName[serializedName];
+     if (details === undefined) {
+       throw jsonParseException("invalid union field " + serializedName);
+@@ -424,13 +571,15 @@ function unionJsonBinding(dresolver : DeclResolver, union : AST.Union, params :
+     return details;
+   }
+ 
+-  function fromJson(json : Json) : Unknown {
+-    if (typeof(json) === "string") {
++  function fromJson(json: Json): Unknown {
++    if (typeof (json) === "string") {
+       let details = lookupDetails(json);
+       if (!details.isVoid) {
+-        throw jsonParseException("union field " + json + "needs an associated value");
++        throw jsonParseException(
++          "union field " + json + "needs an associated value",
++        );
+       }
+-      return { kind : details.field.name };
++      return { kind: details.field.name };
+     }
+     const jobj = asJsonObject(json);
+     if (jobj) {
+@@ -438,10 +587,10 @@ function unionJsonBinding(dresolver : DeclResolver, union : AST.Union, params :
+         let details = lookupDetails(k);
+         try {
+           return {
+-            kind : details.field.name,
+-            value : details.jsonBinding().fromJson(jobj[k])
+-          }
+-        } catch(e) {
++            kind: details.field.name,
++            value: details.jsonBinding().fromJson(jobj[k]),
++          };
++        } catch (e) {
+           if (isJsonParseException(e)) {
+             e.pushField(k);
+           }
+@@ -454,24 +603,52 @@ function unionJsonBinding(dresolver : DeclResolver, union : AST.Union, params :
+     }
+   }
+ 
+-  return {toJson, fromJson};
++  return { toJson, fromJson };
+ }
+ 
+-function newtypeJsonBinding(dresolver : DeclResolver, newtype : AST.NewType, params : AST.TypeExpr[], boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-  const newBoundTypeParams = createBoundTypeParams(dresolver, newtype.typeParams, params, boundTypeParams);
++function newtypeJsonBinding(
++  dresolver: DeclResolver,
++  newtype: AST.NewType,
++  params: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const newBoundTypeParams = createBoundTypeParams(
++    dresolver,
++    newtype.typeParams,
++    params,
++    boundTypeParams,
++  );
+   return buildJsonBinding(dresolver, newtype.typeExpr, newBoundTypeParams);
+ }
+ 
+-function typedefJsonBinding(dresolver : DeclResolver, typedef : AST.TypeDef, params : AST.TypeExpr[], boundTypeParams : BoundTypeParams ) : JsonBinding0<Unknown> {
+-  const newBoundTypeParams = createBoundTypeParams(dresolver, typedef.typeParams, params, boundTypeParams);
++function typedefJsonBinding(
++  dresolver: DeclResolver,
++  typedef: AST.TypeDef,
++  params: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): JsonBinding0<Unknown> {
++  const newBoundTypeParams = createBoundTypeParams(
++    dresolver,
++    typedef.typeParams,
++    params,
++    boundTypeParams,
++  );
+   return buildJsonBinding(dresolver, typedef.typeExpr, newBoundTypeParams);
+ }
+ 
+-function createBoundTypeParams(dresolver : DeclResolver, paramNames : string[], paramTypes : AST.TypeExpr[], boundTypeParams : BoundTypeParams) : BoundTypeParams
+-{
+-  let result : BoundTypeParams = {};
+-  paramNames.forEach( (paramName,i) => {
+-    result[paramName] = buildJsonBinding(dresolver,paramTypes[i], boundTypeParams);
++function createBoundTypeParams(
++  dresolver: DeclResolver,
++  paramNames: string[],
++  paramTypes: AST.TypeExpr[],
++  boundTypeParams: BoundTypeParams,
++): BoundTypeParams {
++  let result: BoundTypeParams = {};
++  paramNames.forEach((paramName, i) => {
++    result[paramName] = buildJsonBinding(
++      dresolver,
++      paramTypes[i],
++      boundTypeParams,
++    );
+   });
+   return result;
+ }
+@@ -480,10 +657,10 @@ function createBoundTypeParams(dresolver : DeclResolver, paramNames : string[],
+  * Helper function that takes a thunk, and evaluates it only on the first call. Subsequent
+  * calls return the previous value
+  */
+-function once<T>(run : () => T) : () => T {
+-  let result : T | null = null;
++function once<T>(run: () => T): () => T {
++  let result: T | null = null;
+   return () => {
+-    if(result === null) {
++    if (result === null) {
+       result = run();
+     }
+     return result;
+@@ -493,12 +670,15 @@ function once<T>(run : () => T) : () => T {
+ /**
+  * Get the value of an annotation of type T
+  */
+-export function getAnnotation<T>(jb: JsonBinding<T>, annotations: AST.Annotations): T | undefined {
+-  if (jb.typeExpr.typeRef.kind != 'reference') {
++export function getAnnotation<T>(
++  jb: JsonBinding<T>,
++  annotations: AST.Annotations,
++): T | undefined {
++  if (jb.typeExpr.typeRef.kind != "reference") {
+     return undefined;
+   }
+-  const annScopedName :AST.ScopedName = jb.typeExpr.typeRef.value;
+-  const ann = annotations.find(el => scopedNamesEqual(el.v1, annScopedName));
++  const annScopedName: AST.ScopedName = jb.typeExpr.typeRef.value;
++  const ann = annotations.find((el) => scopedNamesEqual(el.v1, annScopedName));
+   if (ann === undefined) {
+     return undefined;
+   }
 diff --git a/adl-gen/runtime/sys/adlast.ts b/adl-gen/runtime/sys/adlast.ts
-index 2e6aac5..dc3dc95 100644
+index 2e6aac5..31d07ef 100644
 --- a/adl-gen/runtime/sys/adlast.ts
 +++ b/adl-gen/runtime/sys/adlast.ts
-@@ -1,6 +1,6 @@
- /* @generated from adl module sys.adlast */
+@@ -1,12 +1,13 @@
+-/* @generated from adl module sys.adlast */
++// deno-lint-ignore-file
  
 -import * as sys_types from "./types.ts";
++/* @generated from adl module sys.adlast */
 +import type * as sys_types from "./types.ts";
  
  export type ModuleName = string;
  
+ export type Ident = string;
+ 
+-export type Annotations = sys_types.Map<ScopedName, {}|null>;
++export type Annotations = sys_types.Map<ScopedName, {} | null>;
+ 
+ export interface ScopedName {
+   moduleName: ModuleName;
+@@ -15,9 +16,9 @@ export interface ScopedName {
+ 
+ export function makeScopedName(
+   input: {
+-    moduleName: ModuleName,
+-    name: Ident,
+-  }
++    moduleName: ModuleName;
++    name: Ident;
++  },
+ ): ScopedName {
+   return {
+     moduleName: input.moduleName,
+@@ -26,15 +27,15 @@ export function makeScopedName(
+ }
+ 
+ export interface TypeRef_Primitive {
+-  kind: 'primitive';
++  kind: "primitive";
+   value: Ident;
+ }
+ export interface TypeRef_TypeParam {
+-  kind: 'typeParam';
++  kind: "typeParam";
+   value: Ident;
+ }
+ export interface TypeRef_Reference {
+-  kind: 'reference';
++  kind: "reference";
+   value: ScopedName;
+ }
+ 
+@@ -46,7 +47,12 @@ export interface TypeRefOpts {
+   reference: ScopedName;
+ }
+ 
+-export function makeTypeRef<K extends keyof TypeRefOpts>(kind: K, value: TypeRefOpts[K]) { return {kind, value}; }
++export function makeTypeRef<K extends keyof TypeRefOpts>(
++  kind: K,
++  value: TypeRefOpts[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface TypeExpr {
+   typeRef: TypeRef;
+@@ -55,9 +61,9 @@ export interface TypeExpr {
+ 
+ export function makeTypeExpr(
+   input: {
+-    typeRef: TypeRef,
+-    parameters: TypeExpr[],
+-  }
++    typeRef: TypeRef;
++    parameters: TypeExpr[];
++  },
+ ): TypeExpr {
+   return {
+     typeRef: input.typeRef,
+@@ -69,18 +75,18 @@ export interface Field {
+   name: Ident;
+   serializedName: Ident;
+   typeExpr: TypeExpr;
+-  default: sys_types.Maybe<{}|null>;
++  default: sys_types.Maybe<{} | null>;
+   annotations: Annotations;
+ }
+ 
+ export function makeField(
+   input: {
+-    name: Ident,
+-    serializedName: Ident,
+-    typeExpr: TypeExpr,
+-    default: sys_types.Maybe<{}|null>,
+-    annotations: Annotations,
+-  }
++    name: Ident;
++    serializedName: Ident;
++    typeExpr: TypeExpr;
++    default: sys_types.Maybe<{} | null>;
++    annotations: Annotations;
++  },
+ ): Field {
+   return {
+     name: input.name,
+@@ -98,9 +104,9 @@ export interface Struct {
+ 
+ export function makeStruct(
+   input: {
+-    typeParams: Ident[],
+-    fields: Field[],
+-  }
++    typeParams: Ident[];
++    fields: Field[];
++  },
+ ): Struct {
+   return {
+     typeParams: input.typeParams,
+@@ -115,9 +121,9 @@ export interface Union {
+ 
+ export function makeUnion(
+   input: {
+-    typeParams: Ident[],
+-    fields: Field[],
+-  }
++    typeParams: Ident[];
++    fields: Field[];
++  },
+ ): Union {
+   return {
+     typeParams: input.typeParams,
+@@ -132,9 +138,9 @@ export interface TypeDef {
+ 
+ export function makeTypeDef(
+   input: {
+-    typeParams: Ident[],
+-    typeExpr: TypeExpr,
+-  }
++    typeParams: Ident[];
++    typeExpr: TypeExpr;
++  },
+ ): TypeDef {
+   return {
+     typeParams: input.typeParams,
+@@ -145,15 +151,15 @@ export function makeTypeDef(
+ export interface NewType {
+   typeParams: Ident[];
+   typeExpr: TypeExpr;
+-  default: sys_types.Maybe<{}|null>;
++  default: sys_types.Maybe<{} | null>;
+ }
+ 
+ export function makeNewType(
+   input: {
+-    typeParams: Ident[],
+-    typeExpr: TypeExpr,
+-    default: sys_types.Maybe<{}|null>,
+-  }
++    typeParams: Ident[];
++    typeExpr: TypeExpr;
++    default: sys_types.Maybe<{} | null>;
++  },
+ ): NewType {
+   return {
+     typeParams: input.typeParams,
+@@ -163,23 +169,27 @@ export function makeNewType(
+ }
+ 
+ export interface DeclType_Struct_ {
+-  kind: 'struct_';
++  kind: "struct_";
+   value: Struct;
+ }
+ export interface DeclType_Union_ {
+-  kind: 'union_';
++  kind: "union_";
+   value: Union;
+ }
+ export interface DeclType_Type_ {
+-  kind: 'type_';
++  kind: "type_";
+   value: TypeDef;
+ }
+ export interface DeclType_Newtype_ {
+-  kind: 'newtype_';
++  kind: "newtype_";
+   value: NewType;
+ }
+ 
+-export type DeclType = DeclType_Struct_ | DeclType_Union_ | DeclType_Type_ | DeclType_Newtype_;
++export type DeclType =
++  | DeclType_Struct_
++  | DeclType_Union_
++  | DeclType_Type_
++  | DeclType_Newtype_;
+ 
+ export interface DeclTypeOpts {
+   struct_: Struct;
+@@ -188,7 +198,12 @@ export interface DeclTypeOpts {
+   newtype_: NewType;
+ }
+ 
+-export function makeDeclType<K extends keyof DeclTypeOpts>(kind: K, value: DeclTypeOpts[K]) { return {kind, value}; }
++export function makeDeclType<K extends keyof DeclTypeOpts>(
++  kind: K,
++  value: DeclTypeOpts[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface Decl {
+   name: Ident;
+@@ -199,11 +214,11 @@ export interface Decl {
+ 
+ export function makeDecl(
+   input: {
+-    name: Ident,
+-    version: sys_types.Maybe<number>,
+-    type_: DeclType,
+-    annotations: Annotations,
+-  }
++    name: Ident;
++    version: sys_types.Maybe<number>;
++    type_: DeclType;
++    annotations: Annotations;
++  },
+ ): Decl {
+   return {
+     name: input.name,
+@@ -220,9 +235,9 @@ export interface ScopedDecl {
+ 
+ export function makeScopedDecl(
+   input: {
+-    moduleName: ModuleName,
+-    decl: Decl,
+-  }
++    moduleName: ModuleName;
++    decl: Decl;
++  },
+ ): ScopedDecl {
+   return {
+     moduleName: input.moduleName,
+@@ -233,11 +248,11 @@ export function makeScopedDecl(
+ export type DeclVersions = Decl[];
+ 
+ export interface Import_ModuleName {
+-  kind: 'moduleName';
++  kind: "moduleName";
+   value: ModuleName;
+ }
+ export interface Import_ScopedName {
+-  kind: 'scopedName';
++  kind: "scopedName";
+   value: ScopedName;
+ }
+ 
+@@ -248,22 +263,27 @@ export interface ImportOpts {
+   scopedName: ScopedName;
+ }
+ 
+-export function makeImport<K extends keyof ImportOpts>(kind: K, value: ImportOpts[K]) { return {kind, value}; }
++export function makeImport<K extends keyof ImportOpts>(
++  kind: K,
++  value: ImportOpts[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface Module {
+   name: ModuleName;
+   imports: Import[];
+-  decls: {[key: string]: Decl};
++  decls: { [key: string]: Decl };
+   annotations: Annotations;
+ }
+ 
+ export function makeModule(
+   input: {
+-    name: ModuleName,
+-    imports: Import[],
+-    decls: {[key: string]: Decl},
+-    annotations: Annotations,
+-  }
++    name: ModuleName;
++    imports: Import[];
++    decls: { [key: string]: Decl };
++    annotations: Annotations;
++  },
+ ): Module {
+   return {
+     name: input.name,
+diff --git a/adl-gen/runtime/sys/dynamic.ts b/adl-gen/runtime/sys/dynamic.ts
+index 0047acc..070571b 100644
+--- a/adl-gen/runtime/sys/dynamic.ts
++++ b/adl-gen/runtime/sys/dynamic.ts
+@@ -1,5 +1,5 @@
+ /* @generated from adl module sys.dynamic */
+-
++//deno-lint-ignore-file
+ import * as sys_adlast from "./adlast.ts";
+ 
+ /**
+@@ -7,14 +7,14 @@ import * as sys_adlast from "./adlast.ts";
+  */
+ export interface Dynamic {
+   typeExpr: sys_adlast.TypeExpr;
+-  value: {}|null;
++  value: {} | null;
+ }
+ 
+ export function makeDynamic(
+   input: {
+-    typeExpr: sys_adlast.TypeExpr,
+-    value: {}|null,
+-  }
++    typeExpr: sys_adlast.TypeExpr;
++    value: {} | null;
++  },
+ ): Dynamic {
+   return {
+     typeExpr: input.typeExpr,
+diff --git a/adl-gen/runtime/sys/types.ts b/adl-gen/runtime/sys/types.ts
+index 42b5599..d8cfa44 100644
+--- a/adl-gen/runtime/sys/types.ts
++++ b/adl-gen/runtime/sys/types.ts
+@@ -1,6 +1,6 @@
+-/* @generated from adl module sys.types */
+-
++// deno-lint-ignore-file
+ 
++/* @generated from adl module sys.types */
+ export interface Pair<T1, T2> {
+   v1: T1;
+   v2: T2;
+@@ -8,9 +8,9 @@ export interface Pair<T1, T2> {
+ 
+ export function makePair<T1, T2>(
+   input: {
+-    v1: T1,
+-    v2: T2,
+-  }
++    v1: T1;
++    v2: T2;
++  },
+ ): Pair<T1, T2> {
+   return {
+     v1: input.v1,
+@@ -19,11 +19,11 @@ export function makePair<T1, T2>(
+ }
+ 
+ export interface Either_Left<T1, _T2> {
+-  kind: 'left';
++  kind: "left";
+   value: T1;
+ }
+ export interface Either_Right<_T1, T2> {
+-  kind: 'right';
++  kind: "right";
+   value: T2;
+ }
+ 
+@@ -34,13 +34,18 @@ export interface EitherOpts<T1, T2> {
+   right: T2;
+ }
+ 
+-export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(kind: K, value: EitherOpts<T1, T2>[K]) { return {kind, value}; }
++export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(
++  kind: K,
++  value: EitherOpts<T1, T2>[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface Maybe_Nothing<_T> {
+-  kind: 'nothing';
++  kind: "nothing";
+ }
+ export interface Maybe_Just<T> {
+-  kind: 'just';
++  kind: "just";
+   value: T;
+ }
+ 
+@@ -51,14 +56,19 @@ export interface MaybeOpts<T> {
+   just: T;
+ }
+ 
+-export function makeMaybe<T, K extends keyof MaybeOpts<T>>(kind: K, value: MaybeOpts<T>[K]) { return {kind, value}; }
++export function makeMaybe<T, K extends keyof MaybeOpts<T>>(
++  kind: K,
++  value: MaybeOpts<T>[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface Error_Value<T> {
+-  kind: 'value';
++  kind: "value";
+   value: T;
+ }
+ export interface Error_Error<_T> {
+-  kind: 'error';
++  kind: "error";
+   value: string;
+ }
+ 
+@@ -69,7 +79,12 @@ export interface ErrorOpts<T> {
+   error: string;
+ }
+ 
+-export function makeError<T, K extends keyof ErrorOpts<T>>(kind: K, value: ErrorOpts<T>[K]) { return {kind, value}; }
++export function makeError<T, K extends keyof ErrorOpts<T>>(
++  kind: K,
++  value: ErrorOpts<T>[K],
++) {
++  return { kind, value };
++}
+ 
+ export interface MapEntry<K, V> {
+   key: K;
+@@ -78,9 +93,9 @@ export interface MapEntry<K, V> {
+ 
+ export function makeMapEntry<K, V>(
+   input: {
+-    key: K,
+-    value: V,
+-  }
++    key: K;
++    value: V;
++  },
+ ): MapEntry<K, V> {
+   return {
+     key: input.key,
 diff --git a/adl-gen/runtime/utils.ts b/adl-gen/runtime/utils.ts
-index 6d2eacb..18c9e00 100644
+index 6d2eacb..e61e70b 100644
 --- a/adl-gen/runtime/utils.ts
 +++ b/adl-gen/runtime/utils.ts
-@@ -1,4 +1,4 @@
+@@ -1,6 +1,7 @@
 -import * as AST from "./sys/adlast.ts";
++// deno-lint-ignore-file
 +import type * as AST from "./sys/adlast.ts";
  
- export function isEnum(union : AST.Union) : boolean {
+-export function isEnum(union : AST.Union) : boolean {
++export function isEnum(union: AST.Union): boolean {
    for (let field of union.fields) {
-@@ -75,3 +75,37 @@ export function typeExprToStringUnscoped(te: AST.TypeExpr) : string {
+     if (!isVoid(field.typeExpr)) {
+       return false;
+@@ -9,14 +10,17 @@ export function isEnum(union : AST.Union) : boolean {
+   return true;
+ }
+ 
+-export function isVoid(texpr : AST.TypeExpr) : boolean {
++export function isVoid(texpr: AST.TypeExpr): boolean {
+   if (texpr.typeRef.kind === "primitive") {
+     return texpr.typeRef.value === "Void";
+   }
+   return false;
+ }
+ 
+-export function typeExprsEqual(texpr1 : AST.TypeExpr, texpr2 : AST.TypeExpr) : boolean {
++export function typeExprsEqual(
++  texpr1: AST.TypeExpr,
++  texpr2: AST.TypeExpr,
++): boolean {
+   if (!typeRefsEqual(texpr1.typeRef, texpr2.typeRef)) {
+     return false;
+   }
+@@ -24,14 +28,14 @@ export function typeExprsEqual(texpr1 : AST.TypeExpr, texpr2 : AST.TypeExpr) : b
+     return false;
+   }
+   for (let i = 0; i < texpr1.parameters.length; i++) {
+-    if(!typeExprsEqual(texpr1.parameters[i], texpr2.parameters[i])) {
++    if (!typeExprsEqual(texpr1.parameters[i], texpr2.parameters[i])) {
+       return false;
+     }
+   }
+   return true;
+ }
+ 
+-export function typeRefsEqual(tref1 : AST.TypeRef, tref2 : AST.TypeRef) : boolean {
++export function typeRefsEqual(tref1: AST.TypeRef, tref2: AST.TypeRef): boolean {
+   if (tref1.kind === "primitive" && tref2.kind === "primitive") {
+     return tref1.value === tref2.value;
+   } else if (tref1.kind === "typeParam" && tref2.kind === "typeParam") {
+@@ -42,11 +46,17 @@ export function typeRefsEqual(tref1 : AST.TypeRef, tref2 : AST.TypeRef) : boolea
+   return false;
+ }
+ 
+-export function scopedNamesEqual(sn1: AST.ScopedName, sn2: AST.ScopedName): boolean {
++export function scopedNamesEqual(
++  sn1: AST.ScopedName,
++  sn2: AST.ScopedName,
++): boolean {
+   return sn1.moduleName === sn2.moduleName && sn1.name === sn2.name;
+ }
+ 
+-function typeExprToStringImpl(te: AST.TypeExpr, withScopedNames: boolean) : string {
++function typeExprToStringImpl(
++  te: AST.TypeExpr,
++  withScopedNames: boolean,
++): string {
+   let result = "";
+   if (te.typeRef.kind == "primitive") {
+     result = te.typeRef.value;
+@@ -58,20 +68,56 @@ function typeExprToStringImpl(te: AST.TypeExpr, withScopedNames: boolean) : stri
+       : te.typeRef.value.name;
+   }
+   if (te.parameters.length > 0) {
+-    result = result + "<" + te.parameters.map(p => typeExprToStringImpl(p, withScopedNames)) + ">";
++    result = result + "<" + te.parameters.map((p) =>
++      typeExprToStringImpl(p, withScopedNames)
++    ) + ">";
+   }
+   return result;
+ }
+ 
+ /* Convert a type expression to a string, with fully scoped names */
+ 
+-export function typeExprToString(te: AST.TypeExpr) : string {
++export function typeExprToString(te: AST.TypeExpr): string {
+   return typeExprToStringImpl(te, true);
+ }
+ 
+ /* Convert a type expression to a string, with unscoped names */
+ 
+-export function typeExprToStringUnscoped(te: AST.TypeExpr) : string {
++export function typeExprToStringUnscoped(te: AST.TypeExpr): string {
    return typeExprToStringImpl(te, false);
  }
  
@@ -147,34 +2056,36 @@ index 6d2eacb..18c9e00 100644
 +/// eg for 'newtype X = string' -> 'type X = Flavouring0<"X">;'
 +type Flavoring0<Name> = {
 +  readonly [symS]?: Name;
-+}
++};
 +
 +/// 1 ADL type param
 +/// eg for 'newtype X<T> = string' -> 'type X<T> = Flavouring1<"X",T>;'
 +type Flavoring1<Name, T> = Flavoring0<Name> & {
 +  readonly [symT]?: T;
-+}
++};
 +
 +/// 2 ADL type params
 +/// eg for 'newtype X<T,U> = string' -> 'type X<T,U> = Flavouring2<"X",T,U>;'
-+type Flavoring2<Name,T,U> = Flavoring1<Name, T> & {
++type Flavoring2<Name, T, U> = Flavoring1<Name, T> & {
 +  readonly [symU]?: U;
-+}
++};
 +
 +/// 3 ADL type params
 +/// eg for 'newtype X<T,U,V> = string' -> 'type X<T,U,V> = Flavouring3<"X",T,U,V>;'
-+type Flavoring3<Name,T,U,V> = Flavoring2<Name, T,U> & {
++type Flavoring3<Name, T, U, V> = Flavoring2<Name, T, U> & {
 +  readonly [symV]?: V;
-+}
++};
 +export type Flavored0<A, Name> = A & Flavoring0<Name>;
 +export type Flavored1<A, Name, T> = A & Flavoring1<Name, T>;
-+export type Flavored2<A, Name, T,U> = A & Flavoring2<Name, T,U>;
-+export type Flavored3<A, Name, T,U,V> = A & Flavoring3<Name, T,U,V>;
++export type Flavored2<A, Name, T, U> = A & Flavoring2<Name, T, U>;
++export type Flavored3<A, Name, T, U, V> = A & Flavoring3<Name, T, U, V>;
 diff --git a/adl-gen/sys/types.ts b/adl-gen/sys/types.ts
-index ba23476..ba94214 100644
+index ba23476..4b3d8bf 100644
 --- a/adl-gen/sys/types.ts
 +++ b/adl-gen/sys/types.ts
-@@ -1,6 +1,6 @@
+@@ -1,6 +1,8 @@
++// deno-lint-ignore-file
++
  /* @generated from adl module sys.types */
  
 -import * as ADL from "./../runtime/adl.ts";
@@ -182,6 +2093,515 @@ index ba23476..ba94214 100644
  
  export interface Pair<T1, T2> {
    v1: T1;
+@@ -9,9 +11,9 @@ export interface Pair<T1, T2> {
+ 
+ export function makePair<T1, T2>(
+   input: {
+-    v1: T1,
+-    v2: T2,
+-  }
++    v1: T1;
++    v2: T2;
++  },
+ ): Pair<T1, T2> {
+   return {
+     v1: input.v1,
+@@ -19,21 +21,63 @@ export function makePair<T1, T2>(
+   };
+ }
+ 
+-const Pair_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"struct_","value":{"typeParams":["T1","T2"],"fields":[{"annotations":[],"serializedName":"v1","default":{"kind":"nothing"},"name":"v1","typeExpr":{"typeRef":{"kind":"typeParam","value":"T1"},"parameters":[]}},{"annotations":[],"serializedName":"v2","default":{"kind":"nothing"},"name":"v2","typeExpr":{"typeRef":{"kind":"typeParam","value":"T2"},"parameters":[]}}]}},"name":"Pair","version":{"kind":"nothing"}}};
++const Pair_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "struct_",
++      "value": {
++        "typeParams": ["T1", "T2"],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "v1",
++          "default": { "kind": "nothing" },
++          "name": "v1",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T1" },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "v2",
++          "default": { "kind": "nothing" },
++          "name": "v2",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T2" },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "Pair",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snPair: ADL.ScopedName = {moduleName:"sys.types", name:"Pair"};
++export const snPair: ADL.ScopedName = { moduleName: "sys.types", name: "Pair" };
+ 
+-export function texprPair<T1, T2>(texprT1 : ADL.ATypeExpr<T1>, texprT2 : ADL.ATypeExpr<T2>): ADL.ATypeExpr<Pair<T1, T2>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Pair"}}, parameters : [texprT1.value, texprT2.value]}};
++export function texprPair<T1, T2>(
++  texprT1: ADL.ATypeExpr<T1>,
++  texprT2: ADL.ATypeExpr<T2>,
++): ADL.ATypeExpr<Pair<T1, T2>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Pair" },
++      },
++      parameters: [texprT1.value, texprT2.value],
++    },
++  };
+ }
+ 
+ export interface Either_Left<T1, _T2> {
+-  kind: 'left';
++  kind: "left";
+   value: T1;
+ }
+ export interface Either_Right<_T1, T2> {
+-  kind: 'right';
++  kind: "right";
+   value: T2;
+ }
+ 
+@@ -44,22 +88,72 @@ export interface EitherOpts<T1, T2> {
+   right: T2;
+ }
+ 
+-export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(kind: K, value: EitherOpts<T1, T2>[K]) { return {kind, value}; }
++export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(
++  kind: K,
++  value: EitherOpts<T1, T2>[K],
++) {
++  return { kind, value };
++}
+ 
+-const Either_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"union_","value":{"typeParams":["T1","T2"],"fields":[{"annotations":[],"serializedName":"left","default":{"kind":"nothing"},"name":"left","typeExpr":{"typeRef":{"kind":"typeParam","value":"T1"},"parameters":[]}},{"annotations":[],"serializedName":"right","default":{"kind":"nothing"},"name":"right","typeExpr":{"typeRef":{"kind":"typeParam","value":"T2"},"parameters":[]}}]}},"name":"Either","version":{"kind":"nothing"}}};
++const Either_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "union_",
++      "value": {
++        "typeParams": ["T1", "T2"],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "left",
++          "default": { "kind": "nothing" },
++          "name": "left",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T1" },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "right",
++          "default": { "kind": "nothing" },
++          "name": "right",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T2" },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "Either",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snEither: ADL.ScopedName = {moduleName:"sys.types", name:"Either"};
++export const snEither: ADL.ScopedName = {
++  moduleName: "sys.types",
++  name: "Either",
++};
+ 
+-export function texprEither<T1, T2>(texprT1 : ADL.ATypeExpr<T1>, texprT2 : ADL.ATypeExpr<T2>): ADL.ATypeExpr<Either<T1, T2>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Either"}}, parameters : [texprT1.value, texprT2.value]}};
++export function texprEither<T1, T2>(
++  texprT1: ADL.ATypeExpr<T1>,
++  texprT2: ADL.ATypeExpr<T2>,
++): ADL.ATypeExpr<Either<T1, T2>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Either" },
++      },
++      parameters: [texprT1.value, texprT2.value],
++    },
++  };
+ }
+ 
+ export interface Maybe_Nothing<_T> {
+-  kind: 'nothing';
++  kind: "nothing";
+ }
+ export interface Maybe_Just<T> {
+-  kind: 'just';
++  kind: "just";
+   value: T;
+ }
+ 
+@@ -70,23 +164,72 @@ export interface MaybeOpts<T> {
+   just: T;
+ }
+ 
+-export function makeMaybe<T, K extends keyof MaybeOpts<T>>(kind: K, value: MaybeOpts<T>[K]) { return {kind, value}; }
++export function makeMaybe<T, K extends keyof MaybeOpts<T>>(
++  kind: K,
++  value: MaybeOpts<T>[K],
++) {
++  return { kind, value };
++}
+ 
+-const Maybe_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"union_","value":{"typeParams":["T"],"fields":[{"annotations":[],"serializedName":"nothing","default":{"kind":"nothing"},"name":"nothing","typeExpr":{"typeRef":{"kind":"primitive","value":"Void"},"parameters":[]}},{"annotations":[],"serializedName":"just","default":{"kind":"nothing"},"name":"just","typeExpr":{"typeRef":{"kind":"typeParam","value":"T"},"parameters":[]}}]}},"name":"Maybe","version":{"kind":"nothing"}}};
++const Maybe_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "union_",
++      "value": {
++        "typeParams": ["T"],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "nothing",
++          "default": { "kind": "nothing" },
++          "name": "nothing",
++          "typeExpr": {
++            "typeRef": { "kind": "primitive", "value": "Void" },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "just",
++          "default": { "kind": "nothing" },
++          "name": "just",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T" },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "Maybe",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snMaybe: ADL.ScopedName = {moduleName:"sys.types", name:"Maybe"};
++export const snMaybe: ADL.ScopedName = {
++  moduleName: "sys.types",
++  name: "Maybe",
++};
+ 
+-export function texprMaybe<T>(texprT : ADL.ATypeExpr<T>): ADL.ATypeExpr<Maybe<T>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Maybe"}}, parameters : [texprT.value]}};
++export function texprMaybe<T>(
++  texprT: ADL.ATypeExpr<T>,
++): ADL.ATypeExpr<Maybe<T>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Maybe" },
++      },
++      parameters: [texprT.value],
++    },
++  };
+ }
+ 
+ export interface Error_Value<T> {
+-  kind: 'value';
++  kind: "value";
+   value: T;
+ }
+ export interface Error_Error<_T> {
+-  kind: 'error';
++  kind: "error";
+   value: string;
+ }
+ 
+@@ -97,15 +240,64 @@ export interface ErrorOpts<T> {
+   error: string;
+ }
+ 
+-export function makeError<T, K extends keyof ErrorOpts<T>>(kind: K, value: ErrorOpts<T>[K]) { return {kind, value}; }
++export function makeError<T, K extends keyof ErrorOpts<T>>(
++  kind: K,
++  value: ErrorOpts<T>[K],
++) {
++  return { kind, value };
++}
+ 
+-const Error_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"union_","value":{"typeParams":["T"],"fields":[{"annotations":[],"serializedName":"value","default":{"kind":"nothing"},"name":"value","typeExpr":{"typeRef":{"kind":"typeParam","value":"T"},"parameters":[]}},{"annotations":[],"serializedName":"error","default":{"kind":"nothing"},"name":"error","typeExpr":{"typeRef":{"kind":"primitive","value":"String"},"parameters":[]}}]}},"name":"Error","version":{"kind":"nothing"}}};
++const Error_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "union_",
++      "value": {
++        "typeParams": ["T"],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "value",
++          "default": { "kind": "nothing" },
++          "name": "value",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "T" },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "error",
++          "default": { "kind": "nothing" },
++          "name": "error",
++          "typeExpr": {
++            "typeRef": { "kind": "primitive", "value": "String" },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "Error",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snError: ADL.ScopedName = {moduleName:"sys.types", name:"Error"};
++export const snError: ADL.ScopedName = {
++  moduleName: "sys.types",
++  name: "Error",
++};
+ 
+-export function texprError<T>(texprT : ADL.ATypeExpr<T>): ADL.ATypeExpr<Error<T>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Error"}}, parameters : [texprT.value]}};
++export function texprError<T>(
++  texprT: ADL.ATypeExpr<T>,
++): ADL.ATypeExpr<Error<T>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Error" },
++      },
++      parameters: [texprT.value],
++    },
++  };
+ }
+ 
+ export interface MapEntry<K, V> {
+@@ -115,9 +307,9 @@ export interface MapEntry<K, V> {
+ 
+ export function makeMapEntry<K, V>(
+   input: {
+-    key: K,
+-    value: V,
+-  }
++    key: K;
++    value: V;
++  },
+ ): MapEntry<K, V> {
+   return {
+     key: input.key,
+@@ -125,43 +317,156 @@ export function makeMapEntry<K, V>(
+   };
+ }
+ 
+-const MapEntry_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"struct_","value":{"typeParams":["K","V"],"fields":[{"annotations":[],"serializedName":"k","default":{"kind":"nothing"},"name":"key","typeExpr":{"typeRef":{"kind":"typeParam","value":"K"},"parameters":[]}},{"annotations":[],"serializedName":"v","default":{"kind":"nothing"},"name":"value","typeExpr":{"typeRef":{"kind":"typeParam","value":"V"},"parameters":[]}}]}},"name":"MapEntry","version":{"kind":"nothing"}}};
++const MapEntry_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "struct_",
++      "value": {
++        "typeParams": ["K", "V"],
++        "fields": [{
++          "annotations": [],
++          "serializedName": "k",
++          "default": { "kind": "nothing" },
++          "name": "key",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "K" },
++            "parameters": [],
++          },
++        }, {
++          "annotations": [],
++          "serializedName": "v",
++          "default": { "kind": "nothing" },
++          "name": "value",
++          "typeExpr": {
++            "typeRef": { "kind": "typeParam", "value": "V" },
++            "parameters": [],
++          },
++        }],
++      },
++    },
++    "name": "MapEntry",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snMapEntry: ADL.ScopedName = {moduleName:"sys.types", name:"MapEntry"};
++export const snMapEntry: ADL.ScopedName = {
++  moduleName: "sys.types",
++  name: "MapEntry",
++};
+ 
+-export function texprMapEntry<K, V>(texprK : ADL.ATypeExpr<K>, texprV : ADL.ATypeExpr<V>): ADL.ATypeExpr<MapEntry<K, V>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "MapEntry"}}, parameters : [texprK.value, texprV.value]}};
++export function texprMapEntry<K, V>(
++  texprK: ADL.ATypeExpr<K>,
++  texprV: ADL.ATypeExpr<V>,
++): ADL.ATypeExpr<MapEntry<K, V>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "MapEntry" },
++      },
++      parameters: [texprK.value, texprV.value],
++    },
++  };
+ }
+ 
+ export type Map<K, V> = Pair<K, V>[];
+ 
+-const Map_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":["K","V"],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"Vector"},"parameters":[{"typeRef":{"kind":"reference","value":{"moduleName":"sys.types","name":"Pair"}},"parameters":[{"typeRef":{"kind":"typeParam","value":"K"},"parameters":[]},{"typeRef":{"kind":"typeParam","value":"V"},"parameters":[]}]}]}}},"name":"Map","version":{"kind":"nothing"}}};
++const Map_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": ["K", "V"],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "Vector" },
++          "parameters": [{
++            "typeRef": {
++              "kind": "reference",
++              "value": { "moduleName": "sys.types", "name": "Pair" },
++            },
++            "parameters": [{
++              "typeRef": { "kind": "typeParam", "value": "K" },
++              "parameters": [],
++            }, {
++              "typeRef": { "kind": "typeParam", "value": "V" },
++              "parameters": [],
++            }],
++          }],
++        },
++      },
++    },
++    "name": "Map",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snMap: ADL.ScopedName = {moduleName:"sys.types", name:"Map"};
++export const snMap: ADL.ScopedName = { moduleName: "sys.types", name: "Map" };
+ 
+-export function texprMap<K, V>(texprK : ADL.ATypeExpr<K>, texprV : ADL.ATypeExpr<V>): ADL.ATypeExpr<Map<K, V>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Map"}}, parameters : [texprK.value, texprV.value]}};
++export function texprMap<K, V>(
++  texprK: ADL.ATypeExpr<K>,
++  texprV: ADL.ATypeExpr<V>,
++): ADL.ATypeExpr<Map<K, V>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Map" },
++      },
++      parameters: [texprK.value, texprV.value],
++    },
++  };
+ }
+ 
+ export type Set<T> = T[];
+ 
+-const Set_AST : ADL.ScopedDecl =
+-  {"moduleName":"sys.types","decl":{"annotations":[],"type_":{"kind":"newtype_","value":{"typeParams":["T"],"default":{"kind":"nothing"},"typeExpr":{"typeRef":{"kind":"primitive","value":"Vector"},"parameters":[{"typeRef":{"kind":"typeParam","value":"T"},"parameters":[]}]}}},"name":"Set","version":{"kind":"nothing"}}};
++const Set_AST: ADL.ScopedDecl = {
++  "moduleName": "sys.types",
++  "decl": {
++    "annotations": [],
++    "type_": {
++      "kind": "newtype_",
++      "value": {
++        "typeParams": ["T"],
++        "default": { "kind": "nothing" },
++        "typeExpr": {
++          "typeRef": { "kind": "primitive", "value": "Vector" },
++          "parameters": [{
++            "typeRef": { "kind": "typeParam", "value": "T" },
++            "parameters": [],
++          }],
++        },
++      },
++    },
++    "name": "Set",
++    "version": { "kind": "nothing" },
++  },
++};
+ 
+-export const snSet: ADL.ScopedName = {moduleName:"sys.types", name:"Set"};
++export const snSet: ADL.ScopedName = { moduleName: "sys.types", name: "Set" };
+ 
+-export function texprSet<T>(texprT : ADL.ATypeExpr<T>): ADL.ATypeExpr<Set<T>> {
+-  return {value : {typeRef : {kind: "reference", value : {moduleName : "sys.types",name : "Set"}}, parameters : [texprT.value]}};
++export function texprSet<T>(texprT: ADL.ATypeExpr<T>): ADL.ATypeExpr<Set<T>> {
++  return {
++    value: {
++      typeRef: {
++        kind: "reference",
++        value: { moduleName: "sys.types", name: "Set" },
++      },
++      parameters: [texprT.value],
++    },
++  };
+ }
+ 
+ export const _AST_MAP: { [key: string]: ADL.ScopedDecl } = {
+-  "sys.types.Pair" : Pair_AST,
+-  "sys.types.Either" : Either_AST,
+-  "sys.types.Maybe" : Maybe_AST,
+-  "sys.types.Error" : Error_AST,
+-  "sys.types.MapEntry" : MapEntry_AST,
+-  "sys.types.Map" : Map_AST,
+-  "sys.types.Set" : Set_AST
++  "sys.types.Pair": Pair_AST,
++  "sys.types.Either": Either_AST,
++  "sys.types.Maybe": Maybe_AST,
++  "sys.types.Error": Error_AST,
++  "sys.types.MapEntry": MapEntry_AST,
++  "sys.types.Map": Map_AST,
++  "sys.types.Set": Set_AST,
+ };
 -- 
 2.20.1
 
