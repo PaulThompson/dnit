@@ -1,6 +1,6 @@
-// deno-lint-ignore-file
-
 /* @generated from adl module sys.types */
+
+
 export interface Pair<T1, T2> {
   v1: T1;
   v2: T2;
@@ -8,9 +8,9 @@ export interface Pair<T1, T2> {
 
 export function makePair<T1, T2>(
   input: {
-    v1: T1;
-    v2: T2;
-  },
+    v1: T1,
+    v2: T2,
+  }
 ): Pair<T1, T2> {
   return {
     v1: input.v1,
@@ -19,11 +19,11 @@ export function makePair<T1, T2>(
 }
 
 export interface Either_Left<T1, _T2> {
-  kind: "left";
+  kind: 'left';
   value: T1;
 }
 export interface Either_Right<_T1, T2> {
-  kind: "right";
+  kind: 'right';
   value: T2;
 }
 
@@ -34,18 +34,13 @@ export interface EitherOpts<T1, T2> {
   right: T2;
 }
 
-export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(
-  kind: K,
-  value: EitherOpts<T1, T2>[K],
-) {
-  return { kind, value };
-}
+export function makeEither<T1, T2, K extends keyof EitherOpts<T1, T2>>(kind: K, value: EitherOpts<T1, T2>[K]) { return {kind, value}; }
 
 export interface Maybe_Nothing<_T> {
-  kind: "nothing";
+  kind: 'nothing';
 }
 export interface Maybe_Just<T> {
-  kind: "just";
+  kind: 'just';
   value: T;
 }
 
@@ -56,19 +51,14 @@ export interface MaybeOpts<T> {
   just: T;
 }
 
-export function makeMaybe<T, K extends keyof MaybeOpts<T>>(
-  kind: K,
-  value: MaybeOpts<T>[K],
-) {
-  return { kind, value };
-}
+export function makeMaybe<T, K extends keyof MaybeOpts<T>>(kind: K, value: MaybeOpts<T>[K]) { return {kind, value}; }
 
 export interface Error_Value<T> {
-  kind: "value";
+  kind: 'value';
   value: T;
 }
 export interface Error_Error<_T> {
-  kind: "error";
+  kind: 'error';
   value: string;
 }
 
@@ -79,12 +69,7 @@ export interface ErrorOpts<T> {
   error: string;
 }
 
-export function makeError<T, K extends keyof ErrorOpts<T>>(
-  kind: K,
-  value: ErrorOpts<T>[K],
-) {
-  return { kind, value };
-}
+export function makeError<T, K extends keyof ErrorOpts<T>>(kind: K, value: ErrorOpts<T>[K]) { return {kind, value}; }
 
 export interface MapEntry<K, V> {
   key: K;
@@ -93,9 +78,9 @@ export interface MapEntry<K, V> {
 
 export function makeMapEntry<K, V>(
   input: {
-    key: K;
-    value: V;
-  },
+    key: K,
+    value: V,
+  }
 ): MapEntry<K, V> {
   return {
     key: input.key,

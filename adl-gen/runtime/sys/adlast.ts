@@ -1,13 +1,12 @@
-// deno-lint-ignore-file
-
 /* @generated from adl module sys.adlast */
-import type * as sys_types from "./types.ts";
+
+import * as sys_types from "./types.ts";
 
 export type ModuleName = string;
 
 export type Ident = string;
 
-export type Annotations = sys_types.Map<ScopedName, {} | null>;
+export type Annotations = sys_types.Map<ScopedName, {}|null>;
 
 export interface ScopedName {
   moduleName: ModuleName;
@@ -16,9 +15,9 @@ export interface ScopedName {
 
 export function makeScopedName(
   input: {
-    moduleName: ModuleName;
-    name: Ident;
-  },
+    moduleName: ModuleName,
+    name: Ident,
+  }
 ): ScopedName {
   return {
     moduleName: input.moduleName,
@@ -27,15 +26,15 @@ export function makeScopedName(
 }
 
 export interface TypeRef_Primitive {
-  kind: "primitive";
+  kind: 'primitive';
   value: Ident;
 }
 export interface TypeRef_TypeParam {
-  kind: "typeParam";
+  kind: 'typeParam';
   value: Ident;
 }
 export interface TypeRef_Reference {
-  kind: "reference";
+  kind: 'reference';
   value: ScopedName;
 }
 
@@ -47,12 +46,7 @@ export interface TypeRefOpts {
   reference: ScopedName;
 }
 
-export function makeTypeRef<K extends keyof TypeRefOpts>(
-  kind: K,
-  value: TypeRefOpts[K],
-) {
-  return { kind, value };
-}
+export function makeTypeRef<K extends keyof TypeRefOpts>(kind: K, value: TypeRefOpts[K]) { return {kind, value}; }
 
 export interface TypeExpr {
   typeRef: TypeRef;
@@ -61,9 +55,9 @@ export interface TypeExpr {
 
 export function makeTypeExpr(
   input: {
-    typeRef: TypeRef;
-    parameters: TypeExpr[];
-  },
+    typeRef: TypeRef,
+    parameters: TypeExpr[],
+  }
 ): TypeExpr {
   return {
     typeRef: input.typeRef,
@@ -75,18 +69,18 @@ export interface Field {
   name: Ident;
   serializedName: Ident;
   typeExpr: TypeExpr;
-  default: sys_types.Maybe<{} | null>;
+  default: sys_types.Maybe<{}|null>;
   annotations: Annotations;
 }
 
 export function makeField(
   input: {
-    name: Ident;
-    serializedName: Ident;
-    typeExpr: TypeExpr;
-    default: sys_types.Maybe<{} | null>;
-    annotations: Annotations;
-  },
+    name: Ident,
+    serializedName: Ident,
+    typeExpr: TypeExpr,
+    default: sys_types.Maybe<{}|null>,
+    annotations: Annotations,
+  }
 ): Field {
   return {
     name: input.name,
@@ -104,9 +98,9 @@ export interface Struct {
 
 export function makeStruct(
   input: {
-    typeParams: Ident[];
-    fields: Field[];
-  },
+    typeParams: Ident[],
+    fields: Field[],
+  }
 ): Struct {
   return {
     typeParams: input.typeParams,
@@ -121,9 +115,9 @@ export interface Union {
 
 export function makeUnion(
   input: {
-    typeParams: Ident[];
-    fields: Field[];
-  },
+    typeParams: Ident[],
+    fields: Field[],
+  }
 ): Union {
   return {
     typeParams: input.typeParams,
@@ -138,9 +132,9 @@ export interface TypeDef {
 
 export function makeTypeDef(
   input: {
-    typeParams: Ident[];
-    typeExpr: TypeExpr;
-  },
+    typeParams: Ident[],
+    typeExpr: TypeExpr,
+  }
 ): TypeDef {
   return {
     typeParams: input.typeParams,
@@ -151,15 +145,15 @@ export function makeTypeDef(
 export interface NewType {
   typeParams: Ident[];
   typeExpr: TypeExpr;
-  default: sys_types.Maybe<{} | null>;
+  default: sys_types.Maybe<{}|null>;
 }
 
 export function makeNewType(
   input: {
-    typeParams: Ident[];
-    typeExpr: TypeExpr;
-    default: sys_types.Maybe<{} | null>;
-  },
+    typeParams: Ident[],
+    typeExpr: TypeExpr,
+    default: sys_types.Maybe<{}|null>,
+  }
 ): NewType {
   return {
     typeParams: input.typeParams,
@@ -169,27 +163,23 @@ export function makeNewType(
 }
 
 export interface DeclType_Struct_ {
-  kind: "struct_";
+  kind: 'struct_';
   value: Struct;
 }
 export interface DeclType_Union_ {
-  kind: "union_";
+  kind: 'union_';
   value: Union;
 }
 export interface DeclType_Type_ {
-  kind: "type_";
+  kind: 'type_';
   value: TypeDef;
 }
 export interface DeclType_Newtype_ {
-  kind: "newtype_";
+  kind: 'newtype_';
   value: NewType;
 }
 
-export type DeclType =
-  | DeclType_Struct_
-  | DeclType_Union_
-  | DeclType_Type_
-  | DeclType_Newtype_;
+export type DeclType = DeclType_Struct_ | DeclType_Union_ | DeclType_Type_ | DeclType_Newtype_;
 
 export interface DeclTypeOpts {
   struct_: Struct;
@@ -198,12 +188,7 @@ export interface DeclTypeOpts {
   newtype_: NewType;
 }
 
-export function makeDeclType<K extends keyof DeclTypeOpts>(
-  kind: K,
-  value: DeclTypeOpts[K],
-) {
-  return { kind, value };
-}
+export function makeDeclType<K extends keyof DeclTypeOpts>(kind: K, value: DeclTypeOpts[K]) { return {kind, value}; }
 
 export interface Decl {
   name: Ident;
@@ -214,11 +199,11 @@ export interface Decl {
 
 export function makeDecl(
   input: {
-    name: Ident;
-    version: sys_types.Maybe<number>;
-    type_: DeclType;
-    annotations: Annotations;
-  },
+    name: Ident,
+    version: sys_types.Maybe<number>,
+    type_: DeclType,
+    annotations: Annotations,
+  }
 ): Decl {
   return {
     name: input.name,
@@ -235,9 +220,9 @@ export interface ScopedDecl {
 
 export function makeScopedDecl(
   input: {
-    moduleName: ModuleName;
-    decl: Decl;
-  },
+    moduleName: ModuleName,
+    decl: Decl,
+  }
 ): ScopedDecl {
   return {
     moduleName: input.moduleName,
@@ -248,11 +233,11 @@ export function makeScopedDecl(
 export type DeclVersions = Decl[];
 
 export interface Import_ModuleName {
-  kind: "moduleName";
+  kind: 'moduleName';
   value: ModuleName;
 }
 export interface Import_ScopedName {
-  kind: "scopedName";
+  kind: 'scopedName';
   value: ScopedName;
 }
 
@@ -263,27 +248,22 @@ export interface ImportOpts {
   scopedName: ScopedName;
 }
 
-export function makeImport<K extends keyof ImportOpts>(
-  kind: K,
-  value: ImportOpts[K],
-) {
-  return { kind, value };
-}
+export function makeImport<K extends keyof ImportOpts>(kind: K, value: ImportOpts[K]) { return {kind, value}; }
 
 export interface Module {
   name: ModuleName;
   imports: Import[];
-  decls: { [key: string]: Decl };
+  decls: {[key: string]: Decl};
   annotations: Annotations;
 }
 
 export function makeModule(
   input: {
-    name: ModuleName;
-    imports: Import[];
-    decls: { [key: string]: Decl };
-    annotations: Annotations;
-  },
+    name: ModuleName,
+    imports: Import[],
+    decls: {[key: string]: Decl},
+    annotations: Annotations,
+  }
 ): Module {
   return {
     name: input.name,

@@ -1,5 +1,5 @@
 /* @generated from adl module sys.dynamic */
-//deno-lint-ignore-file
+
 import * as sys_adlast from "./adlast.ts";
 
 /**
@@ -7,14 +7,14 @@ import * as sys_adlast from "./adlast.ts";
  */
 export interface Dynamic {
   typeExpr: sys_adlast.TypeExpr;
-  value: {} | null;
+  value: {}|null;
 }
 
 export function makeDynamic(
   input: {
-    typeExpr: sys_adlast.TypeExpr;
-    value: {} | null;
-  },
+    typeExpr: sys_adlast.TypeExpr,
+    value: {}|null,
+  }
 ): Dynamic {
   return {
     typeExpr: input.typeExpr,
