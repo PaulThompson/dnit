@@ -2,7 +2,7 @@ import {
   exec,
   file,
   task,
-} from "https://deno.land/x/dnit@dnit-v1.12.2/dnit.ts";
+} from "https://deno.land/x/dnit@dnit-v1.12.3/dnit.ts";
 import * as flags from "https://deno.land/std@0.91.0/flags/mod.ts";
 import * as path from "https://deno.land/std@0.91.0/path/mod.ts";
 import * as log from "https://deno.land/std@0.91.0/log/mod.ts";

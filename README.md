@@ -17,7 +17,7 @@ It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --allow-read --allow-write --allow-run --unstable -f --name dnit https://deno.land/x/dnit@dnit-v1.12.2/main.ts
+deno install --allow-read --allow-write --allow-run --unstable -f --name dnit https://deno.land/x/dnit@dnit-v1.12.3/main.ts
 ```
 
 Install from source checkout:
@@ -34,7 +34,7 @@ deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./
 ## Sample Usage
 
 ```
-import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.12.2/dnit.ts";
+import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.12.3/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({
