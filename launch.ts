@@ -87,8 +87,9 @@ function findUserSource(
 }
 
 export async function parseDotDenoVersionFile(fname: string): Promise<string> {
-  const denoReqSemverRange = await Deno.readTextFile(fname);
-  return denoReqSemverRange;
+  const contents = await Deno.readTextFile(fname);
+  const trimmed = contents.split('\n').map(l=>l.trim()).filter(l=>l.length>0).join('\n');
+  return trimmed;
 }
 
 export async function getDenoVersion(): Promise<string> {
@@ -130,7 +131,7 @@ export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
       const reqDenoVerStr = await parseDotDenoVersionFile(dotDenoVersionFile);
       const validDenoVer = checkValidDenoVersion(denoVersion, reqDenoVerStr);
       if (!validDenoVer) {
-        throw new Error("Requires deno version " + reqDenoVerStr);
+        throw new Error(`Note that ${dotDenoVersionFile} requires version(s) ${reqDenoVerStr}.  The current version is ${denoVersion}.  Consider editing the .denoversion file and try again`);
       }
       logger.info("deno version ok:" + denoVersion + " for " + reqDenoVerStr);
     }
