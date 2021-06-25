@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.91.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
 
 import { processPipe, run } from "./process.ts";
 
