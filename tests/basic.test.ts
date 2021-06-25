@@ -7,10 +7,10 @@ import {
   TrackedFile,
 } from "../dnit.ts";
 
-import { assertEquals } from "https://deno.land/std@0.99.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.92.0/testing/asserts.ts";
 
-import * as uuid from "https://deno.land/std@0.99.0/uuid/mod.ts";
-import * as path from "https://deno.land/std@0.99.0/path/mod.ts";
+import * as uuid from "https://deno.land/std@0.92.0/uuid/mod.ts";
+import * as path from "https://deno.land/std@0.92.0/path/mod.ts";
 
 import { Manifest } from "../manifest.ts";
 
