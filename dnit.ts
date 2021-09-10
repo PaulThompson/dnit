@@ -261,9 +261,9 @@ export class Task {
     if (actualUpToDate) {
       ctx.taskLogger.info(`--- ${this.name}`);
     } else {
-      ctx.taskLogger.info(`... ${this.name}`);
+      ctx.taskLogger.info(`{{{ ${this.name}`);
       await this.action(taskContext(ctx, this));
-      ctx.taskLogger.info(`=== ${this.name}`);
+      ctx.taskLogger.info(`}}} ${this.name}`);
 
       {
         /// recalc & save data of deps:
