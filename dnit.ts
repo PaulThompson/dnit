@@ -88,7 +88,7 @@ export type TaskParams = {
   action: Action;
 
   /// Optional list of task or file dependencies
-  deps?: (Task | TrackedFile | TrackedFilesAsync)[];
+  deps?: Dep[];
 
   /// Targets (files which will be produced by execution of this task)
   targets?: TrackedFile[];
@@ -96,6 +96,9 @@ export type TaskParams = {
   /// Custom up-to-date definition - Can be used to make a task *less* up to date.  Eg; use uptodate: runAlways  to run always on request regardless of dependencies being up to date.
   uptodate?: IsUpToDate;
 };
+
+/// The kinds of supported dependencies.
+export type Dep = Task | TrackedFile | TrackedFilesAsync;
 
 /// Convenience function: an up to date always false to run always
 export const runAlways: IsUpToDate = () => false;
