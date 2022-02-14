@@ -42,7 +42,8 @@ function findUserSource(
   }
 
   const subdirs = [
-    "dnit", // subdirectory (preferred so that subdir is a deno only typescript tree)
+    "dnit",      // subdirectory (preferred so that subdir is a deno only typescript tree)
+    "deno/dnit", // alternative path
   ];
 
   const defaultSources = [
