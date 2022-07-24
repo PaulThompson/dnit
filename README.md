@@ -222,6 +222,17 @@ Note that the other directories can contain (non-deno) typescript project(s) and
 having the (deno) typescript sources in a nominal `dnit` tree helps prevent
 confusion between the two.
 
+## Tab Completion
+
+For those using the tool under bash, simply execute 
+
+``
+dnit tabcompletion
+``
+
+This will output a bash completion script that can be sourced in the current shell to provide tab completion for the
+relevant dnit tasks.
+
 # References:
 
 - https://pydoit.org/
