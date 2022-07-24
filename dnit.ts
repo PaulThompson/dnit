@@ -527,16 +527,20 @@ export function task(taskParams: TaskParams): Task {
   return task;
 }
 
-function showTaskList(ctx: ExecContext) {
-  console.log(
-    textTable(
-      ["Name", "Description"],
-      Array.from(ctx.taskRegister.values()).map((t) => ([
-        t.name,
-        t.description || "",
-      ])),
-    ),
-  );
+function showTaskList(ctx: ExecContext, args: flags.Args) {
+  if (args["quiet"]) {
+    Array.from(ctx.taskRegister.values()).map(task => console.log(task.name));
+  } else {
+    console.log(
+      textTable(
+        ["Name", "Description"],
+        Array.from(ctx.taskRegister.values()).map((t) => ([
+          t.name,
+          t.description || "",
+        ])),
+      ),
+    );
+  }
 }
 
 /// StdErr plaintext handler (no color codes)
@@ -623,12 +627,12 @@ export async function execCli(
 
   if (requestedTaskName === null) {
     ctx.taskLogger.error("No task name given");
-    showTaskList(ctx);
+    showTaskList(ctx, args);
     return { success: false };
   }
 
   if (requestedTaskName === "list") {
-    showTaskList(ctx);
+    showTaskList(ctx, args);
     return { success: true };
   }
 
