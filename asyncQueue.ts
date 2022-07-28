@@ -1,4 +1,4 @@
-export type Action<T> = (() => Promise<T>);
+export type Action<T> = () => Promise<T>;
 
 // based on https://medium.com/@karenmarkosyan/how-to-manage-promises-into-dynamic-queue-with-vanilla-javascript-9d0d1f8d4df5
 export class AsyncQueue<T, E> {

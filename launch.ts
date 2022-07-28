@@ -15,7 +15,6 @@ type FindUserSourceContext = {
 };
 
 function findUserSourceContext(dir: string): FindUserSourceContext {
-  const pathParts = dir.split(path.SEP);
   return {
     path: dir,
     stat: Deno.lstatSync(dir),
@@ -42,7 +41,7 @@ function findUserSource(
   }
 
   const subdirs = [
-    "dnit",      // subdirectory (preferred so that subdir is a deno only typescript tree)
+    "dnit", // subdirectory (preferred so that subdir is a deno only typescript tree)
     "deno/dnit", // alternative path
   ];
 
@@ -89,7 +88,9 @@ function findUserSource(
 
 export async function parseDotDenoVersionFile(fname: string): Promise<string> {
   const contents = await Deno.readTextFile(fname);
-  const trimmed = contents.split('\n').map(l=>l.trim()).filter(l=>l.length>0).join('\n');
+  const trimmed = contents.split("\n").map((l) => l.trim()).filter((l) =>
+    l.length > 0
+  ).join("\n");
   return trimmed;
 }
 
@@ -98,7 +99,7 @@ export async function getDenoVersion(): Promise<string> {
     cmd: ["deno", "--version"],
     stdout: "piped",
   });
-  const [status, output] = await Promise.all([proc.status(), proc.output()]);
+  const [_status, output] = await Promise.all([proc.status(), proc.output()]);
   const decoder = new TextDecoder();
   const denoVersionStr = decoder.decode(output);
 
@@ -132,7 +133,9 @@ export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
       const reqDenoVerStr = await parseDotDenoVersionFile(dotDenoVersionFile);
       const validDenoVer = checkValidDenoVersion(denoVersion, reqDenoVerStr);
       if (!validDenoVer) {
-        throw new Error(`Note that ${dotDenoVersionFile} requires version(s) ${reqDenoVerStr}.  The current version is ${denoVersion}.  Consider editing the .denoversion file and try again`);
+        throw new Error(
+          `Note that ${dotDenoVersionFile} requires version(s) ${reqDenoVerStr}.  The current version is ${denoVersion}.  Consider editing the .denoversion file and try again`,
+        );
       }
       logger.info("deno version ok:" + denoVersion + " for " + reqDenoVerStr);
     }

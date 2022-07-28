@@ -15,7 +15,7 @@ export function toDynamic<T>(jsonBinding: JsonBinding<T>, value: T): Dynamic {
 export function fromDynamic<T>(
   jsonBinding: JsonBinding<T>,
   dynamic: Dynamic,
-): (T | null) {
+): T | null {
   if (typeExprsEqual(jsonBinding.typeExpr, dynamic.typeExpr)) {
     return jsonBinding.fromJson(dynamic.value);
   }

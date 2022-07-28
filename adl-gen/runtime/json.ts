@@ -43,7 +43,7 @@ export interface JsonBinding<T> {
 
   // Variant of fromJson that throws Errors on failure
   fromJsonE(json: Json): T;
-}/**
+} /**
  * Construct a JsonBinding for an arbitrary type expression
  */
 
@@ -65,7 +65,7 @@ export function createJsonBinding<T>(
     fromJson: jb0.fromJson,
     fromJsonE,
   };
-}/**
+} /**
  * Interface for json parsing exceptions.
  * Any implementation should properly show the parse error tree.
  *
@@ -205,50 +205,35 @@ function primitiveJsonBinding(
   boundTypeParams: BoundTypeParams,
 ): JsonBinding0<Unknown> {
   if (ptype === "String") {
-    return identityJsonBinding("a string", (v) =>
-      typeof (v) === "string");
+    return identityJsonBinding("a string", (v) => typeof (v) === "string");
   } else if (ptype === "Int8") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Void") {
-    return identityJsonBinding("a null", (v) =>
-      v === null);
+    return identityJsonBinding("a null", (v) => v === null);
   } else if (ptype === "Bool") {
-    return identityJsonBinding("a bool", (v) =>
-      typeof (v) === "boolean");
+    return identityJsonBinding("a bool", (v) => typeof (v) === "boolean");
   } else if (ptype === "Int8") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Int16") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Int32") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Int64") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Word8") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Word16") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Word32") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Word64") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Float") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Double") {
-    return identityJsonBinding("a number", (v) =>
-      typeof (v) === "number");
+    return identityJsonBinding("a number", (v) => typeof (v) === "number");
   } else if (ptype === "Json") {
-    return identityJsonBinding("a json value", (_v) =>
-      true);
+    return identityJsonBinding("a json value", (_v) => true);
   } else if (ptype === "Bytes") return bytesJsonBinding();
   else if (ptype === "Vector") {
     return vectorJsonBinding(dresolver, params[0], boundTypeParams);

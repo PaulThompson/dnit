@@ -1,16 +1,12 @@
 import {
   asyncFiles,
   execBasic,
-  file,
   runAlways,
   task,
   TrackedFile,
 } from "../dnit.ts";
 
-import { assertEquals } from "https://deno.land/std@0.119.0/testing/asserts.ts";
-
-import * as uuid from "https://deno.land/std@0.119.0/uuid/mod.ts";
-import * as path from "https://deno.land/std@0.119.0/path/mod.ts";
+import { assertEquals } from "https://deno.land/std@0.117.0/testing/asserts.ts";
 
 import { Manifest } from "../manifest.ts";
 

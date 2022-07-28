@@ -1,4 +1,4 @@
-import { BufReader } from "./deps.ts";
+import { BufReader, copy, readAll, writeAll } from "./deps.ts";
 
 /** Obtain a boolean confirmation - present a message
  * @param msg - Message presented
@@ -27,7 +27,7 @@ export async function writeAllClose(
 ): Promise<void> {
   const encoder = new TextEncoder();
   const buf = encoder.encode(content);
-  await Deno.writeAll(dest, buf);
+  await writeAll(dest, buf);
   dest.close();
 }
 
@@ -42,7 +42,7 @@ export async function copyAllClose(
   let totalCopiedCount = 0;
   let copyCount = 0;
   do {
-    copyCount = await Deno.copy(src, dst, options);
+    copyCount = await copy(src, dst, options);
     totalCopiedCount += copyCount;
   } while (copyCount > 0);
 
@@ -56,7 +56,7 @@ export async function readAllClose(
   reader: Deno.Reader & Deno.Closer,
 ): Promise<string> {
   const decoder = new TextDecoder();
-  const buf = await Deno.readAll(reader);
+  const buf = await readAll(reader);
   reader.close();
   return decoder.decode(buf);
 }
