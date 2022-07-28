@@ -149,13 +149,13 @@ export function texprTimestamp(): ADL.ATypeExpr<Timestamp> {
 }
 
 export interface TaskData {
-  lastExecution: (Timestamp | null);
+  lastExecution: Timestamp | null;
   trackedFiles: sys_types.Map<TrackedFileName, TrackedFileData>;
 }
 
 export function makeTaskData(
   input: {
-    lastExecution?: (Timestamp | null);
+    lastExecution?: Timestamp | null;
     trackedFiles: sys_types.Map<TrackedFileName, TrackedFileData>;
   },
 ): TaskData {

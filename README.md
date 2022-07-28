@@ -9,7 +9,7 @@ across many files or shared between projects.
 ### Pre-Requisites
 
 - [Deno](https://deno.land/#installation)
-- Requires deno v1.7.0 or greater
+- Requires deno v1.16.4 or greater
 
 ### Install
 
@@ -224,16 +224,15 @@ confusion between the two.
 
 ## Tab Completion
 
-For those using the tool under bash, simply execute 
+For those using the tool under bash, simply execute
 
-``
-dnit tabcompletion
-``
+`dnit tabcompletion`
 
-This will output a bash completion script that can be sourced in the current shell to provide tab completion for the
-relevant dnit tasks.
+This will output a bash completion script that can be sourced in the current
+shell to provide tab completion for the relevant dnit tasks.
 
-or run `source <(dnit tabcompletion)` to generate and source the tab completion in current shell.
+or run `source <(dnit tabcompletion)` to generate and source the tab completion
+in current shell.
 
 # References:
 
