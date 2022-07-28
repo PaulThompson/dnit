@@ -547,8 +547,8 @@ function echoBashCompletionScript() {
   console.log("# bash completion for dnit\n" +
     "# auto-generate by `dnit tabcompletion`\n" +
     "\n" +
-    "# to activate it you need to 'source' the generate script\n" +
-    "# $ source <generated-script>\n" +
+    "# to activate it you need to 'source' the generated script\n" +
+    "# $ source <(dnit tabcompletion)\n" +
     "\n" +
     "_dnit() \n" +
     "{\n" +

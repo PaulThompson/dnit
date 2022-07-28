@@ -233,6 +233,8 @@ dnit tabcompletion
 This will output a bash completion script that can be sourced in the current shell to provide tab completion for the
 relevant dnit tasks.
 
+or run `source <(dnit tabcompletion)` to generate and source the tab completion in current shell.
+
 # References:
 
 - https://pydoit.org/
