@@ -715,10 +715,15 @@ export async function execBasic(
   return ctx;
 }
 
-/// Original name 'exec' for execCli
-export async function exec(
+/// main function for use in dnit scripts
+export function main (
   cliArgs: string[],
   tasks: Task[],
-): Promise<ExecResult> {
-  return await execCli(cliArgs, tasks);
+): void {
+  execCli(cliArgs, tasks)
+  .then(() => Deno.exit(0))
+  .catch(err => {
+    console.error("error in main", err);
+    Deno.exit(1);
+  })
 }
