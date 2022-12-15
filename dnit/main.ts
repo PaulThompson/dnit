@@ -1,5 +1,5 @@
 import { flags, log, semver, task, utils } from "./deps.ts";
-import { execCli, file, runAlways, TaskContext } from "../dnit.ts";
+import { main, file, runAlways, TaskContext } from "../dnit.ts";
 
 import {
   fetchTags,
@@ -264,9 +264,4 @@ const tasks = [
   killTest,
 ];
 
-execCli(Deno.args, tasks)
-  .then((result) => {
-    if (!result.success) {
-      Deno.exit(1);
-    }
-  });
+main(Deno.args, tasks);
