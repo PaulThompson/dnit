@@ -33,7 +33,8 @@ deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./
 
 ## Sample Usage
 
-```
+
+```ts
 import {task, main, file} from  "https://deno.land/x/dnit@dnit-v1.13.00/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
@@ -112,7 +113,7 @@ In verbose mode the tool logs to stderr (fd #2)
 Files are tracked by the exported
 `export function file(fileParams: FileParams) : TrackedFile`
 
-```
+```ts
 /** User params for a tracked file */
 export type FileParams = {
 
@@ -129,7 +130,7 @@ export type FileParams = {
 
 Tasks are created by the exported `function task(taskParams: TaskParams): Task`
 
-```
+```ts
 /** User definition of a task */
 export type TaskParams = {
 
@@ -164,7 +165,7 @@ Tasks are passed to the exported
 This exposes the tasks for execution by the CLI and executes them according to
 the `cliArgs` passed in.
 
-```
+```ts
 exec(Deno.args, tasks);
 ```
 
