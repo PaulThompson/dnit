@@ -33,8 +33,9 @@ deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./
 
 ## Sample Usage
 
+
 ```ts
-import {task, exec, file} from  "https://deno.land/x/dnit@dnit-v1.13.00/dnit.ts";
+import {task, main, file} from  "https://deno.land/x/dnit@dnit-v1.13.00/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({
@@ -82,7 +83,7 @@ export const goodbye = task({
 });
 
 /// Register cmdline args & tasks with the tool.
-exec(Deno.args, [helloWorld, goodbye]);
+main(Deno.args, [helloWorld, goodbye]);
 ```
 
 ## Sample Usage - CLI
