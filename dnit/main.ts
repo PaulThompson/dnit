@@ -260,6 +260,7 @@ const tasks = [
   tag,
   push,
   updategenadlfix,
+  makeReleaseEdits,
   release,
   killTest,
 ];
