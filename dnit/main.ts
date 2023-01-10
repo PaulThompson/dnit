@@ -120,7 +120,7 @@ const makeReleaseEdits = task({
   action: async (ctx: TaskContext) => {
     const nextver = await getNextTagVersion(ctx.args);
 
-    const pattern = new RegExp(`${tagPrefix}[0-9]+\.[0-9]+\.[0-9]`);
+    const pattern = new RegExp(`${tagPrefix}[0-9]+\.[0-9]+\.[0-9]+`);
 
     // find replace in sources 'dnit-v' ->
     for await (
