@@ -33,7 +33,7 @@ class ExecContext {
     /// loaded hash manifest
     readonly manifest: Manifest,
     /// commandline args
-    readonly args: flags.Args,
+    readonly args: flags.Args
   ) {
     if (args["verbose"] !== undefined) {
       this.internalLogger.levelName = "INFO";
@@ -69,11 +69,11 @@ export type Action = (ctx: TaskContext) => Promise<void> | void;
 export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;
 export type GetFileHash = (
   filename: A.TrackedFileName,
-  stat: Deno.FileInfo,
+  stat: Deno.FileInfo
 ) => Promise<A.TrackedFileHash> | A.TrackedFileHash;
 export type GetFileTimestamp = (
   filename: A.TrackedFileName,
-  stat: Deno.FileInfo,
+  stat: Deno.FileInfo
 ) => Promise<A.Timestamp> | A.Timestamp;
 
 /** User definition of a task */
@@ -107,24 +107,24 @@ function isTask(dep: Task | TrackedFile | TrackedFilesAsync): dep is Task {
   return dep instanceof Task;
 }
 function isTrackedFile(
-  dep: Task | TrackedFile | TrackedFilesAsync,
+  dep: Task | TrackedFile | TrackedFilesAsync
 ): dep is TrackedFile {
   return dep instanceof TrackedFile;
 }
 function isTrackedFileAsync(
-  dep: Task | TrackedFile | TrackedFilesAsync,
+  dep: Task | TrackedFile | TrackedFilesAsync
 ): dep is TrackedFilesAsync {
   return dep instanceof TrackedFilesAsync;
 }
 
 type StatResult =
   | {
-    kind: "fileInfo";
-    fileInfo: Deno.FileInfo;
-  }
+      kind: "fileInfo";
+      fileInfo: Deno.FileInfo;
+    }
   | {
-    kind: "nonExistent";
-  };
+      kind: "nonExistent";
+    };
 
 async function statPath(path: A.TrackedFileName): Promise<StatResult> {
   try {
@@ -159,14 +159,10 @@ export class Task {
     this.name = taskParams.name;
     this.action = taskParams.action;
     this.description = taskParams.description;
-    this.task_deps = new Set(
-      this.getTaskDeps(taskParams.deps || []),
-    );
-    this.file_deps = new Set(
-      this.getTrackedFiles(taskParams.deps || []),
-    );
+    this.task_deps = new Set(this.getTaskDeps(taskParams.deps || []));
+    this.file_deps = new Set(this.getTrackedFiles(taskParams.deps || []));
     this.async_files_deps = new Set(
-      this.getTrackedFilesAsync(taskParams.deps || []),
+      this.getTrackedFilesAsync(taskParams.deps || [])
     );
     this.targets = new Set(taskParams.targets || []);
     this.uptodate = taskParams.uptodate;
@@ -177,17 +173,17 @@ export class Task {
   }
 
   private getTaskDeps(
-    deps: (Task | TrackedFile | TrackedFilesAsync)[],
+    deps: (Task | TrackedFile | TrackedFilesAsync)[]
   ): Task[] {
     return deps.filter(isTask);
   }
   private getTrackedFiles(
-    deps: (Task | TrackedFile | TrackedFilesAsync)[],
+    deps: (Task | TrackedFile | TrackedFilesAsync)[]
   ): TrackedFile[] {
     return deps.filter(isTrackedFile);
   }
   private getTrackedFilesAsync(
-    deps: (Task | TrackedFile | TrackedFilesAsync)[],
+    deps: (Task | TrackedFile | TrackedFilesAsync)[]
   ): TrackedFilesAsync[] {
     return deps.filter(isTrackedFileAsync);
   }
@@ -203,7 +199,7 @@ export class Task {
         new TaskManifest({
           lastExecution: null,
           trackedFiles: [],
-        }),
+        })
       );
 
       // ensure preceding tasks are setup too
@@ -249,15 +245,15 @@ export class Task {
 
     let actualUpToDate = true;
 
-    actualUpToDate = actualUpToDate && await this.checkFileDeps(ctx);
+    actualUpToDate = actualUpToDate && (await this.checkFileDeps(ctx));
     ctx.internalLogger.info(`${this.name} checkFileDeps ${actualUpToDate}`);
 
-    actualUpToDate = actualUpToDate && await this.targetsExist(ctx);
+    actualUpToDate = actualUpToDate && (await this.targetsExist(ctx));
     ctx.internalLogger.info(`${this.name} targetsExist ${actualUpToDate}`);
 
     if (this.uptodate !== undefined) {
-      actualUpToDate = actualUpToDate &&
-        await this.uptodate(taskContext(ctx, this));
+      actualUpToDate =
+        actualUpToDate && (await this.uptodate(taskContext(ctx, this)));
     }
     ctx.internalLogger.info(`${this.name} uptodate ${actualUpToDate}`);
 
@@ -277,7 +273,7 @@ export class Task {
             ctx.asyncQueue.schedule(async () => {
               const trackedFileData = await fdep.getFileData(ctx);
               this.taskManifest?.setFileData(fdep.path, trackedFileData);
-            }),
+            })
           );
         }
         await Promise.all(promisesInProgress);
@@ -292,7 +288,7 @@ export class Task {
     const tex = await Promise.all(
       Array.from(this.targets).map((tf) =>
         ctx.asyncQueue.schedule(() => tf.exists())
-      ),
+      )
     );
     // all exist: NOT some NOT exist
     return !tex.some((t) => !t);
@@ -312,11 +308,11 @@ export class Task {
         ctx.asyncQueue.schedule(async () => {
           const r = await fdep.getFileDataOrCached(
             ctx,
-            taskManifest.getFileData(fdep.path),
+            taskManifest.getFileData(fdep.path)
           );
           taskManifest.setFileData(fdep.path, r.tData);
           fileDepsUpToDate = fileDepsUpToDate && r.upToDate;
-        }),
+        })
       );
     }
     await Promise.all(promisesInProgress);
@@ -387,7 +383,7 @@ export class TrackedFile {
   async isUpToDate(
     _ctx: ExecContext,
     tData: A.TrackedFileData | undefined,
-    statInput?: StatResult,
+    statInput?: StatResult
   ): Promise<boolean> {
     if (tData === undefined) {
       return false;
@@ -409,7 +405,7 @@ export class TrackedFile {
   /// Recalculate timestamp and hash data
   async getFileData(
     _ctx: ExecContext,
-    statInput?: StatResult,
+    statInput?: StatResult
   ): Promise<A.TrackedFileData> {
     let statResult = statInput;
     if (statResult === undefined) {
@@ -425,7 +421,7 @@ export class TrackedFile {
   async getFileDataOrCached(
     ctx: ExecContext,
     tData: A.TrackedFileData | undefined,
-    statInput?: StatResult,
+    statInput?: StatResult
   ): Promise<{
     tData: A.TrackedFileData;
     upToDate: boolean;
@@ -435,7 +431,10 @@ export class TrackedFile {
       statResult = await this.stat();
     }
 
-    if (tData !== undefined && await this.isUpToDate(ctx, tData, statResult)) {
+    if (
+      tData !== undefined &&
+      (await this.isUpToDate(ctx, tData, statResult))
+    ) {
       return {
         tData,
         upToDate: true,
@@ -452,7 +451,7 @@ export class TrackedFile {
       this.fromTask = t;
     } else {
       throw new Error(
-        "Duplicate tasks generating TrackedFile as target - " + this.path,
+        "Duplicate tasks generating TrackedFile as target - " + this.path
       );
     }
   }
@@ -467,8 +466,7 @@ export type GenTrackedFiles = () => Promise<TrackedFile[]> | TrackedFile[];
 export class TrackedFilesAsync {
   kind: "trackedfilesasync" = "trackedfilesasync";
 
-  constructor(public gen: GenTrackedFiles) {
-  }
+  constructor(public gen: GenTrackedFiles) {}
 
   async getTrackedFiles(): Promise<TrackedFile[]> {
     return await this.gen();
@@ -476,7 +474,7 @@ export class TrackedFilesAsync {
 }
 
 export async function getFileSha1Sum(
-  filename: string,
+  filename: string
 ): Promise<A.TrackedFileHash> {
   const data = await Deno.readFile(filename);
   const hashsha1 = hash.createHash("sha1");
@@ -487,7 +485,7 @@ export async function getFileSha1Sum(
 
 export function getFileTimestamp(
   _filename: string,
-  stat: Deno.FileInfo,
+  stat: Deno.FileInfo
 ): A.Timestamp {
   const mtime = stat.mtime;
   return mtime?.toISOString() || "";
@@ -537,10 +535,29 @@ function showTaskList(ctx: ExecContext, args: flags.Args) {
         Array.from(ctx.taskRegister.values()).map((t) => [
           t.name,
           t.description || "",
-        ]),
-      ),
+        ])
+      )
     );
   }
+}
+
+function echoZshCompletionScript() {
+  console.log(
+    [
+      "# zsh completion for dnit",
+      "# auto-generate by `dnit tabcompletion`",
+      "",
+      "# to activate it you need to 'source' the generated script",
+      "# $ source <(dnit tabcompletion)",
+      "",
+      "_dnit() ",
+      "{",
+      "    compadd $(dnit list --quiet 2>/dev/null)",
+      "    return 0",
+      "}",
+      "",
+    ].join("\n")
+  );
 }
 
 function echoBashCompletionScript() {
@@ -566,7 +583,7 @@ function echoBashCompletionScript() {
       "}\n" +
       "\n" +
       "\n" +
-      "complete -o filenames -F _dnit dnit \n",
+      "complete -o filenames -F _dnit dnit \n"
   );
 }
 
@@ -631,7 +648,7 @@ export type ExecResult = {
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function execCli(
   cliArgs: string[],
-  tasks: Task[],
+  tasks: Task[]
 ): Promise<ExecResult> {
   const args = flags.parse(cliArgs);
 
@@ -663,6 +680,11 @@ export async function execCli(
     return { success: true };
   }
 
+  if (requestedTaskName === "zshcompletion") {
+    echoZshCompletionScript();
+    return { success: true };
+  }
+
   if (requestedTaskName === "tabcompletion") {
     echoBashCompletionScript();
     return { success: true };
@@ -676,7 +698,7 @@ export async function execCli(
     await Promise.all(
       Array.from(ctx.taskRegister.values()).map((t) =>
         ctx.asyncQueue.schedule(() => t.setup(ctx))
-      ),
+      )
     );
 
     /// Find the requested task:
@@ -702,7 +724,7 @@ export async function execCli(
 export async function execBasic(
   cliArgs: string[],
   tasks: Task[],
-  manifest: Manifest,
+  manifest: Manifest
 ): Promise<ExecContext> {
   const args = flags.parse(cliArgs);
   const ctx = new ExecContext(manifest, args);
@@ -710,20 +732,17 @@ export async function execBasic(
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
       ctx.asyncQueue.schedule(() => t.setup(ctx))
-    ),
+    )
   );
   return ctx;
 }
 
 /// main function for use in dnit scripts
-export function main (
-  cliArgs: string[],
-  tasks: Task[],
-): void {
+export function main(cliArgs: string[], tasks: Task[]): void {
   execCli(cliArgs, tasks)
-  .then(() => Deno.exit(0))
-  .catch(err => {
-    console.error("error in main", err);
-    Deno.exit(1);
-  })
+    .then(() => Deno.exit(0))
+    .catch((err) => {
+      console.error("error in main", err);
+      Deno.exit(1);
+    });
 }
