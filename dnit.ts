@@ -143,6 +143,17 @@ async function statPath(path: A.TrackedFileName): Promise<StatResult> {
   }
 }
 
+async function deletePath(path: A.TrackedFileName): Promise<void> {
+  try {
+    await Deno.remove(path, { recursive: true });
+  } catch (err) {
+    // Ignore NotFound errors
+    if (!(err instanceof Deno.errors.NotFound)) {
+      console.log("Error deleting path: ", path, err);
+    }
+  }
+}
+
 export class Task {
   public name: A.TaskName;
   public description?: string;
@@ -288,6 +299,22 @@ export class Task {
     ctx.inprogressTasks.delete(this);
   }
 
+  async reset(ctx: ExecContext): Promise<void> {
+     await this.cleanTargets(ctx);
+  }
+
+  private async cleanTargets(ctx: ExecContext): Promise<void> {
+    await Promise.all(
+        Array.from(this.targets).map((tf) => {
+          try {
+            ctx.asyncQueue.schedule(() => tf.delete())
+          } catch (err) {
+            ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
+          }
+        }),
+    );
+  }
+
   private async targetsExist(ctx: ExecContext): Promise<boolean> {
     const tex = await Promise.all(
       Array.from(this.targets).map((tf) =>
@@ -349,6 +376,10 @@ export class TrackedFile {
   private async stat(): Promise<StatResult> {
     log.getLogger("internal").info(`checking file ${this.path}`);
     return await statPath(this.path);
+  }
+
+  async delete(): Promise<void> {
+    await deletePath(this.path);
   }
 
   async exists(statInput?: StatResult): Promise<boolean> {
@@ -678,6 +709,26 @@ export async function execCli(
         ctx.asyncQueue.schedule(() => t.setup(ctx))
       ),
     );
+
+    if (requestedTaskName === "clean") {
+      const affectedTasks: Task[] = positionalArgs.length > 1 ?
+          positionalArgs.map((arg) => ctx.taskRegister.get(String(arg)))
+              .filter(task => task !== undefined) as Task[]
+          : Array.from(ctx.taskRegister.values());
+      if (affectedTasks.length > 0) {
+        console.log("Clean tasks:");
+        /// Reset tasks
+        await Promise.all(
+            affectedTasks.map((t) => {
+              console.log(`  ${t.name}`);
+              ctx.asyncQueue.schedule(() => t.reset(ctx))
+            }),
+        );
+        await ctx.manifest.save();
+      }
+    return { success: true };
+  }
+
 
     /// Find the requested task:
     const requestedTask = ctx.taskRegister.get(requestedTaskName);
