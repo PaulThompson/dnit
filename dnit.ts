@@ -341,7 +341,7 @@ export class TrackedFile {
   fromTask: Task | null = null;
 
   constructor(fileParams: FileParams) {
-    this.path = path.posix.resolve(fileParams.path);
+    this.path = path.resolve(fileParams.path);
     this.#getHash = fileParams.getHash || getFileSha1Sum;
     this.#getTimestamp = fileParams.getTimestamp || getFileTimestamp;
   }
