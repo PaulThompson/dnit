@@ -1,5 +1,5 @@
 import { flags, log, semver, task, utils } from "./deps.ts";
-import { main, file, runAlways, TaskContext, trackFile } from "../dnit.ts";
+import { main, file, runAlways, TaskContext } from "../dnit.ts";
 
 import {
   fetchTags,
