@@ -305,9 +305,9 @@ export class Task {
 
   private async cleanTargets(ctx: ExecContext): Promise<void> {
     await Promise.all(
-        Array.from(this.targets).map((tf) => {
+        Array.from(this.targets).map(async (tf) => {
           try {
-            ctx.asyncQueue.schedule(() => tf.delete())
+            await ctx.asyncQueue.schedule(() => tf.delete())
           } catch (err) {
             ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
           }
