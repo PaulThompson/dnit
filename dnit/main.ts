@@ -251,33 +251,7 @@ const killTest = task({
   uptodate: runAlways,
 });
 
-const exampleTarget1 = trackFile({
-  path: 'exampleTarget1.txt',
-});
-const testTarget1 = task({
-  name: 'exampleGen1',
-  description: 'Test task to generate (and allow clean) of an example target',
-  action: async () => {
-    await Deno.writeTextFile(exampleTarget1.path, 'example contents');
-  },
-  targets: [exampleTarget1],
-});
-
-const exampleTarget2 = trackFile({
-  path: 'exampleTarget2.txt',
-});
-const testTarget2 = task({
-  name: 'exampleGen2',
-  description: 'Test task to generate (and allow clean) of an example target',
-  action: async () => {
-    await Deno.writeTextFile(exampleTarget1.path, 'example contents');
-  },
-  targets: [exampleTarget2],
-});
-
 const tasks = [
-  testTarget1,
-  testTarget2,
   test,
   genadl,
   tag,

@@ -769,6 +769,10 @@ export async function execBasic(
   const args = flags.parse(cliArgs);
   const ctx = new ExecContext(manifest, args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
+
+  /// register built-in tasks:
+  ctx.taskRegister.set(clean.name, clean);
+
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
       ctx.asyncQueue.schedule(() => t.setup(ctx))
