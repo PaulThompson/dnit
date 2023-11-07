@@ -54,6 +54,7 @@ export interface TaskContext {
   logger: log.Logger;
   task: Task;
   args: flags.Args;
+  exec: ExecContext;
 }
 
 function taskContext(ctx: ExecContext, task: Task): TaskContext {
@@ -61,6 +62,7 @@ function taskContext(ctx: ExecContext, task: Task): TaskContext {
     logger: ctx.taskLogger,
     task,
     args: ctx.args,
+    exec: ctx
   };
 }
 
