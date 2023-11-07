@@ -8,4 +8,3 @@ const tasks = [
 ];
 
 main(Deno.args, tasks);
-

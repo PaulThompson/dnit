@@ -62,7 +62,7 @@ function taskContext(ctx: ExecContext, task: Task): TaskContext {
     logger: ctx.taskLogger,
     task,
     args: ctx.args,
-    exec: ctx
+    exec: ctx,
   };
 }
 
@@ -302,18 +302,18 @@ export class Task {
   }
 
   async reset(ctx: ExecContext): Promise<void> {
-     await this.cleanTargets(ctx);
+    await this.cleanTargets(ctx);
   }
 
   private async cleanTargets(ctx: ExecContext): Promise<void> {
     await Promise.all(
-        Array.from(this.targets).map(async (tf) => {
-          try {
-            await ctx.asyncQueue.schedule(() => tf.delete())
-          } catch (err) {
-            ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
-          }
-        }),
+      Array.from(this.targets).map(async (tf) => {
+        try {
+          await ctx.asyncQueue.schedule(() => tf.delete());
+        } catch (err) {
+          ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
+        }
+      }),
     );
   }
 
@@ -668,24 +668,24 @@ const clean = task({
   action: async (ctx: TaskContext) => {
     const positionalArgs = ctx.args["_"];
 
-    const affectedTasks: Task[] = positionalArgs.length > 1 ?
-          positionalArgs.map((arg) => ctx.exec.taskRegister.get(String(arg)))
-              .filter(task => task !== undefined) as Task[]
-          : Array.from(ctx.exec.taskRegister.values());
-      if (affectedTasks.length > 0) {
-        console.log("Clean tasks:");
-        /// Reset tasks
-        await Promise.all(
-            affectedTasks.map((t) => {
-              console.log(`  ${t.name}`);
-              ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec))
-            }),
-        );
-        // await ctx.exec.manifest.save();
-      }
+    const affectedTasks: Task[] = positionalArgs.length > 1
+      ? positionalArgs.map((arg) => ctx.exec.taskRegister.get(String(arg)))
+        .filter((task) => task !== undefined) as Task[]
+      : Array.from(ctx.exec.taskRegister.values());
+    if (affectedTasks.length > 0) {
+      console.log("Clean tasks:");
+      /// Reset tasks
+      await Promise.all(
+        affectedTasks.map((t) => {
+          console.log(`  ${t.name}`);
+          ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec));
+        }),
+      );
+      // await ctx.exec.manifest.save();
+    }
   },
-  uptodate: runAlways
-})
+  uptodate: runAlways,
+});
 
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function execCli(
@@ -782,14 +782,14 @@ export async function execBasic(
 }
 
 /// main function for use in dnit scripts
-export function main (
+export function main(
   cliArgs: string[],
   tasks: Task[],
 ): void {
   execCli(cliArgs, tasks)
-  .then(() => Deno.exit(0))
-  .catch(err => {
-    console.error("error in main", err);
-    Deno.exit(1);
-  })
+    .then(() => Deno.exit(0))
+    .catch((err) => {
+      console.error("error in main", err);
+      Deno.exit(1);
+    });
 }
