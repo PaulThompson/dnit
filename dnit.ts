@@ -54,6 +54,7 @@ export interface TaskContext {
   logger: log.Logger;
   task: Task;
   args: flags.Args;
+  exec: ExecContext;
 }
 
 function taskContext(ctx: ExecContext, task: Task): TaskContext {
@@ -61,6 +62,7 @@ function taskContext(ctx: ExecContext, task: Task): TaskContext {
     logger: ctx.taskLogger,
     task,
     args: ctx.args,
+    exec: ctx
   };
 }
 
@@ -140,6 +142,17 @@ async function statPath(path: A.TrackedFileName): Promise<StatResult> {
       };
     }
     throw err;
+  }
+}
+
+async function deletePath(path: A.TrackedFileName): Promise<void> {
+  try {
+    await Deno.remove(path, { recursive: true });
+  } catch (err) {
+    // Ignore NotFound errors
+    if (!(err instanceof Deno.errors.NotFound)) {
+      console.log("Error deleting path: ", path, err);
+    }
   }
 }
 
@@ -288,6 +301,22 @@ export class Task {
     ctx.inprogressTasks.delete(this);
   }
 
+  async reset(ctx: ExecContext): Promise<void> {
+     await this.cleanTargets(ctx);
+  }
+
+  private async cleanTargets(ctx: ExecContext): Promise<void> {
+    await Promise.all(
+        Array.from(this.targets).map(async (tf) => {
+          try {
+            await ctx.asyncQueue.schedule(() => tf.delete())
+          } catch (err) {
+            ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
+          }
+        }),
+    );
+  }
+
   private async targetsExist(ctx: ExecContext): Promise<boolean> {
     const tex = await Promise.all(
       Array.from(this.targets).map((tf) =>
@@ -349,6 +378,10 @@ export class TrackedFile {
   private async stat(): Promise<StatResult> {
     log.getLogger("internal").info(`checking file ${this.path}`);
     return await statPath(this.path);
+  }
+
+  async delete(): Promise<void> {
+    await deletePath(this.path);
   }
 
   async exists(statInput?: StatResult): Promise<boolean> {
@@ -628,6 +661,32 @@ export type ExecResult = {
   success: boolean;
 };
 
+// Builtin task 'clean'
+const clean = task({
+  name: "clean",
+  description: "Clean tracked files",
+  action: async (ctx: TaskContext) => {
+    const positionalArgs = ctx.args["_"];
+
+    const affectedTasks: Task[] = positionalArgs.length > 1 ?
+          positionalArgs.map((arg) => ctx.exec.taskRegister.get(String(arg)))
+              .filter(task => task !== undefined) as Task[]
+          : Array.from(ctx.exec.taskRegister.values());
+      if (affectedTasks.length > 0) {
+        console.log("Clean tasks:");
+        /// Reset tasks
+        await Promise.all(
+            affectedTasks.map((t) => {
+              console.log(`  ${t.name}`);
+              ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec))
+            }),
+        );
+        // await ctx.exec.manifest.save();
+      }
+  },
+  uptodate: runAlways
+})
+
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function execCli(
   cliArgs: string[],
@@ -645,6 +704,9 @@ export async function execCli(
 
   /// register tasks as provided by user's source:
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
+
+  /// register built-in tasks:
+  ctx.taskRegister.set(clean.name, clean);
 
   let requestedTaskName: string | null = null;
   const positionalArgs = args["_"];
@@ -707,6 +769,10 @@ export async function execBasic(
   const args = flags.parse(cliArgs);
   const ctx = new ExecContext(manifest, args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
+
+  /// register built-in tasks:
+  ctx.taskRegister.set(clean.name, clean);
+
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
       ctx.asyncQueue.schedule(() => t.setup(ctx))

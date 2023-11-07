@@ -180,9 +180,6 @@ const genadl = task({
       ["git", "apply", "./tools/0001-Revert-non-desired-gen-adl-edits.patch"],
     );
   },
-  targets: [
-    file({ path: "./adl-gen/dnit/manifest.ts" }),
-  ],
   deps: [
     file({ path: "./adl/manifest.adl" }),
     file({ path: "./tools/0001-Revert-non-desired-gen-adl-edits.patch" }),
