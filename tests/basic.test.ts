@@ -140,34 +140,31 @@ Deno.test("async file deps test", async () => {
   assertEquals(tasksDone["taskB"], true);
 });
 
-
-
 Deno.test("tasks with target and clean", async () => {
-
   const tempDir = await Deno.makeTempDir();
 
-  console.log('tempDir', tempDir)
+  console.log("tempDir", tempDir);
 
   const exampleTarget1 = trackFile({
-    path: path.join(tempDir, 'exampleTarget1.txt'),
+    path: path.join(tempDir, "exampleTarget1.txt"),
   });
   const testTask1 = task({
-    name: 'testTask1',
-    description: 'Test task to generate (and allow clean) of an example target',
+    name: "testTask1",
+    description: "Test task to generate (and allow clean) of an example target",
     action: async () => {
-      await Deno.writeTextFile(exampleTarget1.path, 'example contents');
+      await Deno.writeTextFile(exampleTarget1.path, "example contents");
     },
     targets: [exampleTarget1],
   });
 
   const exampleTarget2 = trackFile({
-    path: path.join(tempDir, 'exampleTarget2.txt'),
+    path: path.join(tempDir, "exampleTarget2.txt"),
   });
   const testTask2 = task({
-    name: 'testTask2',
-    description: 'Test task to generate (and allow clean) of an example target',
+    name: "testTask2",
+    description: "Test task to generate (and allow clean) of an example target",
     action: async () => {
-      await Deno.writeTextFile(exampleTarget2.path, 'example contents');
+      await Deno.writeTextFile(exampleTarget2.path, "example contents");
     },
     targets: [exampleTarget2],
   });

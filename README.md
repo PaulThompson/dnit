@@ -33,36 +33,39 @@ deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./
 
 ## Sample Usage
 
-
 ```ts
-import {task, main, file} from  "https://deno.land/x/dnit@dnit-v1.14.2/dnit.ts";
+import {
+  file,
+  main,
+  task,
+} from "https://deno.land/x/dnit@dnit-v1.14.2/dnit.ts";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({
-  path: './msg.txt'
+  path: "./msg.txt",
 });
 
 /// A task definition.  No side effect is incurred by creating a task.
 export const helloWorld = task({
-  name: 'helloWorld',
+  name: "helloWorld",
   description: "foo",
-  action: async () => {         /// Actions are typescript async ()=> Promise<void> functions.
+  action: async () => { /// Actions are typescript async ()=> Promise<void> functions.
     await Deno.run({
       cmd: ["./writeMsg.sh"],
     }).status();
   },
   deps: [
     file({
-      path: "./writeMsg.sh"
-    })
+      path: "./writeMsg.sh",
+    }),
   ],
   targets: [
-    msg
-  ]
+    msg,
+  ],
 });
 
 export const goodbye = task({
-  name: 'goodbye',
+  name: "goodbye",
   action: async () => {
     // use ordinary typescript idiomatically if several actions are required
     const actions = [
@@ -78,7 +81,7 @@ export const goodbye = task({
       await action();
     }
   },
-  deps: [msg]       /// Dependency added as a typescript variable
+  deps: [msg], /// Dependency added as a typescript variable
   ///   Dependencies can be file dependency or task dependencies.
 });
 
@@ -116,7 +119,6 @@ Files are tracked by the exported
 ```ts
 /** User params for a tracked file */
 export type FileParams = {
-
   /// File path
   path: string;
 
@@ -133,7 +135,6 @@ Tasks are created by the exported `function task(taskParams: TaskParams): Task`
 ```ts
 /** User definition of a task */
 export type TaskParams = {
-
   /// Name: (string) - The key used to initiate a task
   name: A.TaskName;
 
@@ -150,7 +151,7 @@ export type TaskParams = {
   file_deps?: TrackedFile[];
 
   /// Optional list of task or file dependencies
-  deps?: (Task|TrackedFile)[];
+  deps?: (Task | TrackedFile)[];
 
   /// Targets (files which will be produced by execution of this task)
   targets?: TrackedFile[];
