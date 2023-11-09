@@ -277,9 +277,12 @@ export class Task {
     if (actualUpToDate) {
       ctx.taskLogger.info(`--- ${this.name}`);
     } else {
-      ctx.taskLogger.info(`{-- ${this.name}`);
+
+      // suppress logging the task "{-- name --}" for the list task
+      const logTaskScope = (this.name !== 'list');
+      if (logTaskScope) { ctx.taskLogger.info(`{-- ${this.name}`); }
       await this.action(taskContext(ctx, this));
-      ctx.taskLogger.info(`--} ${this.name}`);
+      if (logTaskScope) { ctx.taskLogger.info(`--} ${this.name}`); }
 
       {
         /// recalc & save data of deps:
