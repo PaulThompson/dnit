@@ -661,31 +661,52 @@ export type ExecResult = {
   success: boolean;
 };
 
-// Builtin task 'clean'
-const clean = task({
-  name: "clean",
-  description: "Clean tracked files",
-  action: async (ctx: TaskContext) => {
-    const positionalArgs = ctx.args["_"];
+const builtinTasks = [
+  task({
+    name: "clean",
+    description: "Clean tracked files",
+    action: async (ctx: TaskContext) => {
+      const positionalArgs = ctx.args["_"];
 
-    const affectedTasks: Task[] = positionalArgs.length > 1
-      ? positionalArgs.map((arg) => ctx.exec.taskRegister.get(String(arg)))
-        .filter((task) => task !== undefined) as Task[]
-      : Array.from(ctx.exec.taskRegister.values());
-    if (affectedTasks.length > 0) {
-      console.log("Clean tasks:");
-      /// Reset tasks
-      await Promise.all(
-        affectedTasks.map((t) => {
-          console.log(`  ${t.name}`);
-          ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec));
-        }),
-      );
-      // await ctx.exec.manifest.save();
-    }
-  },
-  uptodate: runAlways,
-});
+      const affectedTasks: Task[] = positionalArgs.length > 1
+        ? positionalArgs.map((arg) => ctx.exec.taskRegister.get(String(arg)))
+          .filter((task) => task !== undefined) as Task[]
+        : Array.from(ctx.exec.taskRegister.values());
+      if (affectedTasks.length > 0) {
+        console.log("Clean tasks:");
+        /// Reset tasks
+        await Promise.all(
+          affectedTasks.map((t) => {
+            console.log(`  ${t.name}`);
+            ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec));
+          }),
+        );
+        // await ctx.exec.manifest.save();
+      }
+    },
+    uptodate: runAlways,
+  }),
+
+  task({
+    name: 'list',
+    description: 'List tasks',
+    action: (ctx: TaskContext) => {
+      showTaskList(ctx.exec, ctx.args);
+    },
+    uptodate: runAlways,
+  }),
+
+  task({
+    name: 'tabcompletion',
+    description: 'Generate shell completion script',
+    action: () => {
+      // todo: detect shell type and generate appropriate script
+      // or add args for shell type
+      echoBashCompletionScript();
+    },
+    uptodate: runAlways,
+  }),
+];
 
 /** Execute given commandline args and array of items (task & trackedfile) */
 export async function execCli(
@@ -706,7 +727,9 @@ export async function execCli(
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
-  ctx.taskRegister.set(clean.name, clean);
+  for(const t of builtinTasks) {
+    ctx.taskRegister.set(t.name, t);
+  }
 
   let requestedTaskName: string | null = null;
   const positionalArgs = args["_"];
@@ -715,19 +738,7 @@ export async function execCli(
   }
 
   if (requestedTaskName === null) {
-    ctx.taskLogger.error("No task name given");
-    showTaskList(ctx, args);
-    return { success: false };
-  }
-
-  if (requestedTaskName === "list") {
-    showTaskList(ctx, args);
-    return { success: true };
-  }
-
-  if (requestedTaskName === "tabcompletion") {
-    echoBashCompletionScript();
-    return { success: true };
+    requestedTaskName = "list";
   }
 
   try {
@@ -771,7 +782,9 @@ export async function execBasic(
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
-  ctx.taskRegister.set(clean.name, clean);
+  for(const t of builtinTasks) {
+    ctx.taskRegister.set(t.name, t);
+  }
 
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
