@@ -1,4 +1,4 @@
-import { flags, hash, log, path } from "./deps.ts";
+import { flags, crypto, log, path } from "./deps.ts";
 import { version } from "./version.ts";
 
 import { textTable } from "./textTable.ts";
@@ -515,10 +515,10 @@ export async function getFileSha1Sum(
   filename: string,
 ): Promise<A.TrackedFileHash> {
   const data = await Deno.readFile(filename);
-  const hashsha1 = hash.createHash("sha1");
-  hashsha1.update(data);
-  const hashInHex = hashsha1.toString();
-  return hashInHex;
+  const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hashHex;
 }
 
 export function getFileTimestamp(
@@ -607,10 +607,10 @@ function echoBashCompletionScript() {
 }
 
 /// StdErr plaintext handler (no color codes)
-class StdErrPlainHandler extends log.handlers.BaseHandler {
+class StdErrPlainHandler extends log.BaseHandler {
   constructor(levelName: log.LevelName) {
     super(levelName, {
-      formatter: "{msg}",
+      formatter: (rec) => rec.msg,
     });
   }
 
@@ -620,7 +620,7 @@ class StdErrPlainHandler extends log.handlers.BaseHandler {
 }
 
 /// StdErr handler on top of ConsoleHandler (which uses colors)
-class StdErrHandler extends log.handlers.ConsoleHandler {
+class StdErrHandler extends log.ConsoleHandler {
   log(msg: string): void {
     Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
   }
@@ -636,7 +636,7 @@ export async function setupLogging() {
     loggers: {
       // internals of dnit tooling
       internal: {
-        level: "WARNING",
+        level: "WARN",
         handlers: ["stderrPlain"],
       },
 

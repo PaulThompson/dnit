@@ -226,7 +226,6 @@ const test = task({
     await utils.runConsole([
       "deno",
       "test",
-      "--unstable",
       "--allow-read",
       "--allow-write",
     ], {

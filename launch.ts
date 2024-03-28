@@ -152,7 +152,6 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
     ];
     const flags = [
       "--quiet",
-      "--unstable",
     ];
     const importmap = userSource.importmap
       ? [
@@ -161,20 +160,31 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
       ]
       : [];
 
+    const args = [
+      "run",
+      ...flags,
+      ...permissions,
+      ...importmap,
+      userSource.mainSrc,
+      "--dnitDir",
+      userSource.dnitDir,
+      ...Deno.args,
+    ];
+
+    logger.info("running command: deno " + args.join(" "));
+
     const cmd = new Deno.Command(Deno.execPath(),{
-      args: [
-        "run",
-        ...flags,
-        ...permissions,
-        ...importmap,
-        userSource.mainSrc,
-        "--dnitDir",
-        userSource.dnitDir,
-        ...Deno.args,
-      ],
+      args,
+      stdout: "inherit",
+      stderr: "inherit",
+      stdin: "inherit",
     });
 
     const { success, code, signal } = await cmd.output();
+
+
+    logger.info(`command finished success:${success} code:${code} signal:${signal}`);
+
     return {
       success,
       code,
