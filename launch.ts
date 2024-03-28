@@ -95,14 +95,15 @@ export async function parseDotDenoVersionFile(fname: string): Promise<string> {
 }
 
 export async function getDenoVersion(): Promise<string> {
-  const proc = Deno.run({
-    cmd: ["deno", "--version"],
+  const cmd = new Deno.Command(Deno.execPath(),{
+    args: [
+      "--version"
+    ],
     stdout: "piped",
   });
-  const [_status, output] = await Promise.all([proc.status(), proc.output()]);
-  const decoder = new TextDecoder();
-  const denoVersionStr = decoder.decode(output);
 
+  const { stdout } = await cmd.output();
+  const denoVersionStr = new TextDecoder().decode(stdout);
   const regmatch = denoVersionStr.match(/deno[ ]+([0-9.]+)/);
   if (regmatch) {
     return regmatch[1];
@@ -117,7 +118,7 @@ export function checkValidDenoVersion(
   return semver.satisfies(denoVersion, denoReqSemverRange);
 }
 
-export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
+export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
   const userSource = findUserSource(Deno.cwd(), null);
   if (userSource !== null) {
     logger.info("running source:" + userSource.mainSrc);
@@ -160,23 +161,32 @@ export async function launch(logger: log.Logger): Promise<Deno.ProcessStatus> {
       ]
       : [];
 
-    const proc = Deno.run({
-      cmd: ["deno", "run"]
-        .concat(flags)
-        .concat(permissions)
-        .concat(importmap)
-        .concat([userSource.mainSrc])
-        .concat(["--dnitDir", userSource.dnitDir])
-        .concat(Deno.args),
+    const cmd = new Deno.Command(Deno.execPath(),{
+      args: [
+        "run",
+        ...flags,
+        ...permissions,
+        ...importmap,
+        userSource.mainSrc,
+        "--dnitDir",
+        userSource.dnitDir,
+        ...Deno.args,
+      ],
     });
 
-    const status = await proc.status();
-    return status;
+    const { success, code, signal } = await cmd.output();
+    return {
+      success,
+      code,
+      signal,
+    };
+
   } else {
     logger.error("No dnit.ts or dnit directory found");
     return {
       success: false,
       code: 1,
+      signal: null,
     };
   }
 }
