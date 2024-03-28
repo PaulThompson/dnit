@@ -33,7 +33,7 @@ jobs:
 
     strategy:
       matrix:
-        deno: ["v1.38.0", "v1.24.x", "v1.22.x", "v1.20.x", "v1.18.x", "v1.16.x"]
+        deno: ["v1.42.0", "v1.38.0", "v1.24.x", "v1.22.x", "v1.20.x"]
         os: [macOS-latest, windows-latest, ubuntu-latest]
 
     steps:
