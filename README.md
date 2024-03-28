@@ -17,7 +17,7 @@ It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --allow-read --allow-write --allow-run -f --name dnit https://deno.land/x/dnit@dnit-v1.14.4/main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit https://deno.land/x/dnit@dnit-v1.14.4/main.ts
 ```
 
 Install from source checkout:
