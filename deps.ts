@@ -5,4 +5,4 @@ import * as fs from "https://deno.land/std@0.221.0/fs/mod.ts";
 import { crypto } from "https://deno.land/std@0.221.0/crypto/mod.ts";
 import * as semver from "https://deno.land/x/semver@v1.4.1/mod.ts";
 
-export { flags, fs, crypto, log, path, semver };
+export { crypto, flags, fs, log, path, semver };

@@ -1,4 +1,4 @@
-import { flags, crypto, log, path } from "./deps.ts";
+import { crypto, flags, log, path } from "./deps.ts";
 import { version } from "./version.ts";
 
 import { textTable } from "./textTable.ts";
@@ -277,12 +277,11 @@ export class Task {
     if (actualUpToDate) {
       ctx.taskLogger.info(`--- ${this.name}`);
     } else {
-
       // suppress logging the task "{-- name --}" for the list task
-      const logTaskScope = (this.name !== 'list');
-      if (logTaskScope) { ctx.taskLogger.info(`{-- ${this.name}`); }
+      const logTaskScope = this.name !== "list";
+      if (logTaskScope) ctx.taskLogger.info(`{-- ${this.name}`);
       await this.action(taskContext(ctx, this));
-      if (logTaskScope) { ctx.taskLogger.info(`--} ${this.name}`); }
+      if (logTaskScope) ctx.taskLogger.info(`--} ${this.name}`);
 
       {
         /// recalc & save data of deps:
@@ -516,8 +515,10 @@ export async function getFileSha1Sum(
 ): Promise<A.TrackedFileHash> {
   const data = await Deno.readFile(filename);
   const hashBuffer = await crypto.subtle.digest("SHA-1", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join(
+    "",
+  );
   return hashHex;
 }
 
@@ -691,8 +692,8 @@ const builtinTasks = [
   }),
 
   task({
-    name: 'list',
-    description: 'List tasks',
+    name: "list",
+    description: "List tasks",
     action: (ctx: TaskContext) => {
       showTaskList(ctx.exec, ctx.args);
     },
@@ -700,8 +701,8 @@ const builtinTasks = [
   }),
 
   task({
-    name: 'tabcompletion',
-    description: 'Generate shell completion script',
+    name: "tabcompletion",
+    description: "Generate shell completion script",
     action: () => {
       // todo: detect shell type and generate appropriate script
       // or add args for shell type
@@ -730,7 +731,7 @@ export async function execCli(
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
-  for(const t of builtinTasks) {
+  for (const t of builtinTasks) {
     ctx.taskRegister.set(t.name, t);
   }
 
@@ -785,7 +786,7 @@ export async function execBasic(
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
-  for(const t of builtinTasks) {
+  for (const t of builtinTasks) {
     ctx.taskRegister.set(t.name, t);
   }
 

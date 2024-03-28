@@ -95,9 +95,9 @@ export async function parseDotDenoVersionFile(fname: string): Promise<string> {
 }
 
 export async function getDenoVersion(): Promise<string> {
-  const cmd = new Deno.Command(Deno.execPath(),{
+  const cmd = new Deno.Command(Deno.execPath(), {
     args: [
-      "--version"
+      "--version",
     ],
     stdout: "piped",
   });
@@ -173,7 +173,7 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
 
     logger.info("running command: deno " + args.join(" "));
 
-    const cmd = new Deno.Command(Deno.execPath(),{
+    const cmd = new Deno.Command(Deno.execPath(), {
       args,
       stdout: "inherit",
       stderr: "inherit",
@@ -182,15 +182,15 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
 
     const { success, code, signal } = await cmd.output();
 
-
-    logger.info(`command finished success:${success} code:${code} signal:${signal}`);
+    logger.info(
+      `command finished success:${success} code:${code} signal:${signal}`,
+    );
 
     return {
       success,
       code,
       signal,
     };
-
   } else {
     logger.error("No dnit.ts or dnit directory found");
     return {

@@ -32,7 +32,7 @@ export function textTable(headings: string[], cells: string[][]): string {
       headings.map((h, i) => {
         const curLength = h.length;
         const maxWidth = maxWidths[i];
-        const curSpaces = (maxWidth - curLength);
+        const curSpaces = maxWidth - curLength;
         const spaceBefore = Math.floor(curSpaces / 2);
         const spaceAfter = curSpaces - spaceBefore;
         return " ".repeat(1 + spaceBefore) + h + " ".repeat(1 + spaceAfter);
@@ -57,7 +57,7 @@ export function textTable(headings: string[], cells: string[][]): string {
       row.map((t, i) => {
         const curLength = t.length;
         const maxWidth = maxWidths[i];
-        const curSpaces = (maxWidth - curLength);
+        const curSpaces = maxWidth - curLength;
         const spaceBefore = Math.floor(curSpaces / 2);
         const spaceAfter = curSpaces - spaceBefore;
         return " ".repeat(1 + spaceBefore) + t + " ".repeat(1 + spaceAfter);
