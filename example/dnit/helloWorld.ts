@@ -8,7 +8,6 @@ export const helloWorld = task({
   name: "helloWorld",
   description: "foo",
   action: async () => {
-
     const cmd = new Deno.Command("sh", {
       args: ["./writeMsg.sh"],
     });

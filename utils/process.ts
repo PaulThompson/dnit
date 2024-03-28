@@ -1,13 +1,15 @@
-
 /// Short-form run single process: no stdin or sterr - final output as string.
-export async function run(cmd: string[], opts?: Deno.CommandOptions): Promise<string> {
+export async function run(
+  cmd: string[],
+  opts?: Deno.CommandOptions,
+): Promise<string> {
   const dcmd = new Deno.Command(cmd[0], {
     args: cmd.slice(1),
     ...opts,
     stdout: "piped",
   });
 
-  const {stdout} = await dcmd.output();
+  const { stdout } = await dcmd.output();
 
   return new TextDecoder().decode(stdout);
 }
@@ -17,7 +19,6 @@ export async function runConsole(
   cmd: string[],
   opts?: Deno.CommandOptions,
 ): Promise<void> {
-
   const dcmd = new Deno.Command(cmd[0], {
     args: cmd.slice(1),
     ...opts,
