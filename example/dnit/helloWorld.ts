@@ -8,9 +8,10 @@ export const helloWorld = task({
   name: "helloWorld",
   description: "foo",
   action: async () => {
-    await Deno.run({
-      cmd: ["./writeMsg.sh"],
-    }).status();
+    const cmd = new Deno.Command("sh", {
+      args: ["./writeMsg.sh"],
+    });
+    await cmd.output();
   },
   deps: [
     file({
