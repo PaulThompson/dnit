@@ -17,19 +17,17 @@ It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --allow-read --allow-write --allow-run --unstable -f --name dnit https://deno.land/x/dnit@dnit-v1.14.3/main.ts
+deno install --allow-read --allow-write --allow-run -f --name dnit https://deno.land/x/dnit@dnit-v1.14.3/main.ts
 ```
 
 Install from source checkout:
 
 ```
-deno install --allow-read --allow-write --allow-run --unstable -f --name dnit ./main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit ./main.ts
 ```
 
 - Read, Write and Run permissions are required in order to operate on files and
   execute tasks.
-- Unstable flag is currently required in order to support import maps and
-  current std libraries.
 
 ## Sample Usage
 
