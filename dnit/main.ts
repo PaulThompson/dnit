@@ -7,7 +7,6 @@ import {
   gitLatestTag,
   requireCleanGit,
 } from "../utils/git.ts";
-import { confirmation } from "../utils/io.ts";
 import { fs } from "../deps.ts";
 import { runConsole } from "../utils.ts";
 
@@ -58,9 +57,8 @@ const tag = task({
     const gitLastCommit = await gitLastCommitMessage();
     console.log("Last commit: " + gitLastCommit);
 
-    const conf = await confirmation(
+    const conf = confirm(
       `Git tag and push ${tagMessage} tagName?`,
-      false,
     );
     if (conf) {
       const cmds = dryRun ? ["echo"] : [];
