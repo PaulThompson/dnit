@@ -55,7 +55,7 @@ export function createJsonBinding<T>(
   function fromJsonE(json: Json): T {
     try {
       return jb0.fromJson(json);
-    } catch (e) {
+    } catch (e : unknown) {
       throw mapJsonException(e);
     }
   }
@@ -81,7 +81,7 @@ export interface JsonParseException {
 }
 
 // Map a JsonException to an Error value
-export function mapJsonException(exception: {}): {} {
+export function mapJsonException(exception: unknown): unknown {
   if (
     exception && (exception as { kind: string })["kind"] == "JsonParseException"
   ) {
@@ -125,7 +125,7 @@ export function jsonParseException(message: string): JsonParseException {
  * @param exception The exception to check.
  */
 export function isJsonParseException(
-  exception: {},
+  exception: unknown,
 ): exception is JsonParseException {
   return (<JsonParseException> exception).kind === "JsonParseException";
 }
@@ -301,7 +301,7 @@ function vectorJsonBinding(
     jarr.forEach((eljson: Json, i: number) => {
       try {
         result.push(elementBinding().fromJson(eljson));
-      } catch (e) {
+      } catch (e : unknown) {
         if (isJsonParseException(e)) {
           e.pushIndex(i);
         }
