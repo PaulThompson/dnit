@@ -7,7 +7,10 @@ import { RESOLVER } from "./adl-gen/resolver.ts";
 import { ADLMap } from "./ADLMap.ts";
 export class Manifest {
   readonly filename: string;
-  readonly jsonBinding = J.createJsonBinding(RESOLVER, A.texprManifest());
+  readonly jsonBinding: J.JsonBinding<A.Manifest> = J.createJsonBinding(
+    RESOLVER,
+    A.texprManifest(),
+  );
   tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap(
     [],
     (k1, k2) => k1 === k2,

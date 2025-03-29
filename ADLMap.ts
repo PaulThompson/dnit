@@ -24,7 +24,7 @@ export class ADLMap<K, V> {
     }
     return existing;
   }
-  set(k: K, v: V) {
+  set(k: K, v: V): ADLMap<K, V> {
     const ind = this.findIndex(k);
     if (ind === -1) {
       this.data.push({ v1: k, v2: v });
@@ -41,11 +41,11 @@ export class ADLMap<K, V> {
   entries(): [K, V][] {
     return this.data.map((p) => [p.v1, p.v2]);
   }
-  toData() {
+  toData(): sysTypes.Map<K, V> {
     return this.data;
   }
 
-  findIndex(k: K) {
+  findIndex(k: K): number {
     return this.data.findIndex((p) => this.isEqual(p.v1, k));
   }
 }

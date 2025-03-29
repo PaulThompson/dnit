@@ -89,10 +89,10 @@ export function typeExprToStringUnscoped(te: AST.TypeExpr): string {
 
 // "Flavoured" nominal typing.
 // https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
-const symS = Symbol();
-const symT = Symbol();
-const symU = Symbol();
-const symV = Symbol();
+const symS : unique symbol = Symbol();
+const symT : unique symbol = Symbol();
+const symU : unique symbol = Symbol();
+const symV : unique symbol = Symbol();
 
 /// Zero ADL type params - literal string type Name (fully scoped module name)
 /// eg for 'newtype X = string' -> 'type X = Flavouring0<"X">;'
