@@ -3,19 +3,24 @@
   "specifiers": {
     "jsr:@std/cli@*": "1.0.15",
     "jsr:@std/cli@1.0.15": "1.0.15",
+    "jsr:@std/cli@^1.0.15": "1.0.15",
     "jsr:@std/crypto@*": "1.0.4",
     "jsr:@std/crypto@1.0.4": "1.0.4",
+    "jsr:@std/crypto@^1.0.4": "1.0.4",
     "jsr:@std/fmt@^1.0.5": "1.0.6",
     "jsr:@std/fs@1.0.15": "1.0.15",
     "jsr:@std/fs@^1.0.11": "1.0.15",
+    "jsr:@std/fs@^1.0.15": "1.0.15",
     "jsr:@std/io@~0.225.2": "0.225.2",
     "jsr:@std/log@*": "0.224.14",
     "jsr:@std/log@0.224.14": "0.224.14",
+    "jsr:@std/log@~0.224.14": "0.224.14",
     "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/semver@*": "1.0.4",
-    "jsr:@std/semver@1.0.4": "1.0.4"
+    "jsr:@std/semver@1.0.4": "1.0.4",
+    "jsr:@std/semver@^1.0.4": "1.0.4"
   },
   "jsr": {
     "@std/cli@1.0.15": {
@@ -209,5 +214,15 @@
     "https://deno.land/std@0.221.0/path/windows/to_namespaced_path.ts": "4ffa4fb6fae321448d5fe810b3ca741d84df4d7897e61ee29be961a6aac89a4c",
     "https://deno.land/std@0.221.0/testing/asserts.ts": "0cb9c745d9b157bed062a4aa8647168d2221f6456c385a548b0ca24de9e0f3ca",
     "https://deno.land/x/semver@v1.4.1/mod.ts": "0b79c87562eb8a1f008ab0d98f8bb60076dd65bc06f1f8fdfac2d2dab162c27b"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/cli@^1.0.15",
+      "jsr:@std/crypto@^1.0.4",
+      "jsr:@std/fs@^1.0.15",
+      "jsr:@std/log@~0.224.14",
+      "jsr:@std/path@^1.0.8",
+      "jsr:@std/semver@^1.0.4"
+    ]
   }
 }

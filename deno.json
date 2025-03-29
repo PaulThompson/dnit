@@ -3,5 +3,13 @@
     "exclude": [
       "adl-gen/"
     ]
+  },
+  "imports": {
+    "@std/cli": "jsr:@std/cli@^1.0.15",
+    "@std/crypto": "jsr:@std/crypto@^1.0.4",
+    "@std/fs": "jsr:@std/fs@^1.0.15",
+    "@std/log": "jsr:@std/log@^0.224.14",
+    "@std/path": "jsr:@std/path@^1.0.8",
+    "@std/semver": "jsr:@std/semver@^1.0.4"
   }
 }
