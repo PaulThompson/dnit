@@ -5,6 +5,11 @@
     "jsr:@std/cli@1.0.15": "1.0.15",
     "jsr:@std/crypto@*": "1.0.4",
     "jsr:@std/crypto@1.0.4": "1.0.4",
+    "jsr:@std/fmt@^1.0.5": "1.0.6",
+    "jsr:@std/fs@^1.0.11": "1.0.15",
+    "jsr:@std/io@~0.225.2": "0.225.2",
+    "jsr:@std/log@*": "0.224.14",
+    "jsr:@std/log@0.224.14": "0.224.14",
     "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@1.0.8": "1.0.8"
   },
@@ -14,6 +19,23 @@
     },
     "@std/crypto@1.0.4": {
       "integrity": "cee245c453bd5366207f4d8aa25ea3e9c86cecad2be3fefcaa6cb17203d79340"
+    },
+    "@std/fmt@1.0.6": {
+      "integrity": "a2c56a69a2369876ddb3ad6a500bb6501b5bad47bb3ea16bfb0c18974d2661fc"
+    },
+    "@std/fs@1.0.15": {
+      "integrity": "c083fb479889d6440d768e498195c3fc499d426fbf9a6592f98f53884d1d3f41"
+    },
+    "@std/io@0.225.2": {
+      "integrity": "3c740cd4ee4c082e6cfc86458f47e2ab7cb353dc6234d5e9b1f91a2de5f4d6c7"
+    },
+    "@std/log@0.224.14": {
+      "integrity": "257f7adceee3b53bb2bc86c7242e7d1bc59729e57d4981c4a7e5b876c808f05e",
+      "dependencies": [
+        "jsr:@std/fmt",
+        "jsr:@std/fs",
+        "jsr:@std/io"
+      ]
     },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
