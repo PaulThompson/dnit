@@ -149,7 +149,6 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
       "--allow-run",
       "--allow-env",
       "--allow-net",
-      "--allow-import",
     ];
     const flags = [
       "--quiet",
