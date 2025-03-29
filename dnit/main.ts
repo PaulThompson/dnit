@@ -32,7 +32,9 @@ async function getNextTagVersion(args: cli.Args): Promise<string | null> {
   const increment: "major" | "minor" | "patch" = args.major
     ? "major"
     : (xargs.minor ? "minor" : ("patch"));
-  const next = semver.inc(current, increment);
+  const next = semver.format(
+    semver.increment(semver.parse(current), increment),
+  );
   return next;
 }
 
@@ -40,8 +42,6 @@ const tag = task({
   name: "tag",
   description: "Run git tag",
   action: async (ctx: TaskContext) => {
-    const current = await gitLatestTag(tagPrefix);
-
     type Args = {
       "major"?: true;
       "minor"?: true;
@@ -50,11 +50,13 @@ const tag = task({
       "origin"?: string;
       "dry-run"?: true;
     };
+
+    const next = await getNextTagVersion(ctx.args);
+
     const args: Args = ctx.args as Args;
     const increment: "major" | "minor" | "patch" = args.major
       ? "major"
       : (args.minor ? "minor" : ("patch"));
-    const next = semver.inc(current, increment);
 
     const tagMessage = args.message || `Tag ${increment} to ${next}`;
     const tagName = `${tagPrefix}${next}`;
@@ -66,7 +68,7 @@ const tag = task({
     console.log("Last commit: " + gitLastCommit);
 
     const conf = confirm(
-      `Git tag and push ${tagMessage} tagName?`,
+      `Git tag and push ${tagName} with message: ${tagMessage}?`,
     );
     if (conf) {
       const cmds = dryRun ? ["echo"] : [];
