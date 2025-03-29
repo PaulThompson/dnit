@@ -1,5 +1,13 @@
-import { flags, log, semver, task, utils } from "./deps.ts";
-import { file, main, runAlways, TaskContext } from "../dnit.ts";
+import {
+  cli,
+  file,
+  main,
+  runAlways,
+  semver,
+  task,
+  type TaskContext,
+  utils,
+} from "./deps.ts";
 
 import {
   fetchTags,
@@ -12,7 +20,7 @@ import { runConsole } from "../utils.ts";
 
 const tagPrefix = "dnit-v";
 
-async function getNextTagVersion(args: flags.Args): Promise<string | null> {
+async function getNextTagVersion(args: cli.Args): Promise<string | null> {
   const current = await gitLatestTag(tagPrefix);
 
   type Args = {
@@ -67,7 +75,8 @@ const tag = task({
         cmds.concat(["git", "tag", "-a", "-m", tagMessage, tagName]),
       );
       await utils.runConsole(cmds.concat(["git", "push", origin, tagName]));
-      log.info(
+
+      ctx.logger.info(
         `${
           dryRun ? "(dry-run) " : ""
         }Git tagged and pushed ${tagPrefix}${next}`,
