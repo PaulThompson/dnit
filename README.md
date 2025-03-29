@@ -20,6 +20,11 @@ convenient entrypoint script and aliases the permission flags.
 deno install --global --allow-read --allow-write --allow-run -f --name dnit https://deno.land/x/dnit@dnit-v1.14.4/main.ts
 ```
 
+Install from a branch:
+```
+deno install --global --allow-read --allow-write --allow-run -f --name dnit https://raw.githubusercontent.com/PaulThompson/dnit/d53fa48ad8ecfa8f5c7df1d6a669e3033555bc74/main.ts
+```
+
 Install from source checkout:
 
 ```
