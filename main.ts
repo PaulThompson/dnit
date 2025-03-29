@@ -1,4 +1,5 @@
-import { cli, log, setupLogging } from "./mod.ts";
+import { setupLogging } from "./dnit.ts";
+import { cli, log } from "./deps.ts";
 import { launch } from "./launch.ts";
 import { version } from "./version.ts";
 
@@ -18,9 +19,8 @@ export async function main() {
 
   internalLogger.info(`starting dnit launch using version: ${version}`);
 
-  launch(internalLogger).then((st) => {
-    Deno.exit(st.code);
-  });
+  const st = await launch(internalLogger);
+  Deno.exit(st.code);
 }
 
-main();
+await main();
