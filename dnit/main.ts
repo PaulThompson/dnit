@@ -1,4 +1,13 @@
-import { file, main, cli, semver, task, utils, runAlways, type TaskContext  } from "./deps.ts";
+import {
+  cli,
+  file,
+  main,
+  runAlways,
+  semver,
+  task,
+  type TaskContext,
+  utils,
+} from "./deps.ts";
 
 import {
   fetchTags,
@@ -248,6 +257,60 @@ const killTest = task({
   uptodate: runAlways,
 });
 
+const sourceCheckEntryPoints: string[] = [
+  "main.ts",
+  "mod.ts",
+  "dnit/main.ts",
+];
+
+const check = task({
+  name: "check",
+  description: "Run local checks",
+  action: async () => {
+    await Promise.all(sourceCheckEntryPoints.map(async (path) => {
+      await utils.runConsole([
+        "deno",
+        "check",
+        path,
+      ]);
+    }));
+  },
+  deps: [],
+  uptodate: runAlways,
+});
+
+const lint = task({
+  name: "lint",
+  description: "Run local lint",
+  action: async () => {
+    await Promise.all(sourceCheckEntryPoints.map(async (path) => {
+      await utils.runConsole([
+        "deno",
+        "lint",
+        path,
+      ]);
+    }));
+  },
+  deps: [],
+  uptodate: runAlways,
+});
+
+const fmt = task({
+  name: "fmt",
+  description: "Run local fmt",
+  action: async () => {
+    await Promise.all(sourceCheckEntryPoints.map(async (path) => {
+      await utils.runConsole([
+        "deno",
+        "fmt",
+        path,
+      ]);
+    }));
+  },
+  deps: [],
+  uptodate: runAlways,
+});
+
 const tasks = [
   test,
   genadl,
@@ -257,6 +320,9 @@ const tasks = [
   makeReleaseEdits,
   release,
   killTest,
+  check,
+  lint,
+  fmt,
 ];
 
 main(Deno.args, tasks);
