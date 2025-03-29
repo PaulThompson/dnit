@@ -9,7 +9,7 @@ across many files or shared between projects.
 ### Pre-Requisites
 
 - [Deno](https://deno.land/#installation)
-- Requires deno v1.16.4 or greater
+- Requires deno v2.1 or greater
 
 ### Install
 
@@ -20,7 +20,7 @@ convenient entrypoint script and aliases the permission flags.
 deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json https://deno.land/x/dnit@dnit-v1.14.4/main.ts
 ```
 
-Install from a branch:
+Install from github:
 ```
 deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json https://raw.githubusercontent.com/PaulThompson/dnit/d53fa48ad8ecfa8f5c7df1d6a669e3033555bc74/main.ts
 ```
