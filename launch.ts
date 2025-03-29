@@ -115,7 +115,7 @@ export function checkValidDenoVersion(
   denoVersion: string,
   denoReqSemverRange: string,
 ): boolean {
-  return semver.satisfies(denoVersion, denoReqSemverRange);
+  return semver.satisfies(semver.parse(denoVersion), semver.parseRange(denoReqSemverRange))
 }
 
 export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
