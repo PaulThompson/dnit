@@ -1,4 +1,4 @@
-import { crypto, flags, log, path } from "./deps.ts";
+import { cli, crypto, log, path } from "./deps.ts";
 import { version } from "./version.ts";
 
 import { textTable } from "./textTable.ts";
@@ -33,7 +33,7 @@ class ExecContext {
     /// loaded hash manifest
     readonly manifest: Manifest,
     /// commandline args
-    readonly args: flags.Args,
+    readonly args: cli.Args,
   ) {
     if (args["verbose"] !== undefined) {
       this.internalLogger.levelName = "INFO";
@@ -53,7 +53,7 @@ class ExecContext {
 export interface TaskContext {
   logger: log.Logger;
   task: Task;
-  args: flags.Args;
+  args: cli.Args;
   exec: ExecContext;
 }
 
@@ -564,7 +564,7 @@ export function task(taskParams: TaskParams): Task {
   return task;
 }
 
-function showTaskList(ctx: ExecContext, args: flags.Args) {
+function showTaskList(ctx: ExecContext, args: cli.Args) {
   if (args["quiet"]) {
     Array.from(ctx.taskRegister.values()).map((task) => console.log(task.name));
   } else {
@@ -717,7 +717,7 @@ export async function execCli(
   cliArgs: string[],
   tasks: Task[],
 ): Promise<ExecResult> {
-  const args = flags.parse(cliArgs);
+  const args = cli.parseArgs(cliArgs);
 
   await setupLogging();
 
@@ -781,7 +781,7 @@ export async function execBasic(
   tasks: Task[],
   manifest: Manifest,
 ): Promise<ExecContext> {
-  const args = flags.parse(cliArgs);
+  const args = cli.parseArgs(cliArgs);
   const ctx = new ExecContext(manifest, args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 

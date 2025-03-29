@@ -1,9 +1,9 @@
-import { flags, log, setupLogging } from "./mod.ts";
+import { cli, log, setupLogging } from "./mod.ts";
 import { launch } from "./launch.ts";
 import { version } from "./version.ts";
 
 export async function main() {
-  const args = flags.parse(Deno.args);
+  const args : cli.Args = cli.parseArgs(Deno.args);
   if (args["version"] === true) {
     console.log(`dnit ${version}`);
     Deno.exit(0);
