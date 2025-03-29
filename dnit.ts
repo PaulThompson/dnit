@@ -627,8 +627,8 @@ class StdErrHandler extends log.ConsoleHandler {
   }
 }
 
-export async function setupLogging() {
-  await log.setup({
+export function setupLogging() {
+  log.setup({
     handlers: {
       stderr: new StdErrHandler("DEBUG"),
       stderrPlain: new StdErrPlainHandler("DEBUG"),
@@ -719,7 +719,7 @@ export async function execCli(
 ): Promise<ExecResult> {
   const args = cli.parseArgs(cliArgs);
 
-  await setupLogging();
+  setupLogging();
 
   /// directory of user's entrypoint source as discovered by 'launch' util:
   const dnitDir = args["dnitDir"] || "./dnit";

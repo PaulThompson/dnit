@@ -9,7 +9,7 @@ export async function main() {
     Deno.exit(0);
   }
 
-  await setupLogging();
+  setupLogging();
   const internalLogger = log.getLogger("internal");
 
   if (args["verbose"] !== undefined) {
