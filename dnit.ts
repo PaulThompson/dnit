@@ -10,24 +10,24 @@ import { AsyncQueue } from "./asyncQueue.ts";
 
 class ExecContext {
   /// All tasks by name
-  taskRegister = new Map<A.TaskName, Task>();
+  taskRegister : Map<A.TaskName, Task> = new Map<A.TaskName, Task>();
 
   /// Tasks by target
-  targetRegister = new Map<A.TrackedFileName, Task>();
+  targetRegister : Map<A.TrackedFileName, Task> = new Map<A.TrackedFileName, Task>();
 
   /// Done or up-to-date tasks
-  doneTasks = new Set<Task>();
+  doneTasks : Set<Task> = new Set<Task>();
 
   /// In progress tasks
-  inprogressTasks = new Set<Task>();
+  inprogressTasks : Set<Task>  = new Set<Task>();
 
   /// Queue for scheduling async work with specified number allowable concurrently.
   // deno-lint-ignore no-explicit-any
   asyncQueue: AsyncQueue<any, any>;
 
-  internalLogger = log.getLogger("internal");
-  taskLogger = log.getLogger("task");
-  userLogger = log.getLogger("user");
+  internalLogger : log.Logger = log.getLogger("internal");
+  taskLogger : log.Logger  = log.getLogger("task");
+  userLogger : log.Logger = log.getLogger("user");
 
   constructor(
     /// loaded hash manifest
@@ -394,7 +394,7 @@ export class TrackedFile {
     return statResult.kind === "fileInfo";
   }
 
-  async getHash(statInput?: StatResult) {
+  async getHash(statInput?: StatResult) : Promise<A.TrackedFileHash> {
     let statResult = statInput;
     if (statResult === undefined) {
       statResult = await this.stat();
@@ -407,7 +407,7 @@ export class TrackedFile {
     return this.#getHash(this.path, statResult.fileInfo);
   }
 
-  async getTimestamp(statInput?: StatResult) {
+  async getTimestamp(statInput?: StatResult) : Promise<A.Timestamp> {
     let statResult = statInput;
     if (statResult === undefined) {
       statResult = await this.stat();

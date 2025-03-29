@@ -1,6 +1,6 @@
 // deno-lint-ignore-file
 /* @generated from adl */
-import { declResolver, ScopedDecl } from "./runtime/adl.ts";
+import { declResolver, ScopedDecl, ScopedName } from "./runtime/adl.ts";
 import { _AST_MAP as dnit_manifest } from "./dnit/manifest.ts";
 import { _AST_MAP as sys_types } from "./sys/types.ts";
 
@@ -9,4 +9,4 @@ export const ADL: { [key: string]: ScopedDecl } = {
   ...sys_types,
 };
 
-export const RESOLVER = declResolver(ADL);
+export const RESOLVER : (scopedName: ScopedName)=>ScopedDecl = declResolver(ADL);

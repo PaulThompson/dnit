@@ -1,5 +1,5 @@
 //deno-lint-ignore-file
-import type * as AST from "./sys/adlast.ts";
+import * as AST from "./sys/adlast.ts";
 import type * as utils from "./utils.ts";
 
 export type ScopedName = AST.ScopedName;
@@ -16,7 +16,7 @@ export interface DeclResolver {
 
 export function declResolver(
   ...astMaps: ({ [key: string]: AST.ScopedDecl })[]
-) {
+) : (scopedName: AST.ScopedName) => AST.ScopedDecl {
   const astMap: { [key: string]: AST.ScopedDecl } = {};
   for (let map of astMaps) {
     for (let scopedName in map) {
