@@ -3,7 +3,7 @@ import {
   execBasic,
   runAlways,
   task,
-  TrackedFile,
+  type TrackedFile,
   trackFile,
 } from "../dnit.ts";
 

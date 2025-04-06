@@ -1,5 +1,5 @@
 import {
-  cli,
+  type cli,
   file,
   main,
   runAlways,
