@@ -1,11 +1,7 @@
 // Main dnit module - exports everything for backward compatibility
 export * from "./core/types.ts";
-export {
-  ExecContext,
-  type TaskContext,
-  taskContext,
-  type TaskInterface,
-} from "./core/context.ts";
+export { ExecContext, type TaskContext, taskContext } from "./core/context.ts";
+export { type TaskInterface } from "./core/taskInterface.ts";
 export {
   type Action,
   asyncFiles,

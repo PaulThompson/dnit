@@ -14,8 +14,9 @@ import {
   statPath,
   type StatResult,
 } from "../utils/filesystem.ts";
-import type { ExecContext, TaskContext, TaskInterface } from "./context.ts";
+import type { ExecContext, TaskContext } from "./context.ts";
 import { taskContext } from "./context.ts";
+import type { TaskInterface } from "./taskInterface.ts";
 
 export type Action = (ctx: TaskContext) => Promise<void> | void;
 export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;

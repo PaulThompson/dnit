@@ -3,15 +3,7 @@ import { version } from "../version.ts";
 import { AsyncQueue } from "../asyncQueue.ts";
 import type { Manifest } from "../manifest.ts";
 import type { TaskName, TrackedFileName } from "./types.ts";
-
-// Forward declaration for Task - will be resolved when imported
-export interface TaskInterface {
-  name: TaskName;
-  description?: string;
-  exec(ctx: ExecContext): Promise<void>;
-  setup(ctx: ExecContext): Promise<void>;
-  reset(ctx: ExecContext): Promise<void>;
-}
+import type { TaskInterface } from "./taskInterface.ts";
 
 export class ExecContext {
   /// All tasks by name
