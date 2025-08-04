@@ -180,54 +180,6 @@ const release = task({
   uptodate: runAlways,
 });
 
-const genadl = task({
-  name: "genadl",
-  description: "Code generate from ADL definition",
-  action: async () => {
-    await utils.runConsole(["./tools/gen-adl.sh"]);
-    await utils.runConsole(
-      ["git", "apply", "./tools/0001-Revert-non-desired-gen-adl-edits.patch"],
-    );
-  },
-  deps: [
-    file({ path: "./adl/manifest.adl" }),
-    file({ path: "./tools/0001-Revert-non-desired-gen-adl-edits.patch" }),
-  ],
-});
-
-const updategenadlfix = task({
-  name: "updategenadlfix",
-  description: "Update the patch that fixes the generated code",
-  action: async () => {
-    await utils.runConsole(["./tools/gen-adl.sh"]);
-    await utils.runConsole(["git", "commit", "-am", "Generated adl"]);
-    await utils.runConsole(["git", "revert", "HEAD", "--no-edit"]);
-    await utils.runConsole([
-      "git",
-      "commit",
-      "--amend",
-      "-m",
-      "Revert non desired gen-adl edits",
-    ]);
-    await utils.runConsole(["git", "format-patch", "-1", "HEAD"]);
-    await utils.runConsole([
-      "mv",
-      "0001-Revert-non-desired-gen-adl-edits.patch",
-      "./tools",
-    ]);
-    await utils.runConsole([
-      "git",
-      "commit",
-      "-am",
-      "Updated gen-adl fix patch",
-    ]);
-  },
-  deps: [
-    requireCleanGit,
-  ],
-  uptodate: runAlways,
-});
-
 const test = task({
   name: "test",
   description: "Run local unit tests",
@@ -315,10 +267,8 @@ const fmt = task({
 
 const tasks = [
   test,
-  genadl,
   tag,
   push,
-  updategenadlfix,
   makeReleaseEdits,
   release,
   killTest,
