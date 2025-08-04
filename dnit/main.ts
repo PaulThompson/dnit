@@ -1,6 +1,5 @@
 import {
   type cli,
-  file,
   main,
   runAlways,
   semver,
@@ -189,9 +188,8 @@ const test = task({
       "test",
       "--allow-read",
       "--allow-write",
-    ], {
-      cwd: "./tests",
-    });
+      "--allow-run",
+    ]);
   },
   deps: [],
   uptodate: runAlways,
@@ -212,8 +210,8 @@ const killTest = task({
 });
 
 const sourceCheckEntryPoints: string[] = [
-  "main.ts",
-  "mod.ts",
+  "launch.ts",
+  "dnit.ts",
   "dnit/main.ts",
 ];
 
