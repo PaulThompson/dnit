@@ -1,7 +1,7 @@
-import { cli, log } from "../deps.ts";
+import { type cli, log } from "../deps.ts";
 import { version } from "../version.ts";
 import { AsyncQueue } from "../asyncQueue.ts";
-import { Manifest } from "../manifest.ts";
+import type { Manifest } from "../manifest.ts";
 import type { TaskName, TrackedFileName } from "./types.ts";
 
 // Forward declaration for Task - will be resolved when imported
