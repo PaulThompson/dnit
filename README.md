@@ -35,6 +35,11 @@ deno install --global --allow-read --allow-write --allow-run -f --name dnit --co
 - Read, Write and Run permissions are required in order to operate on files and
   execute tasks.
 
+## Example
+
+See the [example/](./example/) directory for a complete working hello world
+example.
+
 ## Sample Usage
 
 ```ts
