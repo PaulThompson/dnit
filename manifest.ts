@@ -7,7 +7,7 @@ import {
   type Timestamp,
   type TrackedFileData,
   type TrackedFileName,
-} from "./types.ts";
+} from "./core/types.ts";
 export class Manifest {
   readonly filename: string;
   tasks: Record<TaskName, TaskManifest> = {};

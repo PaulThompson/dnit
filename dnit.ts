@@ -9,7 +9,7 @@ import type {
   TrackedFileData,
   TrackedFileHash,
   TrackedFileName,
-} from "./types.ts";
+} from "./core/types.ts";
 import { Manifest, TaskManifest } from "./manifest.ts";
 
 import { AsyncQueue } from "./asyncQueue.ts";
