@@ -3,20 +3,23 @@ import { version } from "./version.ts";
 
 import { textTable } from "./textTable.ts";
 
-import type * as A from "./adl-gen/dnit/manifest.ts";
+import type {
+  TaskName,
+  Timestamp,
+  TrackedFileData,
+  TrackedFileHash,
+  TrackedFileName,
+} from "./types.ts";
 import { Manifest, TaskManifest } from "./manifest.ts";
 
 import { AsyncQueue } from "./asyncQueue.ts";
 
 class ExecContext {
   /// All tasks by name
-  taskRegister: Map<A.TaskName, Task> = new Map<A.TaskName, Task>();
+  taskRegister: Map<TaskName, Task> = new Map<TaskName, Task>();
 
   /// Tasks by target
-  targetRegister: Map<A.TrackedFileName, Task> = new Map<
-    A.TrackedFileName,
-    Task
-  >();
+  targetRegister: Map<TrackedFileName, Task> = new Map<TrackedFileName, Task>();
 
   /// Done or up-to-date tasks
   doneTasks: Set<Task> = new Set<Task>();
@@ -48,7 +51,7 @@ class ExecContext {
     this.internalLogger.info(`Starting ExecContext version: ${version}`);
   }
 
-  getTaskByName(name: A.TaskName): Task | undefined {
+  getTaskByName(name: TaskName): Task | undefined {
     return this.taskRegister.get(name);
   }
 }
@@ -73,18 +76,18 @@ export type Action = (ctx: TaskContext) => Promise<void> | void;
 
 export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;
 export type GetFileHash = (
-  filename: A.TrackedFileName,
+  filename: TrackedFileName,
   stat: Deno.FileInfo,
-) => Promise<A.TrackedFileHash> | A.TrackedFileHash;
+) => Promise<TrackedFileHash> | TrackedFileHash;
 export type GetFileTimestamp = (
-  filename: A.TrackedFileName,
+  filename: TrackedFileName,
   stat: Deno.FileInfo,
-) => Promise<A.Timestamp> | A.Timestamp;
+) => Promise<Timestamp> | Timestamp;
 
 /** User definition of a task */
 export type TaskParams = {
   /// Name: (string) - The key used to initiate a task
-  name: A.TaskName;
+  name: TaskName;
 
   /// Description (string) - Freeform text description shown on help
   description?: string;
@@ -131,7 +134,7 @@ type StatResult =
     kind: "nonExistent";
   };
 
-async function statPath(path: A.TrackedFileName): Promise<StatResult> {
+async function statPath(path: TrackedFileName): Promise<StatResult> {
   try {
     const fileInfo = await Deno.stat(path);
     return {
@@ -148,7 +151,7 @@ async function statPath(path: A.TrackedFileName): Promise<StatResult> {
   }
 }
 
-async function deletePath(path: A.TrackedFileName): Promise<void> {
+async function deletePath(path: TrackedFileName): Promise<void> {
   try {
     await Deno.remove(path, { recursive: true });
   } catch (err) {
@@ -160,7 +163,7 @@ async function deletePath(path: A.TrackedFileName): Promise<void> {
 }
 
 export class Task {
-  public name: A.TaskName;
+  public name: TaskName;
   public description?: string;
   public action: Action;
   public task_deps: Set<Task>;
@@ -214,13 +217,11 @@ export class Task {
         ctx.targetRegister.set(t.path, this);
       }
 
-      this.taskManifest = ctx.manifest.tasks.getOrInsert(
-        this.name,
-        new TaskManifest({
+      this.taskManifest = ctx.manifest.tasks[this.name] ||
+        (ctx.manifest.tasks[this.name] = new TaskManifest({
           lastExecution: null,
-          trackedFiles: [],
-        }),
-      );
+          trackedFiles: {},
+        }));
 
       // ensure preceding tasks are setup too
       for (const taskDep of this.task_deps) {
@@ -368,7 +369,7 @@ export class Task {
 }
 
 export class TrackedFile {
-  path: A.TrackedFileName = "";
+  path: TrackedFileName = "";
   #getHash: GetFileHash;
   #getTimestamp: GetFileTimestamp;
 
@@ -397,7 +398,7 @@ export class TrackedFile {
     return statResult.kind === "fileInfo";
   }
 
-  async getHash(statInput?: StatResult): Promise<A.TrackedFileHash> {
+  async getHash(statInput?: StatResult): Promise<TrackedFileHash> {
     let statResult = statInput;
     if (statResult === undefined) {
       statResult = await this.stat();
@@ -410,7 +411,7 @@ export class TrackedFile {
     return this.#getHash(this.path, statResult.fileInfo);
   }
 
-  async getTimestamp(statInput?: StatResult): Promise<A.Timestamp> {
+  async getTimestamp(statInput?: StatResult): Promise<Timestamp> {
     let statResult = statInput;
     if (statResult === undefined) {
       statResult = await this.stat();
@@ -424,7 +425,7 @@ export class TrackedFile {
   /// whether this is up to date w.r.t. the given TrackedFileData
   async isUpToDate(
     _ctx: ExecContext,
-    tData: A.TrackedFileData | undefined,
+    tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<boolean> {
     if (tData === undefined) {
@@ -448,7 +449,7 @@ export class TrackedFile {
   async getFileData(
     _ctx: ExecContext,
     statInput?: StatResult,
-  ): Promise<A.TrackedFileData> {
+  ): Promise<TrackedFileData> {
     let statResult = statInput;
     if (statResult === undefined) {
       statResult = await this.stat();
@@ -462,10 +463,10 @@ export class TrackedFile {
   /// return given tData if up to date or re-calculate
   async getFileDataOrCached(
     ctx: ExecContext,
-    tData: A.TrackedFileData | undefined,
+    tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<{
-    tData: A.TrackedFileData;
+    tData: TrackedFileData;
     upToDate: boolean;
   }> {
     let statResult = statInput;
@@ -515,7 +516,7 @@ export class TrackedFilesAsync {
 
 export async function getFileSha1Sum(
   filename: string,
-): Promise<A.TrackedFileHash> {
+): Promise<TrackedFileHash> {
   const data = await Deno.readFile(filename);
   const hashBuffer = await crypto.subtle.digest("SHA-1", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -528,7 +529,7 @@ export async function getFileSha1Sum(
 export function getFileTimestamp(
   _filename: string,
   stat: Deno.FileInfo,
-): A.Timestamp {
+): Timestamp {
   const mtime = stat.mtime;
   return mtime?.toISOString() || "";
 }

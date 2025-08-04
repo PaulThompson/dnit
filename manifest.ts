@@ -1,73 +1,64 @@
 import { fs, path } from "./deps.ts";
 
-import * as A from "./adl-gen/dnit/manifest.ts";
-import * as J from "./adl-gen/runtime/json.ts";
-
-import { RESOLVER } from "./adl-gen/resolver.ts";
-import { ADLMap } from "./ADLMap.ts";
+import {
+  ManifestSchema,
+  type TaskData,
+  type TaskName,
+  type Timestamp,
+  type TrackedFileData,
+  type TrackedFileName,
+} from "./types.ts";
 export class Manifest {
   readonly filename: string;
-  readonly jsonBinding: J.JsonBinding<A.Manifest> = J.createJsonBinding(
-    RESOLVER,
-    A.texprManifest(),
-  );
-  tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap(
-    [],
-    (k1, k2) => k1 === k2,
-  );
+  tasks: Record<TaskName, TaskManifest> = {};
   constructor(dir: string, filename: string = ".manifest.json") {
     this.filename = path.join(dir, filename);
   }
   async load() {
     if (await fs.exists(this.filename)) {
-      const json: J.Json = JSON.parse(
-        await Deno.readTextFile(this.filename),
-      ) as J.Json;
-      const mdata = this.jsonBinding.fromJson(json);
-      for (const p of mdata.tasks) {
-        const taskName: A.TaskName = p.v1;
-        const taskData: A.TaskData = p.v2;
-        this.tasks.set(taskName, new TaskManifest(taskData));
+      const jsonText = await Deno.readTextFile(this.filename);
+      const json = JSON.parse(jsonText);
+      const mdata = ManifestSchema.parse(json);
+      for (const [taskName, taskData] of Object.entries(mdata.tasks)) {
+        this.tasks[taskName] = new TaskManifest(taskData);
       }
     }
   }
   async save() {
     if (!await fs.exists(path.dirname(this.filename))) {
-      await Deno.mkdir(path.dirname(this.filename));
+      await Deno.mkdir(path.dirname(this.filename), { recursive: true });
     }
 
-    const mdata: A.Manifest = {
-      tasks: this.tasks.entries().map((p) => ({ v1: p[0], v2: p[1].toData() })),
-    };
-    const jsonval = this.jsonBinding.toJson(mdata);
-    await Deno.writeTextFile(this.filename, JSON.stringify(jsonval, null, 2));
+    const tasks: Record<TaskName, TaskData> = {};
+    for (const [taskName, taskManifest] of Object.entries(this.tasks)) {
+      tasks[taskName] = taskManifest.toData();
+    }
+    const mdata = { tasks };
+    await Deno.writeTextFile(this.filename, JSON.stringify(mdata, null, 2));
   }
 }
 export class TaskManifest {
-  public lastExecution: A.Timestamp | null = null;
-  trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap(
-    [],
-    (k1, k2) => k1 === k2,
-  );
-  constructor(data: A.TaskData) {
-    this.trackedFiles = new ADLMap(data.trackedFiles, (k1, k2) => k1 === k2);
+  public lastExecution: Timestamp | null = null;
+  trackedFiles: Record<TrackedFileName, TrackedFileData> = {};
+  constructor(data: TaskData) {
+    this.trackedFiles = data.trackedFiles;
     this.lastExecution = data.lastExecution;
   }
 
-  getFileData(fn: A.TrackedFileName): A.TrackedFileData | undefined {
-    return this.trackedFiles.get(fn);
+  getFileData(fn: TrackedFileName): TrackedFileData | undefined {
+    return this.trackedFiles[fn];
   }
-  setFileData(fn: A.TrackedFileName, d: A.TrackedFileData) {
-    this.trackedFiles.set(fn, d);
+  setFileData(fn: TrackedFileName, d: TrackedFileData) {
+    this.trackedFiles[fn] = d;
   }
   setExecutionTimestamp() {
     this.lastExecution = (new Date()).toISOString();
   }
 
-  toData(): A.TaskData {
+  toData(): TaskData {
     return {
       lastExecution: this.lastExecution,
-      trackedFiles: this.trackedFiles.toData(),
+      trackedFiles: this.trackedFiles,
     };
   }
 }

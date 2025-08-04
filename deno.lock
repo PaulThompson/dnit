@@ -20,7 +20,8 @@
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/semver@*": "1.0.4",
     "jsr:@std/semver@1.0.4": "1.0.4",
-    "jsr:@std/semver@^1.0.4": "1.0.4"
+    "jsr:@std/semver@^1.0.4": "1.0.4",
+    "npm:zod@^3.22.4": "3.24.2"
   },
   "jsr": {
     "@std/cli@1.0.15": {
@@ -54,6 +55,11 @@
     },
     "@std/semver@1.0.4": {
       "integrity": "a62af791917d8fd6c48d6ebbb872f83fad3fc6671ffadbbd39ea229c2d34d175"
+    }
+  },
+  "npm": {
+    "zod@3.24.2": {
+      "integrity": "sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ=="
     }
   },
   "remote": {
@@ -222,7 +228,8 @@
       "jsr:@std/fs@^1.0.15",
       "jsr:@std/log@~0.224.14",
       "jsr:@std/path@^1.0.8",
-      "jsr:@std/semver@^1.0.4"
+      "jsr:@std/semver@^1.0.4",
+      "npm:zod@^3.22.4"
     ]
   }
 }
