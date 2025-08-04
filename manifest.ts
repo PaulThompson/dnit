@@ -1,14 +1,10 @@
 import { fs, path } from "./deps.ts";
+import { TaskManifest } from "./core/taskManifest.ts";
+import type { IManifest } from "./interfaces/core/IManifest.ts";
 
-import {
-  ManifestSchema,
-  type TaskData,
-  type TaskName,
-  type Timestamp,
-  type TrackedFileData,
-  type TrackedFileName,
-} from "./core/types.ts";
-export class Manifest {
+import { ManifestSchema, type TaskData, type TaskName } from "./core/types.ts";
+
+export class Manifest implements IManifest {
   readonly filename: string;
   tasks: Record<TaskName, TaskManifest> = {};
   constructor(dir: string, filename: string = ".manifest.json") {
@@ -55,30 +51,5 @@ export class Manifest {
     }
     const mdata = { tasks };
     await Deno.writeTextFile(this.filename, JSON.stringify(mdata, null, 2));
-  }
-}
-export class TaskManifest {
-  public lastExecution: Timestamp | null = null;
-  trackedFiles: Record<TrackedFileName, TrackedFileData> = {};
-  constructor(data: TaskData) {
-    this.trackedFiles = data.trackedFiles;
-    this.lastExecution = data.lastExecution;
-  }
-
-  getFileData(fn: TrackedFileName): TrackedFileData | undefined {
-    return this.trackedFiles[fn];
-  }
-  setFileData(fn: TrackedFileName, d: TrackedFileData) {
-    this.trackedFiles[fn] = d;
-  }
-  setExecutionTimestamp() {
-    this.lastExecution = (new Date()).toISOString();
-  }
-
-  toData(): TaskData {
-    return {
-      lastExecution: this.lastExecution,
-      trackedFiles: this.trackedFiles,
-    };
   }
 }
