@@ -16,11 +16,31 @@ export class Manifest {
   }
   async load() {
     if (await fs.exists(this.filename)) {
-      const jsonText = await Deno.readTextFile(this.filename);
-      const json = JSON.parse(jsonText);
-      const mdata = ManifestSchema.parse(json);
-      for (const [taskName, taskData] of Object.entries(mdata.tasks)) {
-        this.tasks[taskName] = new TaskManifest(taskData);
+      try {
+        const jsonText = await Deno.readTextFile(this.filename);
+        const json = JSON.parse(jsonText);
+        const result = ManifestSchema.safeParse(json);
+
+        if (result.success) {
+          for (
+            const [taskName, taskData] of Object.entries(result.data.tasks)
+          ) {
+            this.tasks[taskName] = new TaskManifest(taskData);
+          }
+        } else {
+          console.warn(
+            `Manifest file ${this.filename} has invalid schema, creating fresh manifest`,
+          );
+          await this.save();
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error
+          ? error.message
+          : String(error);
+        console.warn(
+          `Failed to parse manifest file ${this.filename}: ${errorMessage}, creating fresh manifest`,
+        );
+        await this.save();
       }
     }
   }
