@@ -52,22 +52,3 @@ export class ExecContext {
     return this.taskRegister.get(name);
   }
 }
-
-export interface TaskContext {
-  logger: log.Logger;
-  task: TaskInterface;
-  args: cli.Args;
-  exec: ExecContext;
-}
-
-export function taskContext(
-  ctx: ExecContext,
-  task: TaskInterface,
-): TaskContext {
-  return {
-    logger: ctx.taskLogger,
-    task,
-    args: ctx.args,
-    exec: ctx,
-  };
-}

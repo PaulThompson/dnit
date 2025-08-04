@@ -3,7 +3,7 @@ import { textTable } from "./textTable.ts";
 import { Manifest } from "./manifest.ts";
 import { ExecContext } from "./core/context.ts";
 import { runAlways, type Task, task } from "./core/task.ts";
-import type { TaskContext } from "./core/context.ts";
+import type { TaskContext } from "./core/taskInterface.ts";
 
 function showTaskList(ctx: ExecContext, args: cli.Args) {
   if (args["quiet"]) {
