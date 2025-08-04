@@ -5,23 +5,32 @@ import type { Manifest } from "../manifest.ts";
 import type { TaskName, TrackedFileName } from "./types.ts";
 
 // Forward declaration for Task - will be resolved when imported
-export interface Task {
+export interface TaskInterface {
   name: TaskName;
+  description?: string;
   exec(ctx: ExecContext): Promise<void>;
+  setup(ctx: ExecContext): Promise<void>;
+  reset(ctx: ExecContext): Promise<void>;
 }
 
 export class ExecContext {
   /// All tasks by name
-  taskRegister: Map<TaskName, Task> = new Map<TaskName, Task>();
+  taskRegister: Map<TaskName, TaskInterface> = new Map<
+    TaskName,
+    TaskInterface
+  >();
 
   /// Tasks by target
-  targetRegister: Map<TrackedFileName, Task> = new Map<TrackedFileName, Task>();
+  targetRegister: Map<TrackedFileName, TaskInterface> = new Map<
+    TrackedFileName,
+    TaskInterface
+  >();
 
   /// Done or up-to-date tasks
-  doneTasks: Set<Task> = new Set<Task>();
+  doneTasks: Set<TaskInterface> = new Set<TaskInterface>();
 
   /// In progress tasks
-  inprogressTasks: Set<Task> = new Set<Task>();
+  inprogressTasks: Set<TaskInterface> = new Set<TaskInterface>();
 
   /// Queue for scheduling async work with specified number allowable concurrently.
   // deno-lint-ignore no-explicit-any
@@ -47,23 +56,26 @@ export class ExecContext {
     this.internalLogger.info(`Starting ExecContext version: ${version}`);
   }
 
-  getTaskByName(name: TaskName): Task | undefined {
+  getTaskByName(name: TaskName): TaskInterface | undefined {
     return this.taskRegister.get(name);
   }
 }
 
 export interface TaskContext {
   logger: log.Logger;
-  task: Task;
+  task: TaskInterface;
   args: cli.Args;
-  manifest: Manifest;
+  exec: ExecContext;
 }
 
-export function taskContext(ctx: ExecContext, task: Task): TaskContext {
+export function taskContext(
+  ctx: ExecContext,
+  task: TaskInterface,
+): TaskContext {
   return {
     logger: ctx.taskLogger,
     task,
     args: ctx.args,
-    manifest: ctx.manifest,
+    exec: ctx,
   };
 }
