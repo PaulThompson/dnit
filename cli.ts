@@ -1,11 +1,9 @@
 import { cli, log } from "./deps.ts";
-import { version } from "./version.ts";
 import { textTable } from "./textTable.ts";
 import { Manifest } from "./manifest.ts";
 import { ExecContext } from "./core/context.ts";
-import { runAlways, Task, task } from "./core/task.ts";
+import { runAlways, type Task, task } from "./core/task.ts";
 import type { TaskContext } from "./core/context.ts";
-import { AsyncQueue } from "./asyncQueue.ts";
 
 function showTaskList(ctx: ExecContext, args: cli.Args) {
   if (args["quiet"]) {
