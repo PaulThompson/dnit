@@ -217,11 +217,7 @@ export class Task {
         ctx.targetRegister.set(t.path, this);
       }
 
-      this.taskManifest = ctx.manifest.tasks[this.name] ||
-        (ctx.manifest.tasks[this.name] = new TaskManifest({
-          lastExecution: null,
-          trackedFiles: {},
-        }));
+      this.taskManifest = this.getOrCreateTaskManifest(ctx);
 
       // ensure preceding tasks are setup too
       for (const taskDep of this.task_deps) {
@@ -357,6 +353,16 @@ export class Task {
     await Promise.all(promisesInProgress);
     promisesInProgress = [];
     return fileDepsUpToDate;
+  }
+
+  private getOrCreateTaskManifest(ctx: ExecContext): TaskManifest {
+    if (!ctx.manifest.tasks[this.name]) {
+      ctx.manifest.tasks[this.name] = new TaskManifest({
+        lastExecution: null,
+        trackedFiles: {},
+      });
+    }
+    return ctx.manifest.tasks[this.name];
   }
 
   private async execDependencies(ctx: ExecContext) {
