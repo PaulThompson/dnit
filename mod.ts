@@ -8,7 +8,7 @@ export type {
   ITask,
   ITaskContext,
 } from "./interfaces/core/ITask.ts";
-export type { IContext } from "./interfaces/core/IContext.ts";
+export type { IExecContext } from "./interfaces/core/IContext.ts";
 export type { IManifest, ITaskManifest } from "./interfaces/core/IManifest.ts";
 export type {
   ITrackedFile,
@@ -16,7 +16,7 @@ export type {
 } from "./interfaces/core/ITrackedFile.ts";
 
 // Core implementations
-export { ExecContext } from "./core/context.ts";
+export { ExecContext } from "./core/execContext.ts";
 export {
   type Action,
   type Dep,
@@ -31,22 +31,21 @@ export {
   type FileParams,
   type GetFileHash,
   type GetFileTimestamp,
+  isTrackedFile,
   TrackedFile,
   trackFile,
 } from "./core/file/TrackedFile.ts";
 export {
   asyncFiles,
   type GenTrackedFiles,
+  isTrackedFileAsync,
   TrackedFilesAsync,
 } from "./core/file/TrackedFilesAsync.ts";
 export { TaskManifest } from "./core/taskManifest.ts";
 
 // Task context utilities
-export {
-  type TaskContext,
-  taskContext,
-  type TaskInterface,
-} from "./core/taskInterface.ts";
+export { type TaskInterface } from "./core/taskInterface.ts";
+export { type TaskContext, taskContext } from "./core/TaskContext.ts";
 
 // CLI utilities
 export { execBasic, execCli, type ExecResult, main } from "./cli/cli.ts";

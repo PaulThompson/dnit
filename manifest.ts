@@ -1,4 +1,5 @@
-import { fs, path } from "./deps.ts";
+import * as fs from "@std/fs";
+import * as path from "@std/path";
 import { TaskManifest } from "./core/taskManifest.ts";
 import type { IManifest } from "./interfaces/core/IManifest.ts";
 

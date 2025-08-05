@@ -4,7 +4,7 @@ import type {
   TrackedFileHash,
   TrackedFileName,
 } from "../../core/types.ts";
-import type { IContext } from "./IContext.ts";
+import type { IExecContext } from "./IContext.ts";
 import type { ITask } from "./ITask.ts";
 
 // File tracking interface
@@ -19,12 +19,12 @@ export interface ITrackedFile {
 
   // Tracking operations
   isUpToDate(
-    ctx: IContext,
+    ctx: IExecContext,
     tData: TrackedFileData | undefined,
   ): Promise<boolean>;
-  getFileData(ctx: IContext): Promise<TrackedFileData>;
+  getFileData(ctx: IExecContext): Promise<TrackedFileData>;
   getFileDataOrCached(
-    ctx: IContext,
+    ctx: IExecContext,
     tData: TrackedFileData | undefined,
   ): Promise<{
     tData: TrackedFileData;

@@ -1,30 +1,31 @@
-import type { cli, log } from "../../deps.ts";
+import type { Args } from "@std/cli/parse-args";
+import type * as log from "@std/log";
 import type { TaskName, TrackedFileName } from "../../core/types.ts";
 import type { ITask } from "./ITask.ts";
 import type { IManifest } from "./IManifest.ts";
 
 // Execution context interface
-export interface IContext {
+export interface IExecContext {
   // Task registry
-  taskRegister: Map<TaskName, ITask>;
-  targetRegister: Map<TrackedFileName, ITask>;
+  readonly taskRegister: Map<TaskName, ITask>;
+  readonly targetRegister: Map<TrackedFileName, ITask>;
 
   // Task tracking
-  doneTasks: Set<ITask>;
-  inprogressTasks: Set<ITask>;
+  readonly doneTasks: Set<ITask>;
+  readonly inprogressTasks: Set<ITask>;
 
   // Async queue for concurrent operations
   // deno-lint-ignore no-explicit-any
-  asyncQueue: any; // AsyncQueue type
+  readonly asyncQueue: any; // AsyncQueue type
 
   // Logging
-  internalLogger: log.Logger;
-  taskLogger: log.Logger;
-  userLogger: log.Logger;
+  readonly internalLogger: log.Logger;
+  readonly taskLogger: log.Logger;
+  readonly userLogger: log.Logger;
 
   // Data
-  manifest: IManifest;
-  args: cli.Args;
+  readonly manifest: IManifest;
+  readonly args: Args;
 
   // Methods
   getTaskByName(name: TaskName): ITask | undefined;

@@ -1,4 +1,4 @@
-import { crypto } from "../deps.ts";
+import { crypto } from "@std/crypto/crypto";
 import type {
   Timestamp,
   TrackedFileHash,

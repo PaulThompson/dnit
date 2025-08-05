@@ -1,4 +1,5 @@
-import { log, path } from "../../deps.ts";
+import * as log from "@std/log";
+import * as path from "@std/path";
 import type {
   Timestamp,
   TrackedFileData,
@@ -12,7 +13,7 @@ import {
   statPath,
   type StatResult,
 } from "../../utils/filesystem.ts";
-import type { ExecContext } from "../context.ts";
+import type { ExecContext } from "../execContext.ts";
 import type { Task } from "../task.ts";
 
 export type GetFileHash = (
@@ -181,4 +182,10 @@ export function file(fileParams: FileParams | string): TrackedFile {
 
 export function trackFile(fileParams: FileParams | string): TrackedFile {
   return file(fileParams);
+}
+
+export function isTrackedFile(
+  dep: unknown,
+): dep is TrackedFile {
+  return dep instanceof TrackedFile;
 }

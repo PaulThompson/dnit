@@ -1,11 +1,13 @@
-import { type cli, log } from "../deps.ts";
+import type { Args } from "@std/cli/parse-args";
+import * as log from "@std/log";
 import { version } from "../version.ts";
 import { AsyncQueue } from "../asyncQueue.ts";
 import type { Manifest } from "../manifest.ts";
 import type { TaskName, TrackedFileName } from "./types.ts";
 import type { TaskInterface } from "./taskInterface.ts";
+import type { IExecContext } from "../interfaces/core/IContext.ts";
 
-export class ExecContext {
+export class ExecContext implements IExecContext {
   /// All tasks by name
   taskRegister: Map<TaskName, TaskInterface> = new Map<
     TaskName,
@@ -36,7 +38,7 @@ export class ExecContext {
     /// loaded hash manifest
     readonly manifest: Manifest,
     /// commandline args
-    readonly args: cli.Args,
+    readonly args: Args,
   ) {
     if (args["verbose"] !== undefined) {
       this.internalLogger.levelName = "INFO";

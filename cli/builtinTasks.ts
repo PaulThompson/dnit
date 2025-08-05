@@ -1,5 +1,5 @@
 import { runAlways, type Task, task } from "../core/task.ts";
-import type { TaskContext } from "../core/taskInterface.ts";
+import type { TaskContext } from "../core/TaskContext.ts";
 import { echoBashCompletionScript, showTaskList } from "./utils.ts";
 
 export const builtinTasks: Task[] = [

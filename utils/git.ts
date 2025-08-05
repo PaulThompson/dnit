@@ -1,6 +1,6 @@
 import { run, runConsole } from "./process.ts";
 import { task } from "../core/task.ts";
-import type { TaskContext } from "../core/taskInterface.ts";
+import type { TaskContext } from "../core/TaskContext.ts";
 
 export async function gitLatestTag(tagPrefix: string) {
   const describeStr = await run(

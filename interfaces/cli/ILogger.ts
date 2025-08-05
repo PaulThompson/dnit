@@ -1,4 +1,4 @@
-import type { log } from "../../deps.ts";
+import type * as log from "@std/log";
 
 // Logging setup interface
 export interface ILoggingSetup {

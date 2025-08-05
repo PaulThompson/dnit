@@ -1,11 +1,15 @@
-import { log } from "../deps.ts";
+import * as log from "@std/log";
 import type { TaskName, TrackedFileData, TrackedFileName } from "./types.ts";
 import { TaskManifest } from "./taskManifest.ts";
-import type { ExecContext } from "./context.ts";
-import type { TaskContext, TaskInterface } from "./taskInterface.ts";
-import { taskContext } from "./taskInterface.ts";
-import { TrackedFile } from "./file/TrackedFile.ts";
-import { TrackedFilesAsync } from "./file/TrackedFilesAsync.ts";
+import type { ExecContext } from "./execContext.ts";
+import type { TaskInterface } from "./taskInterface.ts";
+import type { TaskContext } from "./TaskContext.ts";
+import { taskContext } from "./TaskContext.ts";
+import { isTrackedFile, TrackedFile } from "./file/TrackedFile.ts";
+import {
+  isTrackedFileAsync,
+  TrackedFilesAsync,
+} from "./file/TrackedFilesAsync.ts";
 
 export type Action = (ctx: TaskContext) => Promise<void> | void;
 export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;
@@ -39,16 +43,6 @@ export const runAlways: IsUpToDate = () => false;
 
 function isTask(dep: Task | TrackedFile | TrackedFilesAsync): dep is Task {
   return dep instanceof Task;
-}
-function isTrackedFile(
-  dep: Task | TrackedFile | TrackedFilesAsync,
-): dep is TrackedFile {
-  return dep instanceof TrackedFile;
-}
-function isTrackedFileAsync(
-  dep: Task | TrackedFile | TrackedFilesAsync,
-): dep is TrackedFilesAsync {
-  return dep instanceof TrackedFilesAsync;
 }
 
 export class Task implements TaskInterface {

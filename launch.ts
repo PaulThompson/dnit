@@ -1,6 +1,9 @@
 /// Convenience util to launch a user's dnit.ts
 
-import { fs, type log, path, semver } from "./deps.ts";
+import * as fs from "@std/fs";
+import type * as log from "@std/log";
+import * as path from "@std/path";
+import * as semver from "@std/semver";
 
 type UserSource = {
   baseDir: string;

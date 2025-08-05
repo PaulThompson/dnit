@@ -16,3 +16,9 @@ export class TrackedFilesAsync {
 export function asyncFiles(gen: GenTrackedFiles): TrackedFilesAsync {
   return new TrackedFilesAsync(gen);
 }
+
+export function isTrackedFileAsync(
+  dep: unknown,
+): dep is TrackedFilesAsync {
+  return dep instanceof TrackedFilesAsync;
+}

@@ -14,7 +14,7 @@ import {
   gitLatestTag,
   requireCleanGit,
 } from "../utils/git.ts";
-import { fs } from "../deps.ts";
+import * as fs from "@std/fs";
 import { runConsole } from "../utils.ts";
 
 const tagPrefix = "dnit-v";

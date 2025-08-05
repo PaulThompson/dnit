@@ -1,4 +1,4 @@
-import { log } from "../deps.ts";
+import * as log from "@std/log";
 
 /// StdErr plaintext handler (no color codes)
 class StdErrPlainHandler extends log.BaseHandler {

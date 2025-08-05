@@ -10,7 +10,7 @@ import {
 import { assertEquals } from "https://deno.land/std@0.221.0/testing/asserts.ts";
 
 import { Manifest } from "../manifest.ts";
-import { path } from "../deps.ts";
+import * as path from "@std/path";
 
 Deno.test("basic test", async () => {
   const tasksDone: { [key: string]: boolean } = {};

@@ -1,6 +1,6 @@
-import { cli } from "../deps.ts";
+import { parseArgs } from "@std/cli/parse-args";
 import { Manifest } from "../manifest.ts";
-import { ExecContext } from "../core/context.ts";
+import { ExecContext } from "../core/execContext.ts";
 import type { Task } from "../core/task.ts";
 import { builtinTasks } from "./builtinTasks.ts";
 import { setupLogging } from "./logging.ts";
@@ -14,7 +14,7 @@ export async function execCli(
   cliArgs: string[],
   tasks: Task[],
 ): Promise<ExecResult> {
-  const args = cli.parseArgs(cliArgs);
+  const args = parseArgs(cliArgs);
 
   setupLogging();
 
@@ -78,7 +78,7 @@ export async function execBasic(
   tasks: Task[],
   manifest: Manifest,
 ): Promise<ExecContext> {
-  const args = cli.parseArgs(cliArgs);
+  const args = parseArgs(cliArgs);
   const ctx = new ExecContext(manifest, args);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
