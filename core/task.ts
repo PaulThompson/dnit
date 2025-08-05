@@ -1,14 +1,13 @@
-import * as log from "@std/log";
-import type { TaskName, TrackedFileData, TrackedFileName } from "./types.ts";
+import type { TaskName } from "./types.ts";
 import { TaskManifest } from "./taskManifest.ts";
 import type { ExecContext } from "./execContext.ts";
 import type { TaskInterface } from "./taskInterface.ts";
 import type { TaskContext } from "./TaskContext.ts";
 import { taskContext } from "./TaskContext.ts";
-import { isTrackedFile, TrackedFile } from "./file/TrackedFile.ts";
+import { isTrackedFile, type TrackedFile } from "./file/TrackedFile.ts";
 import {
   isTrackedFileAsync,
-  TrackedFilesAsync,
+  type TrackedFilesAsync,
 } from "./file/TrackedFilesAsync.ts";
 
 export type Action = (ctx: TaskContext) => Promise<void> | void;
