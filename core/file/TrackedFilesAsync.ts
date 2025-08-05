@@ -12,3 +12,7 @@ export class TrackedFilesAsync {
     return await this.gen();
   }
 }
+
+export function asyncFiles(gen: GenTrackedFiles): TrackedFilesAsync {
+  return new TrackedFilesAsync(gen);
+}

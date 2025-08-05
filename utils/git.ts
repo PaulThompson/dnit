@@ -1,5 +1,5 @@
 import { run, runConsole } from "./process.ts";
-import { task } from "../core/factories.ts";
+import { task } from "../core/task.ts";
 import type { TaskContext } from "../core/taskInterface.ts";
 
 export async function gitLatestTag(tagPrefix: string) {

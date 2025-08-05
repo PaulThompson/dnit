@@ -262,3 +262,9 @@ export class Task implements TaskInterface {
     }
   }
 }
+
+/** Generate a task */
+export function task(taskParams: TaskParams): Task {
+  const task = new Task(taskParams);
+  return task;
+}

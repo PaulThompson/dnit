@@ -1,5 +1,4 @@
-import { runAlways, type Task } from "../core/task.ts";
-import { task } from "../core/factories.ts";
+import { runAlways, type Task, task } from "../core/task.ts";
 import type { TaskContext } from "../core/taskInterface.ts";
 import { echoBashCompletionScript, showTaskList } from "./utils.ts";
 

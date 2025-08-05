@@ -170,3 +170,15 @@ export class TrackedFile {
     return this.fromTask;
   }
 }
+
+/** Generate a trackedfile for tracking */
+export function file(fileParams: FileParams | string): TrackedFile {
+  if (typeof fileParams === "string") {
+    return new TrackedFile({ path: fileParams });
+  }
+  return new TrackedFile(fileParams);
+}
+
+export function trackFile(fileParams: FileParams | string): TrackedFile {
+  return file(fileParams);
+}

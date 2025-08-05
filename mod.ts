@@ -23,22 +23,23 @@ export {
   type IsUpToDate,
   runAlways,
   Task,
+  task,
   type TaskParams,
 } from "./core/task.ts";
 export {
+  file,
   type FileParams,
   type GetFileHash,
   type GetFileTimestamp,
   TrackedFile,
+  trackFile,
 } from "./core/file/TrackedFile.ts";
 export {
+  asyncFiles,
   type GenTrackedFiles,
   TrackedFilesAsync,
 } from "./core/file/TrackedFilesAsync.ts";
 export { TaskManifest } from "./core/taskManifest.ts";
-
-// Factory functions
-export { asyncFiles, file, task, trackFile } from "./core/factories.ts";
 
 // Task context utilities
 export {
