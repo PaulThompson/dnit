@@ -1,4 +1,10 @@
 import { assertEquals, assertRejects } from "@std/assert";
+import type * as log from "@std/log";
+import type { Args } from "@std/cli/parse-args";
+import type { IExecContext, IManifest, TaskName } from "../mod.ts";
+import { Manifest } from "../manifest.ts";
+import { Task } from "../core/task.ts";
+import { taskContext } from "../core/TaskContext.ts";
 import {
   fetchTags,
   gitIsClean,
@@ -6,6 +12,36 @@ import {
   gitLatestTag,
   requireCleanGit,
 } from "../utils/git.ts";
+
+// Mock logger for testing
+function createMockLogger(): log.Logger {
+  return {
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    critical: () => {},
+  } as unknown as log.Logger;
+}
+
+// Mock exec context for testing
+function createMockExecContext(manifest: IManifest): IExecContext {
+  return {
+    taskRegister: new Map(),
+    targetRegister: new Map(),
+    doneTasks: new Set(),
+    inprogressTasks: new Set(),
+    internalLogger: createMockLogger(),
+    taskLogger: createMockLogger(),
+    userLogger: createMockLogger(),
+    concurrency: 1,
+    verbose: false,
+    manifest,
+    args: { _: [] } as Args,
+    getTaskByName: () => undefined,
+    schedule: <T>(action: () => Promise<T>) => action(),
+  };
+}
 
 Deno.test("git utilities", async (t) => {
   // Skip tests if not in a git repository
@@ -58,8 +94,11 @@ Deno.test("git utilities", async (t) => {
     assertEquals(typeof fetchTags.action, "function");
     assertEquals(typeof fetchTags.uptodate, "function");
     if (fetchTags.uptodate) {
-      const mockCtx = { logger: { log: () => {} } };
-      assertEquals(fetchTags.uptodate(mockCtx), false);
+      const manifest = new Manifest("");
+      const ctx = createMockExecContext(manifest);
+      const task = new Task({ name: "test" as TaskName, action: () => {} });
+      const taskCtx = taskContext(ctx, task);
+      assertEquals(fetchTags.uptodate(taskCtx), false);
     }
   });
 
@@ -69,44 +108,49 @@ Deno.test("git utilities", async (t) => {
     assertEquals(typeof requireCleanGit.action, "function");
     assertEquals(typeof requireCleanGit.uptodate, "function");
     if (requireCleanGit.uptodate) {
-      const mockCtx = { logger: { log: () => {} } };
-      assertEquals(requireCleanGit.uptodate(mockCtx), false);
+      const manifest = new Manifest("");
+      const ctx = createMockExecContext(manifest);
+      const task = new Task({ name: "test" as TaskName, action: () => {} });
+      const taskCtx = taskContext(ctx, task);
+      assertEquals(requireCleanGit.uptodate(taskCtx), false);
     }
   });
 
   await t.step("requireCleanGit task - with ignore-unclean flag", async () => {
-    const mockCtx = {
-      args: { "ignore-unclean": true },
-      logger: { log: () => {} },
-      task: requireCleanGit,
-      execCtx: { getTaskByName: () => null },
-    };
-    
+    const manifest = new Manifest("");
+    const argsWithFlag = { _: [], "ignore-unclean": true } as Args;
+    const ctx = createMockExecContext(manifest);
+    // Override args in mock context
+    (ctx as unknown as { args: Args }).args = argsWithFlag;
+    const task = new Task({ name: "test" as TaskName, action: () => {} });
+    const taskCtx = taskContext(ctx, task);
+
     // Should not throw when ignore-unclean is set
-    await requireCleanGit.action(mockCtx);
+    await requireCleanGit.action(taskCtx);
   });
 
-  await t.step("requireCleanGit task - behavior depends on git status", async () => {
-    const isClean = await gitIsClean();
-    const mockCtx = {
-      args: {},
-      logger: { log: () => {} },
-      task: requireCleanGit,
-      execCtx: { getTaskByName: () => null },
-    };
-    
-    if (isClean) {
-      // Should not throw if git is clean
-      await requireCleanGit.action(mockCtx);
-    } else {
-      // Should throw if git is not clean
-      await assertRejects(
-        async () => await requireCleanGit.action(mockCtx),
-        Error,
-        "Unclean git status",
-      );
-    }
-  });
+  await t.step(
+    "requireCleanGit task - behavior depends on git status",
+    async () => {
+      const isClean = await gitIsClean();
+      const manifest = new Manifest("");
+      const ctx = createMockExecContext(manifest);
+      const task = new Task({ name: "test" as TaskName, action: () => {} });
+      const taskCtx = taskContext(ctx, task);
+
+      if (isClean) {
+        // Should not throw if git is clean
+        await requireCleanGit.action(taskCtx);
+      } else {
+        // Should throw if git is not clean
+        await assertRejects(
+          async () => await requireCleanGit.action(taskCtx),
+          Error,
+          "Unclean git status",
+        );
+      }
+    },
+  );
 });
 
 Deno.test("git utilities - error handling", async (t) => {

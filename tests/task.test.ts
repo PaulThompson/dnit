@@ -3,6 +3,7 @@ import * as path from "@std/path";
 import type * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
+  execBasic,
   file,
   type IExecContext,
   type IManifest,
@@ -13,7 +14,7 @@ import {
   TrackedFilesAsync,
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
-import { runAlways, type Action, type IsUpToDate } from "../core/task.ts";
+import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";
 
 // Mock logger for testing
@@ -62,7 +63,7 @@ async function cleanup(filePath: string) {
 
 Deno.test("Task - basic task creation", () => {
   const mockAction: Action = () => {};
-  
+
   const testTask = new Task({
     name: "testTask" as TaskName,
     description: "A test task",
@@ -80,7 +81,7 @@ Deno.test("Task - basic task creation", () => {
 
 Deno.test("Task - task() function", () => {
   const mockAction: Action = () => {};
-  
+
   const testTask = task({
     name: "testTask" as TaskName,
     description: "A test task",
@@ -95,7 +96,7 @@ Deno.test("Task - task() function", () => {
 Deno.test("Task - task with dependencies", async () => {
   const tempFile = await createTempFile("dependency content");
   const trackedFile = new TrackedFile({ path: tempFile });
-  
+
   const depTask = new Task({
     name: "depTask" as TaskName,
     action: () => {},
@@ -127,7 +128,7 @@ Deno.test("Task - task with targets", async () => {
 
   assertEquals(testTask.targets.size, 1);
   assertEquals(testTask.targets.has(targetFile), true);
-  
+
   // Target should have task assigned
   assertEquals(targetFile.getTask(), testTask);
 
@@ -139,9 +140,9 @@ Deno.test("Task - task with TrackedFilesAsync dependencies", () => {
     const tempFile = await createTempFile("async content");
     return [file(tempFile)];
   };
-  
+
   const asyncFiles = new TrackedFilesAsync(generator);
-  
+
   const testTask = new Task({
     name: "testTask" as TaskName,
     action: () => {},
@@ -196,11 +197,12 @@ Deno.test("Task - duplicate target assignment throws error", async () => {
 
   // Second task trying to use same target should throw
   assertThrows(
-    () => new Task({
-      name: "task2" as TaskName,
-      action: () => {},
-      targets: [sharedTarget],
-    }),
+    () =>
+      new Task({
+        name: "task2" as TaskName,
+        action: () => {},
+        targets: [sharedTarget],
+      }),
     Error,
     "Duplicate tasks generating TrackedFile as target",
   );
@@ -305,10 +307,10 @@ Deno.test("Task - exec skips in-progress tasks", async () => {
   });
 
   await testTask.setup(ctx);
-  
+
   // Manually mark as in-progress
   ctx.inprogressTasks.add(testTask);
-  
+
   await testTask.exec(ctx);
 
   assertEquals(actionCallCount, 0);
@@ -322,7 +324,7 @@ Deno.test("Task - exec with async action", async () => {
   const testTask = new Task({
     name: "testTask" as TaskName,
     action: async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       actionCompleted = true;
     },
     uptodate: runAlways, // Force it to run
@@ -391,12 +393,12 @@ Deno.test("Task - reset cleans targets", async () => {
   });
 
   await testTask.setup(ctx);
-  
+
   // Verify file exists
   assertEquals(await targetFile.exists(), true);
-  
+
   await testTask.reset(ctx);
-  
+
   // File should be deleted
   assertEquals(await targetFile.exists(), false);
 
@@ -406,7 +408,7 @@ Deno.test("Task - reset cleans targets", async () => {
 Deno.test("Task - taskContext creation", () => {
   const manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
-  
+
   const testTask = new Task({
     name: "testTask" as TaskName,
     action: () => {},
@@ -422,7 +424,6 @@ Deno.test("Task - taskContext creation", () => {
 
 Deno.test("Task - action receives TaskContext", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let receivedContext: TaskContext | null = null;
 
   const testTask = new Task({
@@ -433,14 +434,13 @@ Deno.test("Task - action receives TaskContext", async () => {
     uptodate: runAlways, // Force it to run
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   assertExists(receivedContext);
-  if (receivedContext) {
-    assertEquals(receivedContext.task, testTask);
-    assertEquals(receivedContext.exec, ctx);
-  }
+  const context = receivedContext as TaskContext;
+  assertEquals(context.task, testTask);
+  assertEquals(context.exec, ctx);
 });
 
 Deno.test("Task - exec with file dependencies updates manifest", async () => {
@@ -470,7 +470,7 @@ Deno.test("Task - exec with file dependencies updates manifest", async () => {
 Deno.test("Task - task with mixed dependency types", async () => {
   const tempFile = await createTempFile("mixed dep content");
   const trackedFile = new TrackedFile({ path: tempFile });
-  
+
   const depTask = new Task({
     name: "depTask" as TaskName,
     action: () => {},
