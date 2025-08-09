@@ -187,8 +187,10 @@ definitions across projects.
   place to have a (deno) typescript tree for the task scripting, which
   encourages tasks to be separated into modules and generally organised as a
   typescript project tree.
-- User scripts can have an `import_map.json` file in order to import tasks and
-  utils more flexibly.
+- User scripts can use a `deno.json` file in the `dnit` directory for
+  configuration (import maps, TypeScript options, etc). For legacy
+  compatibility, standalone `import_map.json` or `.import_map.json` files are
+  also supported.
 - The main `dnit` tool can be executed on its own (see section on
   [Installation](#Installation) above)
 
@@ -202,8 +204,10 @@ The `dnit` tool searches for a user script to execute, in order to support the
 - It starts from the current working directory and runs `findUserSource`
 - `findUserSource` looks for subdirectory `dnit` and looks for sources `main.ts`
   or `dnit.ts`
-  - It optionally looks for `import_map.json` or `.import_map.json` to use as
-    the import map.
+  - Deno will automatically discover and use any `deno.json` file in the `dnit`
+    directory or parent directories
+  - For legacy compatibility, it also looks for `import_map.json` or
+    `.import_map.json` to use as the import map
   - If found then it changes working directory and executes the user script.
   - If not found then it recurses into `findUserSource` in the parent directory.
 
