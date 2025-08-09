@@ -2,6 +2,7 @@
 
 // Core types
 export * from "./interfaces/core/IManifestTypes.ts";
+export * from "./interfaces/utils/IFlavoring.ts";
 export type {
   IAction,
   IExecContext,
@@ -56,3 +57,6 @@ export { Manifest } from "./manifest.ts";
 
 // Utilities
 export * from "./utils/filesystem.ts";
+
+// Zod schemas for validation
+export * from "./core/manifestSchemas.ts";
