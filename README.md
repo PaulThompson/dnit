@@ -55,9 +55,9 @@ export const helloWorld = task({
   name: "helloWorld",
   description: "foo",
   action: async () => { /// Actions are typescript async ()=> Promise<void> functions.
-    await Deno.run({
-      cmd: ["./writeMsg.sh"],
-    }).status();
+    const command = new Deno.Command("./writeMsg.sh");
+    const { code } = await command.output();
+    if (code !== 0) throw new Error(`Command failed with code ${code}`);
   },
   deps: [
     file({
@@ -217,7 +217,7 @@ Eg: with a file layout:
 repo
   dnit
     main.ts
-    import_map.json
+    deno.json
   src
     project.ts
   package.json

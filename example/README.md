@@ -12,27 +12,21 @@ cd example
 
 ## Usage
 
-List available tasks:
+If you have dnit installed globally:
+
+```bash
+dnit list
+dnit hello
+dnit show
+dnit cleanup
+```
+
+Or run directly with Deno:
 
 ```bash
 deno run --allow-read --allow-write --allow-run ../main.ts list
-```
-
-Create the hello world message:
-
-```bash
 deno run --allow-read --allow-write --allow-run ../main.ts hello
-```
-
-Display the message:
-
-```bash
 deno run --allow-read --allow-write --allow-run ../main.ts show
-```
-
-Clean up:
-
-```bash
 deno run --allow-read --allow-write --allow-run ../main.ts cleanup
 ```
 
