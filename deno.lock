@@ -21,7 +21,7 @@
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/semver@^1.0.5": "1.0.5",
-    "npm:zod@^3.25.76": "3.25.76"
+    "npm:zod@^4.0.16": "4.0.16"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -80,8 +80,8 @@
     }
   },
   "npm": {
-    "zod@3.25.76": {
-      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
+    "zod@4.0.16": {
+      "integrity": "sha512-Djo/cM339grjI7/HmN+ixYO2FzEMcWr/On50UlQ/RjrWK1I/hPpWhpC76heCptnRFpH0LMwrEbUY50HDc0V8wg=="
     }
   },
   "remote": {
@@ -252,7 +252,7 @@
       "jsr:@std/log@~0.224.14",
       "jsr:@std/path@^1.1.1",
       "jsr:@std/semver@^1.0.5",
-      "npm:zod@^3.25.76"
+      "npm:zod@^4.0.16"
     ]
   }
 }
