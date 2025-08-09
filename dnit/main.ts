@@ -205,7 +205,7 @@ const killTest = task({
 
 const sourceCheckEntryPoints: string[] = [
   "launch.ts",
-  "dnit.ts",
+  "mod.ts",
   "dnit/main.ts",
 ];
 
