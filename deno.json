@@ -1,6 +1,12 @@
 {
   "name": "@dnit/dnit",
   "version": "2.0.0-pre.0",
+  "description": "A TypeScript (Deno) based task runner for complex projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulThompson/dnit.git"
+  },
   "exports": "./mod.ts",
   "fmt": {},
   "imports": {

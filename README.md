@@ -17,19 +17,19 @@ It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json https://deno.land/x/dnit@dnit-v1.14.4/main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit jsr:@dnit/dnit@2.0.0/main
 ```
 
-Install from github:
+Install latest from JSR:
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json https://raw.githubusercontent.com/PaulThompson/dnit/d53fa48ad8ecfa8f5c7df1d6a669e3033555bc74/main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit jsr:@dnit/dnit/main
 ```
 
 Install from source checkout:
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json ./main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit ./main.ts
 ```
 
 - Read, Write and Run permissions are required in order to operate on files and
@@ -43,11 +43,7 @@ example.
 ## Sample Usage
 
 ```ts
-import {
-  file,
-  main,
-  task,
-} from "https://deno.land/x/dnit@dnit-v1.14.4/dnit.ts";
+import { file, main, task } from "jsr:@dnit/dnit@2.0.0";
 
 /// A file to be tracked as a target and dependency:
 export const msg = file({

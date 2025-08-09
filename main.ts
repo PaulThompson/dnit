@@ -1,4 +1,4 @@
-import { setupLogging } from "./dnit.ts";
+import { setupLogging } from "./mod.ts";
 import { type Args, parseArgs } from "@std/cli/parse-args";
 import * as log from "@std/log";
 import { launch } from "./launch.ts";

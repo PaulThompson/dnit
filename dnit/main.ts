@@ -1,6 +1,6 @@
 import { main, runAlways, task, type TaskContext } from "../mod.ts";
 import * as semver from "@std/semver";
-import { type Args as CliArgs, parseArgs } from "@std/cli/parse-args";
+import type { Args as CliArgs } from "@std/cli/parse-args";
 
 import {
   fetchTags,
