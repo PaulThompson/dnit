@@ -1,40 +1,33 @@
-# Dnit File Structure Documentation (Refactored Architecture)
+# Dnit File Structure Documentation
 
 ## Overview
 
-This refactored version of Dnit introduces a cleaner separation of concerns
-with:
+This documentation reflects the current refactored architecture of Dnit with:
 
-- Interface definitions in `/interfaces/` for better abstraction
+- Clean interface definitions in `/interfaces/` directory
 - Core functionality split into focused modules
 - CLI components organized in `/cli/` directory
 - File tracking separated into `/core/file/` subdirectory
+- Zero circular dependencies (verified by import analyzer)
 
 ## Interface Definitions
 
-### `/interfaces/core/ITask.ts`
+### `/interfaces/core/ICoreInterfaces.ts`
 
-**Purpose:** Core task-related interface definitions.
+**Purpose:** Consolidated core interfaces to avoid circular dependencies.
 
 **Primary Types:**
 
 - `ITask`: Main task execution interface
-- `ITaskContext`: Context passed to task actions
-- `IAction`: Task action function type
-- `IIsUpToDate`: Up-to-date check function type
-
-### `/interfaces/core/IContext.ts`
-
-**Purpose:** Execution context interface.
-
-**Primary Types:**
-
-- `IExecContext`: Main execution context interface with:
+- `IExecContext`: Execution context interface with:
   - Task and target registries
   - Task tracking sets (done, in-progress)
   - Async queue for concurrency
   - Logger instances
   - Manifest and CLI args access
+- `ITaskContext`: Context passed to task actions
+- `IAction`: Task action function type
+- `IIsUpToDate`: Up-to-date check function type
 
 ### `/interfaces/core/IManifest.ts`
 
@@ -59,11 +52,20 @@ with:
 
 ### `/interfaces/cli/ILogger.ts`
 
-**Purpose:** Logging interfaces (if present).
+**Purpose:** Logging setup interface.
+
+**Primary Types:**
+
+- `ILoggingSetup`: Interface for logging configuration
 
 ### `/interfaces/utils/IFileSystem.ts`
 
-**Purpose:** File system operation interfaces (if present).
+**Purpose:** File system operation interfaces.
+
+**Primary Types:**
+
+- `IFileSystem`: File system operations interface
+- `IStatResult`: File stat result interface
 
 ## Core Module Files
 
@@ -93,14 +95,7 @@ with:
   - Tracks execution state
   - Provides async queue for concurrency
   - Configures logging based on verbosity
-
-### `/core/taskInterface.ts`
-
-**Purpose:** Task interface to break circular dependencies.
-
-**Primary Type:**
-
-- `TaskInterface`: Minimal task interface used by ExecContext
+  - Properties: `concurrency`, `verbose`
 
 ### `/core/TaskContext.ts`
 
@@ -117,7 +112,7 @@ with:
 
 **Primary Class:**
 
-- `Task`: Main task class implementing `TaskInterface`
+- `Task`: Main task class implementing `ITask`
 
 **Types:**
 
@@ -155,7 +150,7 @@ with:
 
 **Primary Class:**
 
-- `TrackedFile`: Concrete file tracking
+- `TrackedFile`: Concrete file tracking implementing `ITrackedFile`
   - Path resolution
   - Hash/timestamp calculation
   - Up-to-date checking
@@ -178,7 +173,8 @@ with:
 
 **Primary Class:**
 
-- `TrackedFilesAsync`: Wrapper for async file generators
+- `TrackedFilesAsync`: Wrapper for async file generators implementing
+  `ITrackedFilesAsync`
 
 **Types:**
 
@@ -232,7 +228,7 @@ with:
 
 **Functions:**
 
-- `setupLogging()`: Configure logging system
+- `setupLogging()`: Configure logging system implementing `ILoggingSetup`
 - `getLogger()`: Get user logger instance
 
 ### `/cli/utils.ts`
@@ -254,7 +250,7 @@ with:
 
 - Version display
 - Logging setup
-- User script launching
+- User script launching via `launch()`
 
 ### `/mod.ts`
 
@@ -262,10 +258,11 @@ with:
 
 **Exports:**
 
-- Core types and interfaces
+- Core types and interfaces from `/interfaces/core/ICoreInterfaces.ts`
 - Task and file implementations
 - CLI utilities
 - Manifest handling
+- All exports properly categorized
 
 ### `/dnit.ts`
 
@@ -288,8 +285,8 @@ with:
 **Primary Class:**
 
 - `Manifest`: Implements `IManifest`
-  - File persistence
-  - Schema validation
+  - File persistence (`.manifest.json`)
+  - Schema validation with Zod
   - Task manifest management
 
 ## Utilities
@@ -332,27 +329,36 @@ with:
 
 ### `/utils.ts`
 
-**Purpose:** General utilities (if present).
+**Purpose:** Re-exports utilities for backward compatibility.
 
 ### `/utils/filesystem.ts`
 
-**Purpose:** File system operations.
+**Purpose:** File system operations implementing `IFileSystem`.
 
 **Functions:**
 
-- `statPath()`: Safe file stats
+- `statPath()`: Safe file stats returning `IStatResult`
 - `deletePath()`: Recursive deletion
 - `getFileSha1Sum()`: SHA1 calculation
 - `getFileTimestamp()`: Modification time
-- Additional path and glob utilities
+- `resolvePath()`: Path resolution
+- `glob()`: File pattern matching
 
 ### `/utils/git.ts`
 
 **Purpose:** Git integration utilities.
 
+**Functions:**
+
+- Git task utilities for version control integration
+
 ### `/utils/process.ts`
 
 **Purpose:** Process execution utilities.
+
+**Functions:**
+
+- Process spawning and management utilities
 
 ### `/version.ts`
 
@@ -370,7 +376,7 @@ with:
 
 **Contents:**
 
-- Package metadata
+- Package metadata: `@dnit/dnit` v2.0.0
 - Import mappings for @std libraries
 - Formatter settings
 
@@ -380,7 +386,8 @@ with:
 
 ### `/REFACTORING_PLAN.md`
 
-**Purpose:** Documentation of refactoring goals and progress.
+**Purpose:** Documentation of refactoring goals and progress. **Note:** Contains
+some outdated references that need updating.
 
 ## Test Files
 
@@ -396,29 +403,62 @@ with:
 
 ### `/tests/asyncQueue.test.ts`
 
-**Purpose:** Async queue tests.
+**Purpose:** Async queue concurrency tests.
 
 ## Example and Tool Directories
 
 ### `/example/`
 
-**Purpose:** Working example project.
+**Purpose:** Working example project demonstrating dnit usage.
 
 ### `/dnit/`
 
 **Purpose:** Dnit's own build configuration.
 
+**Files:**
+
+- `main.ts`: Dnit's build tasks
+- `deps.ts`: Build dependencies
+
 ### `/tools/`
 
 **Purpose:** Additional tooling.
 
-## Key Architectural Improvements
+**Files:**
 
-1. **Interface Segregation**: Clear separation between interfaces and
+- `import-analyzer.ts`: TypeScript import dependency analyzer
+  - Detects circular dependencies
+  - Generates dependency graphs
+  - Exports JSON for visualization
+
+## Key Architectural Achievements
+
+1. **Zero Circular Dependencies**: Verified by import analyzer tool
+2. **Interface Segregation**: Clear separation between interfaces and
    implementations
-2. **Module Organization**: Related functionality grouped in subdirectories
-3. **Dependency Inversion**: Core modules depend on interfaces, not concrete
+3. **Module Organization**: Related functionality grouped in subdirectories
+4. **Dependency Inversion**: Core modules depend on interfaces, not concrete
    implementations
-4. **Single Responsibility**: Each file has a focused purpose
-5. **Type Safety**: Comprehensive type definitions with Zod validation
-6. **Testability**: Clean interfaces enable easier testing and mocking
+5. **Single Responsibility**: Each file has a focused purpose
+6. **Type Safety**: Comprehensive type definitions with Zod validation
+7. **Testability**: Clean interfaces enable easier testing and mocking
+8. **Backward Compatibility**: Legacy imports continue to work through
+   re-exports
+
+## Import Hierarchy
+
+```
+/interfaces/core/ICoreInterfaces.ts (no imports from project)
+    ↓
+/core/types.ts
+    ↓
+/core/execContext.ts, /core/task.ts (implement interfaces)
+    ↓
+/cli/*, /utils/* (use core functionality)
+    ↓
+/mod.ts (organizes exports)
+    ↓
+/dnit.ts, /cli.ts (backward compatibility)
+```
+
+This architecture ensures clean dependencies with no circular references.
