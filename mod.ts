@@ -57,6 +57,3 @@ export { Manifest } from "./manifest.ts";
 
 // Utilities
 export * from "./utils/filesystem.ts";
-
-// Zod schemas for validation
-export * from "./core/manifestSchemas.ts";
