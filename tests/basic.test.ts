@@ -7,7 +7,7 @@ import {
   trackFile,
 } from "../dnit.ts";
 
-import { assertEquals } from "https://deno.land/std@0.221.0/testing/asserts.ts";
+import { assertEquals } from "@std/assert";
 
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";
