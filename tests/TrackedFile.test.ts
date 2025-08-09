@@ -101,6 +101,27 @@ Deno.test("TrackedFile - default hash calculation", async () => {
   await cleanup(tempFile);
 });
 
+Deno.test("TrackedFile - known hash values", async () => {
+  // Test empty file
+  const emptyFile = await createTempFile("");
+  const emptyTrackedFile = new TrackedFile({ path: emptyFile });
+  const emptyHash = await emptyTrackedFile.getHash();
+  
+  // Known SHA1 hash of empty file
+  assertEquals(emptyHash, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+  
+  // Test known content
+  const helloFile = await createTempFile("hello world");
+  const helloTrackedFile = new TrackedFile({ path: helloFile });
+  const helloHash = await helloTrackedFile.getHash();
+  
+  // Known SHA1 hash of "hello world"
+  assertEquals(helloHash, "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed");
+  
+  await cleanup(emptyFile);
+  await cleanup(helloFile);
+});
+
 Deno.test("TrackedFile - custom hash function", async () => {
   const tempFile = await createTempFile("test content");
   
