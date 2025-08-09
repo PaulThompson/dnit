@@ -1,12 +1,6 @@
-import {
-  type cli,
-  main,
-  runAlways,
-  semver,
-  task,
-  type TaskContext,
-  utils,
-} from "./deps.ts";
+import { main, runAlways, task, type TaskContext } from "../mod.ts";
+import * as semver from "@std/semver";
+import { type Args as CliArgs, parseArgs } from "@std/cli/parse-args";
 
 import {
   fetchTags,
@@ -19,7 +13,7 @@ import { runConsole } from "../utils.ts";
 
 const tagPrefix = "dnit-v";
 
-async function getNextTagVersion(args: cli.Args): Promise<string | null> {
+async function getNextTagVersion(args: CliArgs): Promise<string | null> {
   const current = await gitLatestTag(tagPrefix);
 
   type Args = {
@@ -72,10 +66,10 @@ const tag = task({
     if (conf) {
       const cmds = dryRun ? ["echo"] : [];
 
-      await utils.runConsole(
+      await runConsole(
         cmds.concat(["git", "tag", "-a", "-m", tagMessage, tagName]),
       );
-      await utils.runConsole(cmds.concat(["git", "push", origin, tagName]));
+      await runConsole(cmds.concat(["git", "push", origin, tagName]));
 
       ctx.logger.info(
         `${
@@ -101,7 +95,7 @@ const push = task({
   name: "push",
   description: "Run git push",
   action: async () => {
-    await utils.runConsole(["git", "push", "origin", "main"]);
+    await runConsole(["git", "push", "origin", "main"]);
   },
   deps: [
     requireCleanGit,
@@ -183,7 +177,7 @@ const test = task({
   name: "test",
   description: "Run local unit tests",
   action: async () => {
-    await utils.runConsole([
+    await runConsole([
       "deno",
       "test",
       "--allow-read",
@@ -199,7 +193,7 @@ const killTest = task({
   name: "killTest",
   description: "Test what happens when killing via signals",
   action: async () => {
-    await utils.runConsole([
+    await runConsole([
       "bash",
       "-c",
       "echo $$; trap '' 2; echo helloworld; sleep 30s; echo done",
@@ -220,7 +214,7 @@ const check = task({
   description: "Run local checks",
   action: async () => {
     await Promise.all(sourceCheckEntryPoints.map(async (path) => {
-      await utils.runConsole([
+      await runConsole([
         "deno",
         "check",
         path,
@@ -236,7 +230,7 @@ const lint = task({
   description: "Run local lint",
   action: async () => {
     await Promise.all(sourceCheckEntryPoints.map(async (path) => {
-      await utils.runConsole([
+      await runConsole([
         "deno",
         "lint",
         path,
@@ -252,7 +246,7 @@ const fmt = task({
   description: "Run local fmt",
   action: async () => {
     await Promise.all(sourceCheckEntryPoints.map(async (path) => {
-      await utils.runConsole([
+      await runConsole([
         "deno",
         "fmt",
         path,
