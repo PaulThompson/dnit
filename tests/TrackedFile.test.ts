@@ -7,6 +7,7 @@ import {
   trackFile,
 } from "../core/file/TrackedFile.ts";
 import type {
+  TaskName,
   Timestamp,
   TrackedFileHash,
 } from "../interfaces/core/IManifestTypes.ts";
@@ -15,7 +16,8 @@ import type {
   ITask,
 } from "../interfaces/core/ICoreInterfaces.ts";
 import type { IManifest } from "../interfaces/core/IManifest.ts";
-import { type Args } from "@std/cli/parse-args";
+import type { Args } from "@std/cli/parse-args";
+import type * as log from "@std/log";
 import { Manifest } from "../manifest.ts";
 
 // Mock objects to avoid "as any" assertions
@@ -25,21 +27,21 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: {} as any, // Only used for logging, not essential for file tracking tests
-    taskLogger: {} as any,
-    userLogger: {} as any,
+    internalLogger: {} as log.Logger,
+    taskLogger: {} as log.Logger,
+    userLogger: {} as log.Logger,
     concurrency: 1,
     verbose: false,
     manifest,
     args: { _: [] } as Args,
     getTaskByName: () => undefined,
-    schedule: async <T>(action: () => Promise<T>) => action(),
+    schedule: <T>(action: () => Promise<T>) => action(),
   };
 }
 
 function createMockTask(name: string): ITask {
   return {
-    name: name as any, // TaskName is a flavored string
+    name: name as TaskName,
     description: `Mock task ${name}`,
     exec: async () => {},
     setup: async () => {},
@@ -511,7 +513,7 @@ Deno.test("TrackedFile - permission denied scenarios", async () => {
 
       // Restore permissions for cleanup
       await Deno.chmod(restrictedFile, 0o644);
-    } catch (permError) {
+    } catch (_permError) {
       // Skip if we can't modify permissions
       console.log("Skipping permission test - chmod not supported");
     }
