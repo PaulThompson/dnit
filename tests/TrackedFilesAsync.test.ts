@@ -2,10 +2,11 @@ import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
 import {
   asyncFiles,
+  file,
   isTrackedFileAsync,
+  TrackedFile,
   TrackedFilesAsync,
-} from "../core/file/TrackedFilesAsync.ts";
-import { file, TrackedFile } from "../core/file/TrackedFile.ts";
+} from "../mod.ts";
 
 // Test helper to create temporary files
 async function createTempFile(

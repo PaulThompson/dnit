@@ -1,23 +1,19 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import * as path from "@std/path";
+import * as log from "@std/log";
+import type { Args } from "@std/cli/parse-args";
 import {
   file,
   isTrackedFile,
   TrackedFile,
   trackFile,
-} from "../core/file/TrackedFile.ts";
-import type {
-  TaskName,
-  Timestamp,
-  TrackedFileHash,
-} from "../interfaces/core/IManifestTypes.ts";
-import type {
-  IExecContext,
-  ITask,
-} from "../interfaces/core/ICoreInterfaces.ts";
-import type { IManifest } from "../interfaces/core/IManifest.ts";
-import type { Args } from "@std/cli/parse-args";
-import type * as log from "@std/log";
+  type TaskName,
+  type Timestamp,
+  type TrackedFileHash,
+  type IExecContext,
+  type ITask,
+  type IManifest,
+} from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 
 // Mock objects to avoid "as any" assertions

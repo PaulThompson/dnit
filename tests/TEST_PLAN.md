@@ -11,9 +11,10 @@
 ### 1. Core Interface Tests
 
 #### File Tracking System
+
 - [x] `TrackedFile.test.ts` ✅ **COMPLETED** (26 tests)
   - File hashing (default SHA1 and custom hash functions)
-  - Timestamp checking (default and custom timestamp functions) 
+  - Timestamp checking (default and custom timestamp functions)
   - File existence validation
   - Path resolution and normalization
   - Binary vs text file handling
@@ -29,6 +30,7 @@
   - Empty result sets from generators
 
 #### Task System
+
 - [ ] `task.test.ts`
   - Task creation and validation
   - Task name uniqueness and validation
@@ -37,19 +39,12 @@
   - Target validation
   - Custom uptodate function execution
 
-- [ ] `TaskContext.test.ts`  
+- [ ] `TaskContext.test.ts`
   - Context creation and initialization
   - Logger integration
   - Task and argument passing
   - Exec context accessibility
   - Context isolation between tasks
-
-#### Type System
-- [ ] `flavoring.test.ts`
-  - Flavored type enforcement (TaskName, TrackedFileName, etc.)
-  - Type safety validation
-  - Nominal typing behavior
-  - Type conversion edge cases
 
 ### 2. Manifest System Tests
 
@@ -79,6 +74,7 @@
 ### 3. Integration Tests
 
 #### Dependency Resolution
+
 - [ ] `dependencies.test.ts`
   - Simple task → task dependencies
   - File → task dependencies
@@ -97,7 +93,8 @@
   - Task execution skipping when up-to-date
   - Cross-run manifest state consistency
 
-#### Target Management  
+#### Target Management
+
 - [ ] `targets.test.ts`
   - Target file creation and validation
   - Multiple targets per task
@@ -207,11 +204,13 @@
 ## Test Infrastructure
 
 ### Test Utilities
+
 - [ ] `testHelpers.ts` - Common test utilities and fixtures
 - [ ] `mockFilesystem.ts` - Mock file system for isolated testing
 - [ ] `tempDirectory.ts` - Temporary directory management for tests
 
 ### Test Data
+
 - [ ] `fixtures/` directory with sample files, manifests, and configurations
 - [ ] `examples/` directory with realistic test scenarios
 
@@ -240,7 +239,8 @@ deno coverage coverage
 
 ## Priority Implementation Order
 
-1. **High Priority**: Core functionality (manifest, file tracking, task execution)
+1. **High Priority**: Core functionality (manifest, file tracking, task
+   execution)
 2. **Medium Priority**: CLI commands, error handling
 3. **Low Priority**: Performance tests, advanced integration scenarios
 
