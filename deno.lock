@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@std/assert@^1.0.10": "1.0.13",
     "jsr:@std/cli@*": "1.0.15",
     "jsr:@std/cli@1.0.15": "1.0.15",
     "jsr:@std/cli@^1.0.15": "1.0.15",
@@ -12,6 +13,7 @@
     "jsr:@std/fs@1.0.15": "1.0.15",
     "jsr:@std/fs@^1.0.11": "1.0.15",
     "jsr:@std/fs@^1.0.15": "1.0.15",
+    "jsr:@std/internal@^1.0.6": "1.0.10",
     "jsr:@std/io@~0.225.2": "0.225.2",
     "jsr:@std/log@*": "0.224.14",
     "jsr:@std/log@0.224.14": "0.224.14",
@@ -25,6 +27,12 @@
     "npm:zod@^3.22.4": "3.24.2"
   },
   "jsr": {
+    "@std/assert@1.0.13": {
+      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
     "@std/cli@1.0.15": {
       "integrity": "e79ba3272ec710ca44d8342a7688e6288b0b88802703f3264184b52893d5e93f"
     },
@@ -39,6 +47,9 @@
       "dependencies": [
         "jsr:@std/path@^1.0.8"
       ]
+    },
+    "@std/internal@1.0.10": {
+      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
     },
     "@std/io@0.225.2": {
       "integrity": "3c740cd4ee4c082e6cfc86458f47e2ab7cb353dc6234d5e9b1f91a2de5f4d6c7"
@@ -224,6 +235,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/assert@^1.0.10",
       "jsr:@std/cli@^1.0.15",
       "jsr:@std/crypto@^1.0.4",
       "jsr:@std/fs@^1.0.15",

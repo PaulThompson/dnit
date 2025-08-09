@@ -1,6 +1,6 @@
-import { AsyncQueue } from "../asyncQueue.ts";
+import { AsyncQueue } from "../utils/asyncQueue.ts";
 
-import { assert } from "https://deno.land/std@0.221.0/testing/asserts.ts";
+import { assert } from "@std/assert";
 
 class TestHelperCtx {
   numInProgress = 0;

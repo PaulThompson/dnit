@@ -1,5 +1,5 @@
 import type { Args } from "@std/cli/parse-args";
-import { textTable } from "../textTable.ts";
+import { textTable } from "../utils/textTable.ts";
 import type { ExecContext } from "../core/execContext.ts";
 
 export function showTaskList(ctx: ExecContext, args: Args) {

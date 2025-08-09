@@ -1,0 +1,573 @@
+{
+  "nodes": [
+    {
+      "id": "dnit/main.ts",
+      "path": "/home/pt/pt/dnit/dnit/main.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "utils.ts"
+      ]
+    },
+    {
+      "id": "dnit/deps.ts",
+      "path": "/home/pt/pt/dnit/dnit/deps.ts",
+      "imports": 5,
+      "resolvedImports": [
+        "dnit.ts",
+        "utils.ts"
+      ]
+    },
+    {
+      "id": "core/file/TrackedFile.ts",
+      "path": "/home/pt/pt/dnit/core/file/TrackedFile.ts",
+      "imports": 5,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "utils/filesystem.ts",
+        "interfaces/core/ICoreInterfaces.ts"
+      ]
+    },
+    {
+      "id": "core/file/TrackedFilesAsync.ts",
+      "path": "/home/pt/pt/dnit/core/file/TrackedFilesAsync.ts",
+      "imports": 1,
+      "resolvedImports": [
+        "core/file/TrackedFile.ts"
+      ]
+    },
+    {
+      "id": "core/task.ts",
+      "path": "/home/pt/pt/dnit/core/task.ts",
+      "imports": 7,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "core/taskManifest.ts",
+        "interfaces/core/ICoreInterfaces.ts",
+        "core/TaskContext.ts",
+        "core/file/TrackedFile.ts",
+        "core/file/TrackedFilesAsync.ts"
+      ]
+    },
+    {
+      "id": "core/TaskContext.ts",
+      "path": "/home/pt/pt/dnit/core/TaskContext.ts",
+      "imports": 3,
+      "resolvedImports": [
+        "interfaces/core/ICoreInterfaces.ts"
+      ]
+    },
+    {
+      "id": "core/execContext.ts",
+      "path": "/home/pt/pt/dnit/core/execContext.ts",
+      "imports": 7,
+      "resolvedImports": [
+        "version.ts",
+        "utils/asyncQueue.ts",
+        "manifest.ts",
+        "interfaces/core/IManifestTypes.ts",
+        "interfaces/core/ICoreInterfaces.ts"
+      ]
+    },
+    {
+      "id": "core/taskManifest.ts",
+      "path": "/home/pt/pt/dnit/core/taskManifest.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "interfaces/core/IManifest.ts"
+      ]
+    },
+    {
+      "id": "main.ts",
+      "path": "/home/pt/pt/dnit/main.ts",
+      "imports": 5,
+      "resolvedImports": [
+        "dnit.ts",
+        "launch.ts",
+        "version.ts"
+      ]
+    },
+    {
+      "id": "tests/basic.test.ts",
+      "path": "/home/pt/pt/dnit/tests/basic.test.ts",
+      "imports": 3,
+      "resolvedImports": [
+        "manifest.ts"
+      ]
+    },
+    {
+      "id": "tests/asyncQueue.test.ts",
+      "path": "/home/pt/pt/dnit/tests/asyncQueue.test.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "utils/asyncQueue.ts"
+      ]
+    },
+    {
+      "id": "tests/process.test.ts",
+      "path": "/home/pt/pt/dnit/tests/process.test.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "utils/process.ts"
+      ]
+    },
+    {
+      "id": "dnit.ts",
+      "path": "/home/pt/pt/dnit/dnit.ts",
+      "imports": 1,
+      "resolvedImports": [
+        "mod.ts"
+      ]
+    },
+    {
+      "id": "version.ts",
+      "path": "/home/pt/pt/dnit/version.ts",
+      "imports": 0,
+      "resolvedImports": []
+    },
+    {
+      "id": "utils.ts",
+      "path": "/home/pt/pt/dnit/utils.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "utils/process.ts",
+        "utils/git.ts"
+      ]
+    },
+    {
+      "id": "cli/logging.ts",
+      "path": "/home/pt/pt/dnit/cli/logging.ts",
+      "imports": 1,
+      "resolvedImports": []
+    },
+    {
+      "id": "cli/builtinTasks.ts",
+      "path": "/home/pt/pt/dnit/cli/builtinTasks.ts",
+      "imports": 3,
+      "resolvedImports": [
+        "core/task.ts",
+        "core/TaskContext.ts",
+        "cli/utils.ts"
+      ]
+    },
+    {
+      "id": "cli/utils.ts",
+      "path": "/home/pt/pt/dnit/cli/utils.ts",
+      "imports": 3,
+      "resolvedImports": [
+        "utils/textTable.ts",
+        "core/execContext.ts"
+      ]
+    },
+    {
+      "id": "cli/cli.ts",
+      "path": "/home/pt/pt/dnit/cli/cli.ts",
+      "imports": 6,
+      "resolvedImports": [
+        "manifest.ts",
+        "core/execContext.ts",
+        "core/task.ts",
+        "cli/builtinTasks.ts",
+        "cli/logging.ts"
+      ]
+    },
+    {
+      "id": "interfaces/core/IManifestTypes.ts",
+      "path": "/home/pt/pt/dnit/interfaces/core/IManifestTypes.ts",
+      "imports": 1,
+      "resolvedImports": []
+    },
+    {
+      "id": "interfaces/core/ITrackedFile.ts",
+      "path": "/home/pt/pt/dnit/interfaces/core/ITrackedFile.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "interfaces/core/ICoreInterfaces.ts"
+      ]
+    },
+    {
+      "id": "interfaces/core/IManifest.ts",
+      "path": "/home/pt/pt/dnit/interfaces/core/IManifest.ts",
+      "imports": 1,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts"
+      ]
+    },
+    {
+      "id": "interfaces/core/ICoreInterfaces.ts",
+      "path": "/home/pt/pt/dnit/interfaces/core/ICoreInterfaces.ts",
+      "imports": 4,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "interfaces/core/IManifest.ts"
+      ]
+    },
+    {
+      "id": "interfaces/cli/ILogger.ts",
+      "path": "/home/pt/pt/dnit/interfaces/cli/ILogger.ts",
+      "imports": 1,
+      "resolvedImports": []
+    },
+    {
+      "id": "interfaces/utils/IFileSystem.ts",
+      "path": "/home/pt/pt/dnit/interfaces/utils/IFileSystem.ts",
+      "imports": 1,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts"
+      ]
+    },
+    {
+      "id": "mod.ts",
+      "path": "/home/pt/pt/dnit/mod.ts",
+      "imports": 11,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts",
+        "core/execContext.ts",
+        "core/task.ts",
+        "core/file/TrackedFile.ts",
+        "core/file/TrackedFilesAsync.ts",
+        "core/taskManifest.ts",
+        "core/TaskContext.ts",
+        "cli/cli.ts",
+        "cli/logging.ts",
+        "manifest.ts",
+        "utils/filesystem.ts"
+      ]
+    },
+    {
+      "id": "cli.ts",
+      "path": "/home/pt/pt/dnit/cli.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "cli/logging.ts",
+        "cli/cli.ts"
+      ]
+    },
+    {
+      "id": "tools/import-analyzer.ts",
+      "path": "/home/pt/pt/dnit/tools/import-analyzer.ts",
+      "imports": 7,
+      "resolvedImports": []
+    },
+    {
+      "id": "example/dnit/main.ts",
+      "path": "/home/pt/pt/dnit/example/dnit/main.ts",
+      "imports": 0,
+      "resolvedImports": []
+    },
+    {
+      "id": "utils/process.ts",
+      "path": "/home/pt/pt/dnit/utils/process.ts",
+      "imports": 0,
+      "resolvedImports": []
+    },
+    {
+      "id": "utils/textTable.ts",
+      "path": "/home/pt/pt/dnit/utils/textTable.ts",
+      "imports": 0,
+      "resolvedImports": []
+    },
+    {
+      "id": "utils/asyncQueue.ts",
+      "path": "/home/pt/pt/dnit/utils/asyncQueue.ts",
+      "imports": 0,
+      "resolvedImports": []
+    },
+    {
+      "id": "utils/filesystem.ts",
+      "path": "/home/pt/pt/dnit/utils/filesystem.ts",
+      "imports": 2,
+      "resolvedImports": [
+        "interfaces/core/IManifestTypes.ts"
+      ]
+    },
+    {
+      "id": "utils/git.ts",
+      "path": "/home/pt/pt/dnit/utils/git.ts",
+      "imports": 3,
+      "resolvedImports": [
+        "utils/process.ts",
+        "core/task.ts",
+        "core/TaskContext.ts"
+      ]
+    },
+    {
+      "id": "launch.ts",
+      "path": "/home/pt/pt/dnit/launch.ts",
+      "imports": 4,
+      "resolvedImports": []
+    },
+    {
+      "id": "manifest.ts",
+      "path": "/home/pt/pt/dnit/manifest.ts",
+      "imports": 4,
+      "resolvedImports": [
+        "core/taskManifest.ts",
+        "interfaces/core/IManifest.ts"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "dnit/main.ts",
+      "target": "utils.ts"
+    },
+    {
+      "source": "dnit/deps.ts",
+      "target": "dnit.ts"
+    },
+    {
+      "source": "dnit/deps.ts",
+      "target": "utils.ts"
+    },
+    {
+      "source": "core/file/TrackedFile.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "core/file/TrackedFile.ts",
+      "target": "utils/filesystem.ts"
+    },
+    {
+      "source": "core/file/TrackedFile.ts",
+      "target": "interfaces/core/ICoreInterfaces.ts"
+    },
+    {
+      "source": "core/file/TrackedFilesAsync.ts",
+      "target": "core/file/TrackedFile.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "core/taskManifest.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "interfaces/core/ICoreInterfaces.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "core/TaskContext.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "core/file/TrackedFile.ts"
+    },
+    {
+      "source": "core/task.ts",
+      "target": "core/file/TrackedFilesAsync.ts"
+    },
+    {
+      "source": "core/TaskContext.ts",
+      "target": "interfaces/core/ICoreInterfaces.ts"
+    },
+    {
+      "source": "core/execContext.ts",
+      "target": "version.ts"
+    },
+    {
+      "source": "core/execContext.ts",
+      "target": "utils/asyncQueue.ts"
+    },
+    {
+      "source": "core/execContext.ts",
+      "target": "manifest.ts"
+    },
+    {
+      "source": "core/execContext.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "core/execContext.ts",
+      "target": "interfaces/core/ICoreInterfaces.ts"
+    },
+    {
+      "source": "core/taskManifest.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "core/taskManifest.ts",
+      "target": "interfaces/core/IManifest.ts"
+    },
+    {
+      "source": "main.ts",
+      "target": "dnit.ts"
+    },
+    {
+      "source": "main.ts",
+      "target": "launch.ts"
+    },
+    {
+      "source": "main.ts",
+      "target": "version.ts"
+    },
+    {
+      "source": "tests/basic.test.ts",
+      "target": "manifest.ts"
+    },
+    {
+      "source": "tests/asyncQueue.test.ts",
+      "target": "utils/asyncQueue.ts"
+    },
+    {
+      "source": "tests/process.test.ts",
+      "target": "utils/process.ts"
+    },
+    {
+      "source": "dnit.ts",
+      "target": "mod.ts"
+    },
+    {
+      "source": "utils.ts",
+      "target": "utils/process.ts"
+    },
+    {
+      "source": "utils.ts",
+      "target": "utils/git.ts"
+    },
+    {
+      "source": "cli/builtinTasks.ts",
+      "target": "core/task.ts"
+    },
+    {
+      "source": "cli/builtinTasks.ts",
+      "target": "core/TaskContext.ts"
+    },
+    {
+      "source": "cli/builtinTasks.ts",
+      "target": "cli/utils.ts"
+    },
+    {
+      "source": "cli/utils.ts",
+      "target": "utils/textTable.ts"
+    },
+    {
+      "source": "cli/utils.ts",
+      "target": "core/execContext.ts"
+    },
+    {
+      "source": "cli/cli.ts",
+      "target": "manifest.ts"
+    },
+    {
+      "source": "cli/cli.ts",
+      "target": "core/execContext.ts"
+    },
+    {
+      "source": "cli/cli.ts",
+      "target": "core/task.ts"
+    },
+    {
+      "source": "cli/cli.ts",
+      "target": "cli/builtinTasks.ts"
+    },
+    {
+      "source": "cli/cli.ts",
+      "target": "cli/logging.ts"
+    },
+    {
+      "source": "interfaces/core/ITrackedFile.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "interfaces/core/ITrackedFile.ts",
+      "target": "interfaces/core/ICoreInterfaces.ts"
+    },
+    {
+      "source": "interfaces/core/IManifest.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "interfaces/core/ICoreInterfaces.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "interfaces/core/ICoreInterfaces.ts",
+      "target": "interfaces/core/IManifest.ts"
+    },
+    {
+      "source": "interfaces/utils/IFileSystem.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/execContext.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/task.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/file/TrackedFile.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/file/TrackedFilesAsync.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/taskManifest.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "core/TaskContext.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "cli/cli.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "cli/logging.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "manifest.ts"
+    },
+    {
+      "source": "mod.ts",
+      "target": "utils/filesystem.ts"
+    },
+    {
+      "source": "cli.ts",
+      "target": "cli/logging.ts"
+    },
+    {
+      "source": "cli.ts",
+      "target": "cli/cli.ts"
+    },
+    {
+      "source": "utils/filesystem.ts",
+      "target": "interfaces/core/IManifestTypes.ts"
+    },
+    {
+      "source": "utils/git.ts",
+      "target": "utils/process.ts"
+    },
+    {
+      "source": "utils/git.ts",
+      "target": "core/task.ts"
+    },
+    {
+      "source": "utils/git.ts",
+      "target": "core/TaskContext.ts"
+    },
+    {
+      "source": "manifest.ts",
+      "target": "core/taskManifest.ts"
+    },
+    {
+      "source": "manifest.ts",
+      "target": "interfaces/core/IManifest.ts"
+    }
+  ]
+}

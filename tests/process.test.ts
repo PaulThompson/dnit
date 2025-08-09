@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.221.0/assert/mod.ts";
+import { assertEquals } from "@std/assert";
 
-import { run } from "./process.ts";
+import { run } from "../utils/process.ts";
 
 Deno.test("Process - run", async () => {
   const str = await run(["echo", "hello world"]);
