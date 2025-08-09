@@ -29,7 +29,7 @@ export class ExecContext implements IExecContext {
   inprogressTasks: Set<ITask> = new Set<ITask>();
 
   /// Queue for scheduling async work with specified number allowable concurrently.
-  asyncQueue: AsyncQueue<any, Error>;
+  asyncQueue: AsyncQueue;
 
   internalLogger: log.Logger = log.getLogger("internal");
   taskLogger: log.Logger = log.getLogger("task");

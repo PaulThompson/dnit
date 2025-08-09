@@ -40,8 +40,7 @@ Deno.test("async queue", async () => {
       testHelpers.push(new TestHelper(ctx));
     }
 
-    // deno-lint-ignore no-explicit-any
-    const asyncQueue: AsyncQueue<any, any> = new AsyncQueue(concurrency);
+    const asyncQueue = new AsyncQueue(concurrency);
 
     const promises: Promise<void>[] = [];
     for (let i = 0; i < numTasks; ++i) {

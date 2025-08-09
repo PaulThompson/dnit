@@ -1,14 +1,14 @@
 export type Action<T> = () => Promise<T>;
 
 // based on https://medium.com/@karenmarkosyan/how-to-manage-promises-into-dynamic-queue-with-vanilla-javascript-9d0d1f8d4df5
-export class AsyncQueue<T, E> {
+export class AsyncQueue {
   inProgress = 0;
   concurrency: number;
 
   queue: {
-    action: Action<T>;
-    resolve: (t: T) => void;
-    reject: (err: E) => void;
+    action: Action<unknown>;
+    resolve: (t: unknown) => void;
+    reject: (err: unknown) => void;
   }[] = [];
 
   constructor(concurrency: number) {
@@ -17,11 +17,11 @@ export class AsyncQueue<T, E> {
 
   /// Schedule an action for start later.  Immediately returns a Promise<T> but actual
   /// work of the original action->promise starts later
-  schedule(t: Action<T>): Promise<T> {
+  schedule<T>(action: Action<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       this.queue.push({
-        action: t,
-        resolve,
+        action: action as Action<unknown>,
+        resolve: resolve as (t: unknown) => void,
         reject,
       });
       this.startQueuedItem();
@@ -41,7 +41,7 @@ export class AsyncQueue<T, E> {
 
     this.inProgress += 1;
     item.action()
-      .then((val: T) => {
+      .then((val: unknown) => {
         item.resolve(val);
       })
       .catch((err) => {
