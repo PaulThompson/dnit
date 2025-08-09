@@ -8,6 +8,16 @@
     "url": "git+https://github.com/PaulThompson/dnit.git"
   },
   "exports": "./mod.ts",
+  "publish": {
+    "exclude": [
+      ".claude",
+      ".vscode",
+      ".github",
+      "CLAUDE.md",
+      "dnit",
+      "tests"
+    ]
+  },
   "fmt": {},
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.13",
