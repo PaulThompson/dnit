@@ -6,7 +6,7 @@ Deno.test("textTable utilities", async (t) => {
     const headings = ["Name", "Age"];
     const cells = [["John", "30"]];
     const result = textTable(headings, cells);
-    
+
     // Should contain proper box drawing characters
     assertEquals(typeof result, "string");
     assertEquals(result.includes("┌"), true);
@@ -15,7 +15,7 @@ Deno.test("textTable utilities", async (t) => {
     assertEquals(result.includes("┘"), true);
     assertEquals(result.includes("│"), true);
     assertEquals(result.includes("─"), true);
-    
+
     // Should contain the data
     assertEquals(result.includes("Name"), true);
     assertEquals(result.includes("Age"), true);
@@ -27,7 +27,7 @@ Deno.test("textTable utilities", async (t) => {
     const headings = ["Column1", "Column2"];
     const cells: string[][] = [];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("Column1"), true);
     assertEquals(result.includes("Column2"), true);
@@ -43,12 +43,12 @@ Deno.test("textTable utilities", async (t) => {
       ["Very Long Content", "B"],
     ];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("Short"), true);
     assertEquals(result.includes("Very Long Header"), true);
     assertEquals(result.includes("Very Long Content"), true);
-    
+
     // Should handle alignment properly
     const lines = result.split("\n");
     assertEquals(lines.length > 3, true); // At least headers, separator, and rows
@@ -58,7 +58,7 @@ Deno.test("textTable utilities", async (t) => {
     const headings = ["Status"];
     const cells = [["Active"], ["Inactive"], ["Pending"]];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("Status"), true);
     assertEquals(result.includes("Active"), true);
@@ -73,7 +73,7 @@ Deno.test("textTable utilities", async (t) => {
       ["^&*()", "中文测试"],
     ];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("!@#$%"), true);
     assertEquals(result.includes("αβγδε"), true);
@@ -89,7 +89,7 @@ Deno.test("textTable utilities", async (t) => {
       ["Item3", "Value3"],
     ];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("Item1"), true);
     assertEquals(result.includes("Value2"), true);
@@ -105,16 +105,16 @@ Deno.test("textTable utilities", async (t) => {
       ["11", "12", "13", "14", "15"],
     ];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
-    
+
     // Check all numbers are present
     for (let i = 1; i <= 15; i++) {
       assertEquals(result.includes(i.toString()), true);
     }
-    
+
     // Check all headers are present
-    ["A", "B", "C", "D", "E"].forEach(header => {
+    ["A", "B", "C", "D", "E"].forEach((header) => {
       assertEquals(result.includes(header), true);
     });
   });
@@ -127,13 +127,13 @@ Deno.test("textTable utilities", async (t) => {
     ];
     const result = textTable(headings, cells);
     const lines = result.split("\n");
-    
+
     // All lines should have same length (proper alignment)
     const firstLineLength = lines[0].length;
-    lines.forEach(line => {
+    lines.forEach((line) => {
       assertEquals(line.length, firstLineLength);
     });
-    
+
     // Should contain proper spacing around content
     assertEquals(result.includes(" ID "), true);
     assertEquals(result.includes(" Description "), true);
@@ -147,12 +147,12 @@ Deno.test("textTable utilities", async (t) => {
       ["2", "Charlie", "92.8", "true"],
     ];
     const result = textTable(headings, cells);
-    
+
     assertEquals(typeof result, "string");
     assertEquals(result.includes("Alice"), true);
     assertEquals(result.includes("95.5"), true);
     assertEquals(result.includes("false"), true);
-    
+
     // Check that the table has proper structure
     const lines = result.split("\n");
     assertEquals(lines.length, 7); // Top, header, separator, 3 data rows, bottom = 7 lines
@@ -162,10 +162,10 @@ Deno.test("textTable utilities", async (t) => {
     // Test that identical tables produce identical output
     const headings = ["X", "Y"];
     const cells = [["a", "b"]];
-    
+
     const result1 = textTable(headings, cells);
     const result2 = textTable(headings, cells);
-    
+
     assertEquals(result1, result2);
   });
 
@@ -174,16 +174,16 @@ Deno.test("textTable utilities", async (t) => {
     const cells = [["Data"]];
     const result = textTable(headings, cells);
     const lines = result.split("\n");
-    
+
     // Should have: top border, header row, separator, data row, bottom border
     assertEquals(lines.length, 5);
-    
+
     // First and last lines should be borders
     assertEquals(lines[0].includes("┌"), true);
     assertEquals(lines[0].includes("┐"), true);
     assertEquals(lines[lines.length - 1].includes("└"), true);
     assertEquals(lines[lines.length - 1].includes("┘"), true);
-    
+
     // Middle separator should contain cross characters
     assertEquals(lines[2].includes("├"), true);
     assertEquals(lines[2].includes("┤"), true);

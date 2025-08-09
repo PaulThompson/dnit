@@ -3,10 +3,7 @@ import * as path from "@std/path";
 import { TaskManifest } from "./core/taskManifest.ts";
 import type { IManifest } from "./interfaces/core/IManifest.ts";
 
-import type {
-  TaskData,
-  TaskName,
-} from "./interfaces/core/IManifestTypes.ts";
+import type { TaskData, TaskName } from "./interfaces/core/IManifestTypes.ts";
 import { ManifestSchema } from "./core/manifestSchemas.ts";
 
 export class Manifest implements IManifest {

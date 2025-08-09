@@ -79,7 +79,7 @@
 
 #### Dependency Resolution
 
-- [ ] `dependencies.test.ts`
+- [x] `dependencies.test.ts` ✅ **COMPLETED** (14 tests)
   - Simple task → task dependencies
   - File → task dependencies
   - Task → file dependencies
@@ -87,15 +87,21 @@
   - Complex dependency chains
   - Circular dependency detection
   - Dependency ordering and execution sequence
+  - Diamond dependency pattern
+  - Target registry population
+  - Async file dependencies resolution
 
-- [ ] `uptodate.test.ts`
+- [x] `uptodate.test.ts` ✅ **COMPLETED** (12 tests)
   - File modification detection
   - Hash-based change detection
-  - Timestamp-based change detection
+  - Timestamp-based change detection (with custom hash functions)
   - Custom uptodate function execution
   - runAlways behavior
   - Task execution skipping when up-to-date
   - Cross-run manifest state consistency
+  - Multiple file dependencies
+  - Target deletion detection
+  - File disappearance handling
 
 #### Target Management
 

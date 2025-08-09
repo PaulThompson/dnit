@@ -1,9 +1,4 @@
-import {
-  execBasic,
-  runAlways,
-  task,
-  trackFile,
-} from "../mod.ts";
+import { execBasic, runAlways, task, trackFile } from "../mod.ts";
 
 import { assertEquals } from "@std/assert";
 import { Manifest } from "../manifest.ts";
@@ -110,10 +105,11 @@ Deno.test("target file conflicts and overwrites", async () => {
     const target2 = trackFile({
       path: path.join(tempDir, "target2.txt"),
     });
-    
+
     const task2 = task({
-      name: "task2", 
-      description: "Second task that creates its own target and overwrites the shared file",
+      name: "task2",
+      description:
+        "Second task that creates its own target and overwrites the shared file",
       action: async () => {
         await Deno.writeTextFile(target2.path, "content from task2");
         // Also overwrite the shared file (not as a target)
@@ -337,7 +333,7 @@ Deno.test("target deletion error handling", async () => {
     const cleanTask = ctx.getTaskByName("clean");
     assertEquals(cleanTask !== undefined, true);
     await cleanTask?.exec(ctx);
-    
+
     // Verify target was cleaned
     assertEquals(await target.exists(), false);
   } finally {
@@ -382,4 +378,3 @@ Deno.test("task without targets", async () => {
   // Clean should also work fine (nothing to clean)
   await ctx.getTaskByName("clean")?.exec(ctx);
 });
-

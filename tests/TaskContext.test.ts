@@ -1,14 +1,12 @@
 import { assertEquals, assertExists } from "@std/assert";
 import type * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
-import type {
-  IExecContext,
-  IManifest,
-  ITask,
-  TaskName,
-} from "../mod.ts";
+import type { IExecContext, IManifest, ITask, TaskName } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
-import { type TaskContext as _TaskContext, taskContext } from "../core/TaskContext.ts";
+import {
+  type TaskContext as _TaskContext,
+  taskContext,
+} from "../core/TaskContext.ts";
 import { Task } from "../core/task.ts";
 
 // Mock logger for testing
@@ -23,7 +21,10 @@ function createMockLogger(): log.Logger {
 }
 
 // Mock exec context for testing
-function createMockExecContext(manifest: IManifest, overrides: Partial<IExecContext> = {}): IExecContext {
+function createMockExecContext(
+  manifest: IManifest,
+  overrides: Partial<IExecContext> = {},
+): IExecContext {
   return {
     taskRegister: new Map(),
     targetRegister: new Map(),
@@ -98,7 +99,7 @@ Deno.test("TaskContext - context preserves args reference", () => {
 
   assertEquals(taskCtx.args, customArgs);
   assertEquals(taskCtx.args._, ["arg1", "arg2"]);
-  assertEquals((taskCtx.args as { flag: boolean }).flag, true);
+  assertEquals((taskCtx.args as unknown as { flag: boolean }).flag, true);
 });
 
 Deno.test("TaskContext - context provides access to exec context", () => {
@@ -117,7 +118,7 @@ Deno.test("TaskContext - context provides access to exec context", () => {
 Deno.test("TaskContext - context works with real Task instance", () => {
   const manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
-  
+
   const realTask = new Task({
     name: "realTask" as TaskName,
     description: "A real task instance",
@@ -134,10 +135,12 @@ Deno.test("TaskContext - context works with real Task instance", () => {
 Deno.test("TaskContext - context allows logger access", () => {
   const manifest = new Manifest("");
   let loggedMessage = "";
-  
+
   const mockLogger: log.Logger = {
     debug: () => {},
-    info: (msg: string) => { loggedMessage = msg; },
+    info: (msg: string) => {
+      loggedMessage = msg;
+    },
     warn: () => {},
     error: () => {},
     critical: () => {},
@@ -149,7 +152,7 @@ Deno.test("TaskContext - context allows logger access", () => {
 
   // Simulate logging from task action
   taskCtx.logger.info("Test message");
-  
+
   assertEquals(loggedMessage, "Test message");
 });
 
@@ -174,14 +177,14 @@ Deno.test("TaskContext - context allows access to all exec context properties", 
 Deno.test("TaskContext - context allows task scheduling through exec", async () => {
   const manifest = new Manifest("");
   let scheduledActionRun = false;
-  
+
   const ctx = createMockExecContext(manifest, {
     schedule: <T>(action: () => Promise<T>) => {
       scheduledActionRun = true;
       return action();
     },
   });
-  
+
   const task = createMockTask("testTask");
   const taskCtx = taskContext(ctx, task);
 
@@ -206,13 +209,13 @@ Deno.test("TaskContext - context provides access to manifest", () => {
 Deno.test("TaskContext - context allows getTaskByName lookup", () => {
   const manifest = new Manifest("");
   const lookupTask = createMockTask("lookupTask");
-  
+
   const ctx = createMockExecContext(manifest, {
     getTaskByName: (name: TaskName) => {
       return name === "lookupTask" ? lookupTask : undefined;
     },
   });
-  
+
   const task = createMockTask("testTask");
   const taskCtx = taskContext(ctx, task);
 
@@ -226,7 +229,7 @@ Deno.test("TaskContext - context allows getTaskByName lookup", () => {
 Deno.test("TaskContext - context maintains isolation between different tasks", () => {
   const manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
-  
+
   const task1 = createMockTask("task1");
   const task2 = createMockTask("task2");
 
@@ -236,10 +239,10 @@ Deno.test("TaskContext - context maintains isolation between different tasks", (
   // Different task references
   assertEquals(taskCtx1.task, task1);
   assertEquals(taskCtx2.task, task2);
-  
+
   // Same exec context
   assertEquals(taskCtx1.exec, taskCtx2.exec);
-  
+
   // Same logger and args
   assertEquals(taskCtx1.logger, taskCtx2.logger);
   assertEquals(taskCtx1.args, taskCtx2.args);
@@ -257,7 +260,7 @@ Deno.test("TaskContext - interface compliance", () => {
   assertExists(taskCtx.task);
   assertExists(taskCtx.args);
   assertExists(taskCtx.exec);
-  
+
   // Check property types
   assertEquals(typeof taskCtx.logger, "object");
   assertEquals(typeof taskCtx.task, "object");
