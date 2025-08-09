@@ -129,7 +129,10 @@ export type FileParams = {
 
   /// Optional function for how to hash the file.   Defaults to the sha1 hash of the file contents.
   /// A file is out of date if the file timestamp and the hash are different than that in the task manifest
-  gethash?: GetFileHash;
+  getHash?: GetFileHash;
+
+  /// Optional function for how to get the file timestamp. Defaults to the actual file timestamp
+  getTimestamp?: GetFileTimestamp;
 };
 ```
 
@@ -141,7 +144,7 @@ Tasks are created by the exported `function task(taskParams: TaskParams): Task`
 /** User definition of a task */
 export type TaskParams = {
   /// Name: (string) - The key used to initiate a task
-  name: A.TaskName;
+  name: string;
 
   /// Description (string) - Freeform text description shown on help
   description?: string;
@@ -149,14 +152,8 @@ export type TaskParams = {
   /// Action executed on execution of the task (async or sync)
   action: Action;
 
-  /// Optional list of explicit task dependencies
-  task_deps?: Task[];
-
-  /// Optional list of explicit file dependencies
-  file_deps?: TrackedFile[];
-
   /// Optional list of task or file dependencies
-  deps?: (Task | TrackedFile)[];
+  deps?: Dep[];
 
   /// Targets (files which will be produced by execution of this task)
   targets?: TrackedFile[];
@@ -164,15 +161,18 @@ export type TaskParams = {
   /// Custom up-to-date definition - Can be used to make a task *less* up to date.  Eg; use uptodate: runAlways  to run always on request regardless of dependencies being up to date.
   uptodate?: IsUpToDate;
 };
+
+/// The kinds of supported dependencies.
+export type Dep = Task | TrackedFile | TrackedFilesAsync;
 ```
 
 Tasks are passed to the exported
-`export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void>`
-This exposes the tasks for execution by the CLI and executes them according to
-the `cliArgs` passed in.
+`export function main(cliArgs: string[], tasks: Task[]) : Promise<void>` This
+exposes the tasks for execution by the CLI and executes them according to the
+`cliArgs` passed in.
 
 ```ts
-exec(Deno.args, tasks);
+main(Deno.args, tasks);
 ```
 
 ## Larger Scale use of tasks

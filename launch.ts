@@ -161,7 +161,7 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
     ];
     const importmap = userSource.importmap
       ? [
-        "--importmap",
+        "--import-map",
         userSource.importmap,
       ]
       : [];
