@@ -48,7 +48,7 @@
 
 ### 2. Manifest System Tests
 
-- [ ] `manifest.test.ts`
+- [x] `manifest.test.ts` ✅ **COMPLETED**
   - Manifest serialization/deserialization
   - File I/O operations (.manifest.json)
   - Manifest loading from disk
@@ -57,7 +57,7 @@
   - File permission errors
   - Concurrent access scenarios
 
-- [ ] `taskManifest.test.ts`
+- [x] `taskManifest.test.ts` ✅ **COMPLETED**
   - Task-specific manifest operations
   - Task execution timestamp tracking
   - File dependency tracking in manifest
@@ -65,7 +65,7 @@
   - Cache invalidation scenarios
   - Manifest corruption recovery
 
-- [ ] `manifestSchemas.test.ts`
+- [x] `manifestSchemas.test.ts` ✅ **COMPLETED**
   - Schema validation for manifest data
   - Version compatibility checking
   - Migration between schema versions
