@@ -5,7 +5,7 @@ import {
   task,
   type TrackedFile,
   trackFile,
-} from "../dnit.ts";
+} from "../mod.ts";
 
 import { assertEquals } from "@std/assert";
 
