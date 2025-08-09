@@ -47,28 +47,17 @@ export const ManifestSchema: z.ZodObject<{
 });
 
 // Flavoring support for nominal typing
-const symTaskName = Symbol();
-const symTrackedFileName = Symbol();
-const symTrackedFileHash = Symbol();
-const symTimestamp = Symbol();
+const sym = Symbol();
 
-type Flavoring<Name> = {
-  readonly [K in keyof Name]?: Name[K];
+type Flavored<T extends string, Name extends string> = T & {
+  readonly [sym]?: Name;
 };
 
-type Flavored<T, FlavorT> = T & FlavorT;
-
 // Inferred TypeScript types for manifest data structures with flavoring
-export type TaskName = Flavored<string, { [symTaskName]?: never }>;
-export type TrackedFileName = Flavored<
-  string,
-  { [symTrackedFileName]?: never }
->;
-export type TrackedFileHash = Flavored<
-  string,
-  { [symTrackedFileHash]?: never }
->;
-export type Timestamp = Flavored<string, { [symTimestamp]?: never }>;
+export type TaskName = Flavored<string, "TaskName">;
+export type TrackedFileName = Flavored<string, "TrackedFileName">;
+export type TrackedFileHash = Flavored<string, "TrackedFileHash">;
+export type Timestamp = Flavored<string, "Timestamp">;
 export type TrackedFileData = z.infer<typeof TrackedFileDataSchema>;
 export type TaskData = z.infer<typeof TaskDataSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
