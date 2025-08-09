@@ -21,7 +21,7 @@ export const builtinTasks: Task[] = [
         await Promise.all(
           affectedTasks.map((t) => {
             console.log(`  ${t.name}`);
-            ctx.exec.asyncQueue.schedule(() => t.reset(ctx.exec));
+            ctx.exec.schedule(() => t.reset(ctx.exec));
           }),
         );
         // await ctx.exec.manifest.save();

@@ -1,8 +1,8 @@
 import type { Args } from "@std/cli/parse-args";
 import { textTable } from "../utils/textTable.ts";
-import type { ExecContext } from "../core/execContext.ts";
+import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 
-export function showTaskList(ctx: ExecContext, args: Args) {
+export function showTaskList(ctx: IExecContext, args: Args) {
   if (args["quiet"]) {
     Array.from(ctx.taskRegister.values()).map((task) => console.log(task.name));
   } else {

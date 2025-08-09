@@ -22,9 +22,6 @@ export interface IExecContext {
   readonly doneTasks: Set<ITask>;
   readonly inprogressTasks: Set<ITask>;
 
-  // Async queue for concurrent operations
-  // deno-lint-ignore no-explicit-any
-  readonly asyncQueue: any; // AsyncQueue type
 
   // Logging
   readonly internalLogger: log.Logger;
@@ -41,6 +38,7 @@ export interface IExecContext {
 
   // Methods
   getTaskByName(name: TaskName): ITask | undefined;
+  schedule<T>(action: () => Promise<T>): Promise<T>;
 }
 
 // Task execution context passed to actions

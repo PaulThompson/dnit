@@ -49,7 +49,7 @@ export async function execCli(
     /// Run async setup on all tasks:
     await Promise.all(
       Array.from(ctx.taskRegister.values()).map((t) =>
-        ctx.asyncQueue.schedule(() => t.setup(ctx))
+        ctx.schedule(() => t.setup(ctx))
       ),
     );
 
@@ -89,7 +89,7 @@ export async function execBasic(
 
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
-      ctx.asyncQueue.schedule(() => t.setup(ctx))
+      ctx.schedule(() => t.setup(ctx))
     ),
   );
   return ctx;

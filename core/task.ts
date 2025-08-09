@@ -173,7 +173,7 @@ export class Task implements ITask {
         const promisesInProgress: Promise<void>[] = [];
         for (const fdep of this.file_deps) {
           promisesInProgress.push(
-            ctx.asyncQueue.schedule(async () => {
+            ctx.schedule(async () => {
               const trackedFileData = await fdep.getFileData(ctx);
               this.taskManifest?.setFileData(fdep.path, trackedFileData);
             }),
@@ -195,7 +195,7 @@ export class Task implements ITask {
     await Promise.all(
       Array.from(this.targets).map(async (tf) => {
         try {
-          await ctx.asyncQueue.schedule(() => tf.delete());
+          await ctx.schedule(() => tf.delete());
         } catch (err) {
           ctx.taskLogger.error(`Error scheduling deletion of ${tf.path}`, err);
         }
@@ -206,7 +206,7 @@ export class Task implements ITask {
   private async targetsExist(ctx: IExecContext): Promise<boolean> {
     const tex = await Promise.all(
       Array.from(this.targets).map((tf) =>
-        ctx.asyncQueue.schedule(() => tf.exists())
+        ctx.schedule(() => tf.exists())
       ),
     );
     // all exist: NOT some NOT exist
@@ -224,7 +224,7 @@ export class Task implements ITask {
 
     for (const fdep of this.file_deps) {
       promisesInProgress.push(
-        ctx.asyncQueue.schedule(async () => {
+        ctx.schedule(async () => {
           const r = await fdep.getFileDataOrCached(
             ctx,
             taskManifest.getFileData(fdep.path),

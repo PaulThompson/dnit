@@ -29,8 +29,7 @@ export class ExecContext implements IExecContext {
   inprogressTasks: Set<ITask> = new Set<ITask>();
 
   /// Queue for scheduling async work with specified number allowable concurrently.
-  // deno-lint-ignore no-explicit-any
-  asyncQueue: AsyncQueue<any, any>;
+  asyncQueue: AsyncQueue<any, Error>;
 
   internalLogger: log.Logger = log.getLogger("internal");
   taskLogger: log.Logger = log.getLogger("task");
@@ -54,6 +53,10 @@ export class ExecContext implements IExecContext {
 
   getTaskByName(name: TaskName): ITask | undefined {
     return this.taskRegister.get(name);
+  }
+
+  schedule<T>(action: () => Promise<T>): Promise<T> {
+    return this.asyncQueue.schedule(action);
   }
 
   get concurrency(): number {
