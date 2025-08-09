@@ -1,18 +1,18 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import * as path from "@std/path";
-import * as log from "@std/log";
+import type * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   file,
+  type IExecContext,
+  type IManifest,
   isTrackedFile,
-  TrackedFile,
-  trackFile,
+  type ITask,
   type TaskName,
   type Timestamp,
+  TrackedFile,
   type TrackedFileHash,
-  type IExecContext,
-  type ITask,
-  type IManifest,
+  trackFile,
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 

@@ -205,9 +205,7 @@ export class Task implements ITask {
 
   private async targetsExist(ctx: IExecContext): Promise<boolean> {
     const tex = await Promise.all(
-      Array.from(this.targets).map((tf) =>
-        ctx.schedule(() => tf.exists())
-      ),
+      Array.from(this.targets).map((tf) => ctx.schedule(() => tf.exists())),
     );
     // all exist: NOT some NOT exist
     return !tex.some((t) => !t);

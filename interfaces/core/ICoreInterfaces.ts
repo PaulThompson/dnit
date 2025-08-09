@@ -22,7 +22,6 @@ export interface IExecContext {
   readonly doneTasks: Set<ITask>;
   readonly inprogressTasks: Set<ITask>;
 
-
   // Logging
   readonly internalLogger: log.Logger;
   readonly taskLogger: log.Logger;

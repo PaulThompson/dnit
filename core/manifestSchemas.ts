@@ -1,10 +1,10 @@
 import { z } from "zod";
 import type {
-  Manifest,
-  TaskData,
+  Manifest as _Manifest,
+  TaskData as _TaskData,
   TaskName,
   Timestamp,
-  TrackedFileData,
+  TrackedFileData as _TrackedFileData,
   TrackedFileHash,
   TrackedFileName,
 } from "../interfaces/core/IManifestTypes.ts";

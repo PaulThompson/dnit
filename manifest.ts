@@ -3,9 +3,9 @@ import * as path from "@std/path";
 import { TaskManifest } from "./core/taskManifest.ts";
 import type { IManifest } from "./interfaces/core/IManifest.ts";
 
-import {
-  type TaskData,
-  type TaskName,
+import type {
+  TaskData,
+  TaskName,
 } from "./interfaces/core/IManifestTypes.ts";
 import { ManifestSchema } from "./core/manifestSchemas.ts";
 
