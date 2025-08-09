@@ -46,11 +46,29 @@ export const ManifestSchema: z.ZodObject<{
   tasks: z.record(TaskNameSchema, TaskDataSchema),
 });
 
-// Inferred TypeScript types for manifest data structures
-export type TaskName = z.infer<typeof TaskNameSchema>;
-export type TrackedFileName = z.infer<typeof TrackedFileNameSchema>;
-export type TrackedFileHash = z.infer<typeof TrackedFileHashSchema>;
-export type Timestamp = z.infer<typeof TimestampSchema>;
+// Flavoring support for nominal typing
+const symTaskName = Symbol();
+const symTrackedFileName = Symbol();
+const symTrackedFileHash = Symbol();
+const symTimestamp = Symbol();
+
+type Flavoring<Name> = {
+  readonly [K in keyof Name]?: Name[K];
+};
+
+type Flavored<T, FlavorT> = T & FlavorT;
+
+// Inferred TypeScript types for manifest data structures with flavoring
+export type TaskName = Flavored<string, { [symTaskName]?: never }>;
+export type TrackedFileName = Flavored<
+  string,
+  { [symTrackedFileName]?: never }
+>;
+export type TrackedFileHash = Flavored<
+  string,
+  { [symTrackedFileHash]?: never }
+>;
+export type Timestamp = Flavored<string, { [symTimestamp]?: never }>;
 export type TrackedFileData = z.infer<typeof TrackedFileDataSchema>;
 export type TaskData = z.infer<typeof TaskDataSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
