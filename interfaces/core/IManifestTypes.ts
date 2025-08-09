@@ -46,7 +46,8 @@ export const ManifestSchema: z.ZodObject<{
   tasks: z.record(TaskNameSchema, TaskDataSchema),
 });
 
-// Flavoring support for nominal typing
+// "Flavoured" nominal typing.
+// https://spin.atomicobject.com/2018/01/15/typescript-flexible-nominal-typing/
 const sym = Symbol();
 
 type Flavored<T extends string, Name extends string> = T & {
