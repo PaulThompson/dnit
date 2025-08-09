@@ -31,20 +31,24 @@
 
 #### Task System
 
-- [ ] `task.test.ts`
+- [x] `task.test.ts` ✅ **COMPLETED** (23 tests)
   - Task creation and validation
   - Task name uniqueness and validation
   - Action execution (sync and async functions)
   - Description handling
   - Target validation
   - Custom uptodate function execution
+  - Dependencies (task, file, async file dependencies)
+  - Task lifecycle (setup, exec, reset)
+  - Up-to-date checking and runAlways behavior
 
-- [ ] `TaskContext.test.ts`
+- [x] `TaskContext.test.ts` ✅ **COMPLETED** (13 tests)
   - Context creation and initialization
   - Logger integration
   - Task and argument passing
   - Exec context accessibility
   - Context isolation between tasks
+  - Interface compliance validation
 
 ### 2. Manifest System Tests
 
@@ -166,20 +170,20 @@
 
 ### 7. Utility Tests
 
-- [ ] `filesystem.test.ts`
+- [x] `filesystem.test.ts` ✅ **COMPLETED**
   - File system utility functions
   - Path manipulation
   - Directory operations
   - File copying and moving
   - Temporary file handling
 
-- [ ] `git.test.ts`
+- [x] `git.test.ts` ✅ **COMPLETED**
   - Git integration utilities
   - Repository detection
   - Git-based file tracking
   - Branch and commit handling
 
-- [ ] `textTable.test.ts`
+- [x] `textTable.test.ts` ✅ **COMPLETED**
   - Table formatting for CLI output
   - Column alignment
   - Header formatting
