@@ -11,7 +11,7 @@
 ### 1. Core Interface Tests
 
 #### File Tracking System
-- [ ] `TrackedFile.test.ts`
+- [x] `TrackedFile.test.ts` ✅ **COMPLETED** (26 tests)
   - File hashing (default SHA1 and custom hash functions)
   - Timestamp checking (default and custom timestamp functions) 
   - File existence validation
@@ -21,7 +21,7 @@
   - Non-existent files handling
   - Permission denied scenarios
 
-- [ ] `TrackedFilesAsync.test.ts`
+- [x] `TrackedFilesAsync.test.ts` ✅ **COMPLETED** (17 tests)
   - Async file generation functionality
   - Promise-based file dependency resolution
   - Timeout handling for slow generators
