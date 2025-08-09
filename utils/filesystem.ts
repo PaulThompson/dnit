@@ -3,7 +3,7 @@ import type {
   Timestamp,
   TrackedFileHash,
   TrackedFileName,
-} from "../core/types.ts";
+} from "../interfaces/core/IManifestTypes.ts";
 
 export type StatResult =
   | {

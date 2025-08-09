@@ -4,7 +4,7 @@ import type {
   Timestamp,
   TrackedFileData,
   TrackedFileName,
-} from "../../core/types.ts";
+} from "./IManifestTypes.ts";
 
 // Manifest persistence interface
 export interface IManifest {

@@ -1,4 +1,4 @@
-import type { TaskName } from "./types.ts";
+import type { TaskName } from "../interfaces/core/IManifestTypes.ts";
 import { TaskManifest } from "./taskManifest.ts";
 import type {
   IExecContext,

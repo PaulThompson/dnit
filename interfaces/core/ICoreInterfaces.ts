@@ -1,6 +1,6 @@
 import type { Args } from "@std/cli/parse-args";
 import type * as log from "@std/log";
-import type { TaskName, TrackedFileName } from "../../core/types.ts";
+import type { TaskName, TrackedFileName } from "./IManifestTypes.ts";
 import type { IManifest } from "./IManifest.ts";
 
 // Main task execution interface

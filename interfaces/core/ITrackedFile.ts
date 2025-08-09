@@ -3,7 +3,7 @@ import type {
   TrackedFileData,
   TrackedFileHash,
   TrackedFileName,
-} from "../../core/types.ts";
+} from "./IManifestTypes.ts";
 import type { IExecContext, ITask } from "./ICoreInterfaces.ts";
 
 // File tracking interface

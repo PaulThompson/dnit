@@ -3,7 +3,11 @@ import * as path from "@std/path";
 import { TaskManifest } from "./core/taskManifest.ts";
 import type { IManifest } from "./interfaces/core/IManifest.ts";
 
-import { ManifestSchema, type TaskData, type TaskName } from "./core/types.ts";
+import {
+  ManifestSchema,
+  type TaskData,
+  type TaskName,
+} from "./interfaces/core/IManifestTypes.ts";
 
 export class Manifest implements IManifest {
   readonly filename: string;

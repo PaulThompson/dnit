@@ -1,4 +1,4 @@
-import type { Timestamp, TrackedFileHash } from "../../core/types.ts";
+import type { Timestamp, TrackedFileHash } from "../core/IManifestTypes.ts";
 
 // File system operations interface
 export interface IFileSystem {

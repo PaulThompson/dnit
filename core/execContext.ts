@@ -3,7 +3,10 @@ import * as log from "@std/log";
 import { version } from "../version.ts";
 import { AsyncQueue } from "../asyncQueue.ts";
 import type { Manifest } from "../manifest.ts";
-import type { TaskName, TrackedFileName } from "./types.ts";
+import type {
+  TaskName,
+  TrackedFileName,
+} from "../interfaces/core/IManifestTypes.ts";
 import type {
   IExecContext,
   ITask,

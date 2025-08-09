@@ -3,7 +3,7 @@ import type {
   Timestamp,
   TrackedFileData,
   TrackedFileName,
-} from "./types.ts";
+} from "../interfaces/core/IManifestTypes.ts";
 import type { ITaskManifest } from "../interfaces/core/IManifest.ts";
 
 export class TaskManifest implements ITaskManifest {

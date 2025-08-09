@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Zod schemas for type validation and inference
+// Zod schemas for manifest type validation and inference
 export const TaskNameSchema: z.ZodString = z.string();
 export const TrackedFileNameSchema: z.ZodString = z.string();
 export const TrackedFileHashSchema: z.ZodString = z.string();
@@ -46,7 +46,7 @@ export const ManifestSchema: z.ZodObject<{
   tasks: z.record(TaskNameSchema, TaskDataSchema),
 });
 
-// Inferred TypeScript types
+// Inferred TypeScript types for manifest data structures
 export type TaskName = z.infer<typeof TaskNameSchema>;
 export type TrackedFileName = z.infer<typeof TrackedFileNameSchema>;
 export type TrackedFileHash = z.infer<typeof TrackedFileHashSchema>;

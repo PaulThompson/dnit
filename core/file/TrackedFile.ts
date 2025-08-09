@@ -5,7 +5,7 @@ import type {
   TrackedFileData,
   TrackedFileHash,
   TrackedFileName,
-} from "../types.ts";
+} from "../../interfaces/core/IManifestTypes.ts";
 import {
   deletePath,
   getFileSha1Sum,

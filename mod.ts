@@ -1,7 +1,7 @@
 // Main dnit module - clean exports organized by category
 
 // Core types
-export * from "./core/types.ts";
+export * from "./interfaces/core/IManifestTypes.ts";
 export type {
   IAction,
   IExecContext,
