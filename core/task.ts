@@ -1,7 +1,9 @@
 import type { TaskName } from "./types.ts";
 import { TaskManifest } from "./taskManifest.ts";
-import type { ExecContext } from "./execContext.ts";
-import type { TaskInterface } from "./taskInterface.ts";
+import type {
+  IExecContext,
+  ITask,
+} from "../interfaces/core/ICoreInterfaces.ts";
 import type { TaskContext } from "./TaskContext.ts";
 import { taskContext } from "./TaskContext.ts";
 import { isTrackedFile, type TrackedFile } from "./file/TrackedFile.ts";
@@ -44,7 +46,7 @@ function isTask(dep: Task | TrackedFile | TrackedFilesAsync): dep is Task {
   return dep instanceof Task;
 }
 
-export class Task implements TaskInterface {
+export class Task implements ITask {
   public name: TaskName;
   public description?: string;
   public action: Action;
@@ -93,7 +95,7 @@ export class Task implements TaskInterface {
     return deps.filter(isTrackedFileAsync);
   }
 
-  async setup(ctx: ExecContext): Promise<void> {
+  async setup(ctx: IExecContext): Promise<void> {
     if (this.taskManifest === null) {
       for (const t of this.targets) {
         ctx.targetRegister.set(t.path, this);
@@ -114,7 +116,7 @@ export class Task implements TaskInterface {
     }
   }
 
-  async exec(ctx: ExecContext): Promise<void> {
+  async exec(ctx: IExecContext): Promise<void> {
     if (ctx.doneTasks.has(this)) {
       return;
     }
@@ -185,11 +187,11 @@ export class Task implements TaskInterface {
     ctx.inprogressTasks.delete(this);
   }
 
-  async reset(ctx: ExecContext): Promise<void> {
+  async reset(ctx: IExecContext): Promise<void> {
     await this.cleanTargets(ctx);
   }
 
-  private async cleanTargets(ctx: ExecContext): Promise<void> {
+  private async cleanTargets(ctx: IExecContext): Promise<void> {
     await Promise.all(
       Array.from(this.targets).map(async (tf) => {
         try {
@@ -201,7 +203,7 @@ export class Task implements TaskInterface {
     );
   }
 
-  private async targetsExist(ctx: ExecContext): Promise<boolean> {
+  private async targetsExist(ctx: IExecContext): Promise<boolean> {
     const tex = await Promise.all(
       Array.from(this.targets).map((tf) =>
         ctx.asyncQueue.schedule(() => tf.exists())
@@ -211,7 +213,7 @@ export class Task implements TaskInterface {
     return !tex.some((t) => !t);
   }
 
-  private async checkFileDeps(ctx: ExecContext): Promise<boolean> {
+  private async checkFileDeps(ctx: IExecContext): Promise<boolean> {
     let fileDepsUpToDate = true;
     let promisesInProgress: Promise<void>[] = [];
 
@@ -237,7 +239,7 @@ export class Task implements TaskInterface {
     return fileDepsUpToDate;
   }
 
-  private getOrCreateTaskManifest(ctx: ExecContext): TaskManifest {
+  private getOrCreateTaskManifest(ctx: IExecContext): TaskManifest {
     if (!ctx.manifest.tasks[this.name]) {
       ctx.manifest.tasks[this.name] = new TaskManifest({
         lastExecution: null,
@@ -247,7 +249,7 @@ export class Task implements TaskInterface {
     return ctx.manifest.tasks[this.name];
   }
 
-  private async execDependencies(ctx: ExecContext) {
+  private async execDependencies(ctx: IExecContext) {
     for (const dep of this.task_deps) {
       if (!ctx.doneTasks.has(dep) && !ctx.inprogressTasks.has(dep)) {
         await dep.exec(ctx);

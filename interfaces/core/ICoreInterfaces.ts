@@ -1,8 +1,16 @@
 import type { Args } from "@std/cli/parse-args";
 import type * as log from "@std/log";
 import type { TaskName, TrackedFileName } from "../../core/types.ts";
-import type { ITask } from "./ITask.ts";
 import type { IManifest } from "./IManifest.ts";
+
+// Main task execution interface
+export interface ITask {
+  name: TaskName;
+  description?: string;
+  exec(ctx: IExecContext): Promise<void>;
+  setup(ctx: IExecContext): Promise<void>;
+  reset(ctx: IExecContext): Promise<void>;
+}
 
 // Execution context interface
 export interface IExecContext {
@@ -23,6 +31,10 @@ export interface IExecContext {
   readonly taskLogger: log.Logger;
   readonly userLogger: log.Logger;
 
+  // Configuration
+  readonly concurrency: number;
+  readonly verbose: boolean;
+
   // Data
   readonly manifest: IManifest;
   readonly args: Args;
@@ -30,3 +42,17 @@ export interface IExecContext {
   // Methods
   getTaskByName(name: TaskName): ITask | undefined;
 }
+
+// Task execution context passed to actions
+export interface ITaskContext {
+  logger: log.Logger;
+  task: ITask;
+  args: Args;
+  exec: IExecContext;
+}
+
+// Task action function type
+export type IAction = (ctx: ITaskContext) => Promise<void> | void;
+
+// Task up-to-date check function type
+export type IIsUpToDate = (ctx: ITaskContext) => Promise<boolean> | boolean;

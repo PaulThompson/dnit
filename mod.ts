@@ -4,11 +4,11 @@
 export * from "./core/types.ts";
 export type {
   IAction,
+  IExecContext,
   IIsUpToDate,
   ITask,
   ITaskContext,
-} from "./interfaces/core/ITask.ts";
-export type { IExecContext } from "./interfaces/core/IContext.ts";
+} from "./interfaces/core/ICoreInterfaces.ts";
 export type { IManifest, ITaskManifest } from "./interfaces/core/IManifest.ts";
 export type {
   ITrackedFile,
@@ -44,7 +44,7 @@ export {
 export { TaskManifest } from "./core/taskManifest.ts";
 
 // Task context utilities
-export { type TaskInterface } from "./core/taskInterface.ts";
+// TaskInterface now exported as ITask above
 export { type TaskContext, taskContext } from "./core/TaskContext.ts";
 
 // CLI utilities

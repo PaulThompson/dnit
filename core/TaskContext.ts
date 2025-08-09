@@ -1,19 +1,18 @@
 import type { Args } from "@std/cli/parse-args";
 import type * as log from "@std/log";
-import type { ExecContext } from "./execContext.ts";
-import type { TaskInterface } from "./taskInterface.ts";
+import type {
+  IExecContext,
+  ITask,
+} from "../interfaces/core/ICoreInterfaces.ts";
 
 export interface TaskContext {
   logger: log.Logger;
-  task: TaskInterface;
+  task: ITask;
   args: Args;
-  exec: ExecContext;
+  exec: IExecContext;
 }
 
-export function taskContext(
-  ctx: ExecContext,
-  task: TaskInterface,
-): TaskContext {
+export function taskContext(ctx: IExecContext, task: ITask): TaskContext {
   return {
     logger: ctx.taskLogger,
     task,

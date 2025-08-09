@@ -13,8 +13,10 @@ import {
   statPath,
   type StatResult,
 } from "../../utils/filesystem.ts";
-import type { ExecContext } from "../execContext.ts";
-import type { Task } from "../task.ts";
+import type {
+  IExecContext,
+  ITask,
+} from "../../interfaces/core/ICoreInterfaces.ts";
 
 export type GetFileHash = (
   filename: TrackedFileName,
@@ -44,7 +46,7 @@ export class TrackedFile {
   #getHash: GetFileHash;
   #getTimestamp: GetFileTimestamp;
 
-  fromTask: Task | null = null;
+  fromTask: ITask | null = null;
 
   constructor(fileParams: FileParams) {
     this.path = path.resolve(fileParams.path);
@@ -95,7 +97,7 @@ export class TrackedFile {
 
   /// whether this is up to date w.r.t. the given TrackedFileData
   async isUpToDate(
-    _ctx: ExecContext,
+    _ctx: IExecContext,
     tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<boolean> {
@@ -118,7 +120,7 @@ export class TrackedFile {
 
   /// Recalculate timestamp and hash data
   async getFileData(
-    _ctx: ExecContext,
+    _ctx: IExecContext,
     statInput?: StatResult,
   ): Promise<TrackedFileData> {
     let statResult = statInput;
@@ -133,7 +135,7 @@ export class TrackedFile {
 
   /// return given tData if up to date or re-calculate
   async getFileDataOrCached(
-    ctx: ExecContext,
+    ctx: IExecContext,
     tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<{
@@ -157,7 +159,7 @@ export class TrackedFile {
     };
   }
 
-  setTask(t: Task) {
+  setTask(t: ITask) {
     if (this.fromTask === null) {
       this.fromTask = t;
     } else {
@@ -167,7 +169,7 @@ export class TrackedFile {
     }
   }
 
-  getTask(): Task | null {
+  getTask(): ITask | null {
     return this.fromTask;
   }
 }

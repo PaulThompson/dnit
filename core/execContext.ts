@@ -4,27 +4,26 @@ import { version } from "../version.ts";
 import { AsyncQueue } from "../asyncQueue.ts";
 import type { Manifest } from "../manifest.ts";
 import type { TaskName, TrackedFileName } from "./types.ts";
-import type { TaskInterface } from "./taskInterface.ts";
-import type { IExecContext } from "../interfaces/core/IContext.ts";
+import type {
+  IExecContext,
+  ITask,
+} from "../interfaces/core/ICoreInterfaces.ts";
 
 export class ExecContext implements IExecContext {
   /// All tasks by name
-  taskRegister: Map<TaskName, TaskInterface> = new Map<
-    TaskName,
-    TaskInterface
-  >();
+  taskRegister: Map<TaskName, ITask> = new Map<TaskName, ITask>();
 
   /// Tasks by target
-  targetRegister: Map<TrackedFileName, TaskInterface> = new Map<
+  targetRegister: Map<TrackedFileName, ITask> = new Map<
     TrackedFileName,
-    TaskInterface
+    ITask
   >();
 
   /// Done or up-to-date tasks
-  doneTasks: Set<TaskInterface> = new Set<TaskInterface>();
+  doneTasks: Set<ITask> = new Set<ITask>();
 
   /// In progress tasks
-  inprogressTasks: Set<TaskInterface> = new Set<TaskInterface>();
+  inprogressTasks: Set<ITask> = new Set<ITask>();
 
   /// Queue for scheduling async work with specified number allowable concurrently.
   // deno-lint-ignore no-explicit-any
@@ -50,7 +49,15 @@ export class ExecContext implements IExecContext {
     this.internalLogger.info(`Starting ExecContext version: ${version}`);
   }
 
-  getTaskByName(name: TaskName): TaskInterface | undefined {
+  getTaskByName(name: TaskName): ITask | undefined {
     return this.taskRegister.get(name);
+  }
+
+  get concurrency(): number {
+    return this.asyncQueue.concurrency || 4;
+  }
+
+  get verbose(): boolean {
+    return this.args["verbose"] as boolean || false;
   }
 }

@@ -4,8 +4,7 @@ import type {
   TrackedFileHash,
   TrackedFileName,
 } from "../../core/types.ts";
-import type { IExecContext } from "./IContext.ts";
-import type { ITask } from "./ITask.ts";
+import type { IExecContext, ITask } from "./ICoreInterfaces.ts";
 
 // File tracking interface
 export interface ITrackedFile {
