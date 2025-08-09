@@ -144,7 +144,7 @@ Tasks are created by the exported `function task(taskParams: TaskParams): Task`
 /** User definition of a task */
 export type TaskParams = {
   /// Name: (string) - The key used to initiate a task
-  name: string;
+  name: TaskName;
 
   /// Description (string) - Freeform text description shown on help
   description?: string;
