@@ -1,5 +1,5 @@
 import { assertEquals, assertExists } from "@std/assert";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import type { IExecContext, IManifest, ITask, TaskName } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
@@ -9,16 +9,6 @@ import {
 } from "../core/TaskContext.ts";
 import { Task } from "../core/task.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
 
 // Mock exec context for testing
 function createMockExecContext(
@@ -30,9 +20,9 @@ function createMockExecContext(
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
@@ -69,13 +59,13 @@ Deno.test("TaskContext - taskContext function creates context", () => {
 
 Deno.test("TaskContext - context uses taskLogger from exec context", () => {
   const manifest = new Manifest("");
-  const mockTaskLogger = createMockLogger();
-  const ctx = createMockExecContext(manifest, { taskLogger: mockTaskLogger });
+  const customTaskLogger = log.getLogger("custom");
+  const ctx = createMockExecContext(manifest, { taskLogger: customTaskLogger });
   const task = createMockTask("testTask");
 
   const taskCtx = taskContext(ctx, task);
 
-  assertEquals(taskCtx.logger, mockTaskLogger);
+  assertEquals(taskCtx.logger, customTaskLogger);
 });
 
 Deno.test("TaskContext - context preserves task reference", () => {
