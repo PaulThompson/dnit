@@ -8,6 +8,7 @@ import {
   taskContext,
 } from "../core/TaskContext.ts";
 import { Task } from "../core/task.ts";
+import { execBasic } from "../cli/cli.ts";
 
 
 // Mock exec context for testing
@@ -34,20 +35,18 @@ function createMockExecContext(
 }
 
 // Mock task for testing
-function createMockTask(name: string): ITask {
-  return {
+function createMockTask(name: string): Task {
+  return new Task({
     name: name as TaskName,
     description: `Mock task ${name}`,
-    exec: async () => {},
-    setup: async () => {},
-    reset: async () => {},
-  };
+    action: () => {},
+  });
 }
 
-Deno.test("TaskContext - taskContext function creates context", () => {
+Deno.test("TaskContext - taskContext function creates context", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   const task = createMockTask("testTask");
+  const ctx = await execBasic([], [task], manifest);
 
   const taskCtx = taskContext(ctx, task);
 
@@ -68,10 +67,10 @@ Deno.test("TaskContext - context uses taskLogger from exec context", () => {
   assertEquals(taskCtx.logger, customTaskLogger);
 });
 
-Deno.test("TaskContext - context preserves task reference", () => {
+Deno.test("TaskContext - context preserves task reference", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   const task = createMockTask("specificTask");
+  const ctx = await execBasic([], [task], manifest);
 
   const taskCtx = taskContext(ctx, task);
 
@@ -92,22 +91,21 @@ Deno.test("TaskContext - context preserves args reference", () => {
   assertEquals((taskCtx.args as unknown as { flag: boolean }).flag, true);
 });
 
-Deno.test("TaskContext - context provides access to exec context", () => {
+Deno.test("TaskContext - context provides access to exec context", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   const task = createMockTask("testTask");
+  const ctx = await execBasic([], [task], manifest);
 
   const taskCtx = taskContext(ctx, task);
 
   assertEquals(taskCtx.exec, ctx);
   assertEquals(taskCtx.exec.manifest, manifest);
-  assertEquals(taskCtx.exec.concurrency, 1);
+  assertEquals(taskCtx.exec.concurrency, 4); // execBasic uses default concurrency of 4
   assertEquals(taskCtx.exec.verbose, false);
 });
 
-Deno.test("TaskContext - context works with real Task instance", () => {
+Deno.test("TaskContext - context works with real Task instance", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   const realTask = new Task({
     name: "realTask" as TaskName,
@@ -115,6 +113,7 @@ Deno.test("TaskContext - context works with real Task instance", () => {
     action: () => {},
   });
 
+  const ctx = await execBasic([], [realTask], manifest);
   const taskCtx = taskContext(ctx, realTask);
 
   assertEquals(taskCtx.task, realTask);
