@@ -1,5 +1,6 @@
 import * as fs from "@std/fs";
 import * as path from "@std/path";
+import * as log from "@std/log";
 import { TaskManifest } from "./core/taskManifest.ts";
 import type { IManifest } from "./interfaces/core/IManifest.ts";
 
@@ -26,7 +27,7 @@ export class Manifest implements IManifest {
             this.tasks[taskName] = new TaskManifest(taskData);
           }
         } else {
-          console.warn(
+          log.getLogger("internal").warn(
             `Manifest file ${this.filename} has invalid schema, creating fresh manifest`,
           );
           await this.save();
@@ -35,7 +36,7 @@ export class Manifest implements IManifest {
         const errorMessage = error instanceof Error
           ? error.message
           : String(error);
-        console.warn(
+        log.getLogger("internal").warn(
           `Failed to parse manifest file ${this.filename}: ${errorMessage}, creating fresh manifest`,
         );
         await this.save();
