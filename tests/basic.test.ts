@@ -84,42 +84,7 @@ Deno.test("task up to date", async () => {
   console.log(`[INIT] Writing initial content: "${initialContent}"`);
   await Deno.writeTextFile(testFile.path, initialContent);
 
-  // Custom uptodate function with detailed logging
-  const customUpToDate = async (ctx: TaskContext) => {
-    const manifestData = ctx.exec.manifest.tasks["taskA"];
-    const fileData = manifestData?.trackedFiles?.[testFile.path];
-
-    console.log(`[UPTODATE] Checking if task is up to date...`);
-    console.log(`[UPTODATE] OS: ${Deno.build.os}`);
-    console.log(`[UPTODATE] File: ${testFile.path}`);
-    console.log(`[UPTODATE] Manifest file data:`, fileData);
-
-    if (!fileData) {
-      console.log(`[UPTODATE] No manifest data - NOT up to date`);
-      return false;
-    }
-
-    const currentHash = await testFile.getHash();
-    const currentTimestamp = await testFile.getTimestamp();
-
-    console.log(`[UPTODATE] Current hash: ${currentHash}`);
-    console.log(`[UPTODATE] Manifest hash: ${fileData.hash}`);
-    console.log(`[UPTODATE] Current timestamp: ${currentTimestamp}`);
-    console.log(`[UPTODATE] Manifest timestamp: ${fileData.timestamp}`);
-
-    const hashMatch = currentHash === fileData.hash;
-    const timestampMatch = currentTimestamp === fileData.timestamp;
-
-    console.log(`[UPTODATE] Hash match: ${hashMatch}`);
-    console.log(`[UPTODATE] Timestamp match: ${timestampMatch}`);
-
-    const upToDate = hashMatch || timestampMatch;
-    console.log(
-      `[UPTODATE] Result: ${upToDate ? "UP TO DATE" : "NOT UP TO DATE"}`,
-    );
-
-    return upToDate;
-  };
+  // Test now uses the builtin TrackedFile.isUpToDate() logic which has Windows-specific handling
 
   const taskA = task({
     name: "taskA",
@@ -129,7 +94,7 @@ Deno.test("task up to date", async () => {
       tasksDone["taskA"] = true;
     },
     deps: [testFile],
-    uptodate: customUpToDate,
+    // Remove custom uptodate function - use the builtin TrackedFile.isUpToDate() logic
   });
 
   // Setup:
