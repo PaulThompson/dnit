@@ -5,9 +5,6 @@ import { assert } from "@std/assert";
 class TestHelper {
   static numInProgress = 0;
   static maxInProgress = 0;
-  
-  started = false;
-  completed = false;
 
   static incrementInProgress() {
     TestHelper.numInProgress += 1;
@@ -24,11 +21,9 @@ class TestHelper {
   }
 
   action = () => {
-    this.started = true;
     TestHelper.incrementInProgress();
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        this.completed = true;
         TestHelper.decrementInProgress();
         resolve();
       }, 10);
