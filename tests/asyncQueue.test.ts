@@ -36,16 +36,11 @@ Deno.test("async queue", async () => {
     TestHelper.reset();
 
     const numTasks = concurrency * 10;
-    const testHelpers: TestHelper[] = [];
-    for (let i = 0; i < numTasks; ++i) {
-      testHelpers.push(new TestHelper());
-    }
-
     const asyncQueue = new AsyncQueue(concurrency);
 
     const promises: Promise<void>[] = [];
     for (let i = 0; i < numTasks; ++i) {
-      const th = testHelpers[i];
+      const th = new TestHelper();
       promises.push(asyncQueue.schedule(th.action));
       //promises.push(th.action()); // equivalent code but without the asyncQueue (runs them all in parallel)
     }
