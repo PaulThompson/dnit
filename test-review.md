@@ -283,17 +283,42 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 3. **Edge Case Coverage**: Good coverage of error conditions and edge cases
 4. **Integration Testing**: Mix of unit and integration tests
 
+## Mock Redundancy Analysis
+
+### Duplicate Mock Functions
+The test suite has significant mock duplication across 9 test files:
+
+#### createMockLogger()
+- **Duplicated in 8 files** with identical implementation
+- Each creates a no-op logger with debug, info, warn, error, critical methods
+- Exception: launch.test.ts has a custom logger that collects logs
+
+#### createMockExecContext()
+- **Duplicated in 8 files** with nearly identical implementation
+- Creates a full IExecContext with all required properties
+- Variation: TaskContext.test.ts accepts an `overrides` parameter
+
+### Mock Statistics
+- **Estimated redundant lines**: ~200+ lines
+- **Files affected**: 9 out of 19 test files (47%)
+- **Common patterns**: Logger mocks, exec context mocks, console capture, temp file creation
+
 ## Recommendations for Review
 
 ### High Priority
-1. Investigate and fix the flaky test in basic.test.ts
-2. Expand test coverage for process.test.ts and asyncQueue.test.ts
-3. Review timing-dependent tests for potential race conditions
+1. **Create shared test utilities module** (`tests/testUtils.ts`)
+   - Export createMockLogger, createMockExecContext with overrides
+   - Centralize captureConsole, createTempFile helpers
+   - Provide typed mock factories with sensible defaults
+2. Investigate and fix the flaky test in basic.test.ts
+3. Expand test coverage for process.test.ts and asyncQueue.test.ts
+4. Review timing-dependent tests for potential race conditions
 
 ### Medium Priority
 1. Standardize test output handling (some tests log to console)
 2. Review cross-platform compatibility of permission tests
 3. Consider adding performance benchmarks for critical paths
+4. Consolidate mock variations into configurable factories
 
 ### Low Priority
 1. Improve test naming consistency
