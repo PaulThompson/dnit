@@ -292,14 +292,17 @@ The test suite has significant mock duplication across 9 test files:
 - **Duplicated in 8 files** with identical implementation
 - Each creates a no-op logger with debug, info, warn, error, critical methods
 - Exception: launch.test.ts has a custom logger that collects logs
+- **CRITICAL**: These mocks are completely unnecessary - `execBasic` already provides silent loggers!
 
 #### createMockExecContext()
 - **Duplicated in 8 files** with nearly identical implementation
 - Creates a full IExecContext with all required properties
 - Variation: TaskContext.test.ts accepts an `overrides` parameter
 
-### Mock Statistics
-- **Estimated redundant lines**: ~200+ lines
+### Mock Statistics  
+- **Estimated redundant lines**: ~280+ lines total
+  - ~200+ lines from createMockExecContext duplications
+  - ~80+ lines from createMockLogger duplications
 - **Files affected**: 9 out of 19 test files (47%)
 - **Common patterns**: Logger mocks, exec context mocks, console capture, temp file creation
 
@@ -354,20 +357,43 @@ Many tests use mock contexts when `execBasic` already provides a proper testing 
 - Tests that would benefit from real logger output
 - Complex mock configuration to simulate what execBasic provides automatically
 
+## Mock Logger Deep Dive
+
+### The Critical Discovery
+**Mock loggers are completely redundant** - `execBasic` already provides silent loggers!
+
+#### How execBasic vs execCli Handle Logging
+- **execCli**: Calls `setupLogging()` → Real loggers with handlers and output
+- **execBasic**: Does NOT call `setupLogging()` → Default loggers (Level: "NOTSET", 0 handlers)
+- **Default @std/log behavior**: Loggers with no setup do nothing (silent)
+
+#### Mock Logger Usage Analysis
+- **8 files** have identical `createMockLogger()` implementations (80+ redundant lines)  
+- **Only 5 occurrences** across 3 files actually use logger methods
+- **Most usage**: Just checking reference equality (`assertEquals(taskCtx.logger, ctx.taskLogger)`)
+- **Real usage**: Only TaskContext.test.ts captures log output, cli.test.ts does error logging
+
+#### The Irony
+Tests create elaborate mock loggers to avoid console output, but `execBasic` already provides silent loggers by default!
+
 ## Recommendations for Review
 
 ### High Priority
-1. **Replace inappropriate mock usage with execBasic**
+1. **Eliminate redundant mock loggers entirely** 
+   - Remove `createMockLogger()` from 7 files (keep only launch.test.ts custom version)
+   - Use execBasic's default silent loggers instead of mocks
+   - Benefit: ~80 lines of redundant code eliminated immediately
+2. **Replace inappropriate mock usage with execBasic**
    - Convert ~50% of mock contexts to use execBasic where tests are doing integration testing
    - Target files: uptodate.test.ts, task.test.ts, git.test.ts (selective conversion)
    - Benefits: Simpler test code, more realistic testing, better coverage of setup behavior
-2. **Create minimal shared test utilities module** (`tests/testUtils.ts`)
-   - Export lightweight mocks only for legitimate unit testing needs
+3. **Create minimal shared test utilities module** (`tests/testUtils.ts`)
+   - Export lightweight mocks only for legitimate unit testing needs (very few needed)
    - Centralize captureConsole, createTempFile helpers
    - Provide execBasic wrapper functions for common test scenarios
-3. Investigate and fix the flaky test in basic.test.ts
-4. Expand test coverage for process.test.ts and asyncQueue.test.ts
-5. Review timing-dependent tests for potential race conditions
+4. Investigate and fix the flaky test in basic.test.ts
+5. Expand test coverage for process.test.ts and asyncQueue.test.ts
+6. Review timing-dependent tests for potential race conditions
 
 ### Medium Priority
 1. Standardize test output handling (some tests log to console)
@@ -393,9 +419,14 @@ While the test suite is comprehensive, areas that might benefit from additional 
 
 The main opportunities for test suite improvement are:
 
-1. **Reduce mock redundancy** by using `execBasic` where appropriate (~200 lines of code reduction)
+1. **Eliminate mock redundancy** by using `execBasic` where appropriate (~280 lines of code reduction)
+   - ~80 lines from removing redundant mock loggers
+   - ~200 lines from replacing inappropriate mock contexts with execBasic
 2. **Improve test realism** by using proper context initialization instead of minimal mocks
-3. **Simplify test maintenance** with centralized utilities for legitimate mock needs
+3. **Simplify test maintenance** - no mock factories needed for most tests
 4. **Better test coverage** through real setup behavior testing
 
-The current test suite works well but has architectural issues where mocks are used inappropriately for integration-style testing, creating maintenance overhead and reducing test authenticity.
+The current test suite works well but has significant architectural issues:
+- **Mock loggers are completely unnecessary** - execBasic provides silent loggers by default
+- **Mock contexts are overused** for integration-style tests that need real setup
+- **280+ lines of redundant code** that adds maintenance overhead without benefit
