@@ -1,6 +1,6 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import * as path from "@std/path";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
@@ -18,16 +18,6 @@ import { runAlways } from "../core/task.ts";
 import { builtinTasks } from "../cli/builtinTasks.ts";
 import { showTaskList } from "../cli/utils.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
 
 // Mock exec context for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
@@ -36,9 +26,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
