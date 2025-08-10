@@ -1,6 +1,6 @@
 import { assertEquals, assertExists, assertThrows } from "@std/assert";
 import * as path from "@std/path";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
@@ -17,16 +17,6 @@ import { Manifest } from "../manifest.ts";
 import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
 
 // Mock objects for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
@@ -35,9 +25,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
@@ -214,7 +204,6 @@ Deno.test("Task - setup registers targets", async () => {
   const tempFile = await createTempFile("target content");
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   const testTask = new Task({
     name: "testTask" as TaskName,
@@ -222,7 +211,7 @@ Deno.test("Task - setup registers targets", async () => {
     targets: [targetFile],
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
 
   assertEquals(ctx.targetRegister.get(targetFile.path), testTask);
   assertExists(testTask.taskManifest);
@@ -232,7 +221,6 @@ Deno.test("Task - setup registers targets", async () => {
 
 Deno.test("Task - setup with task dependencies", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   const depTask = new Task({
     name: "depTask" as TaskName,
@@ -245,7 +233,7 @@ Deno.test("Task - setup with task dependencies", async () => {
     deps: [depTask],
   });
 
-  await mainTask.setup(ctx);
+  const ctx = await execBasic([], [mainTask, depTask], manifest);
 
   // Both tasks should be set up
   assertExists(mainTask.taskManifest);
@@ -254,7 +242,6 @@ Deno.test("Task - setup with task dependencies", async () => {
 
 Deno.test("Task - exec marks task as done", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let actionCalled = false;
 
   const testTask = new Task({
@@ -265,7 +252,7 @@ Deno.test("Task - exec marks task as done", async () => {
     uptodate: runAlways, // Force it to run
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   assertEquals(actionCalled, true);
@@ -275,7 +262,6 @@ Deno.test("Task - exec marks task as done", async () => {
 
 Deno.test("Task - exec skips already done tasks", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let actionCallCount = 0;
 
   const testTask = new Task({
@@ -286,7 +272,7 @@ Deno.test("Task - exec skips already done tasks", async () => {
     uptodate: runAlways, // Force it to run
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
   await testTask.exec(ctx); // Second call should be skipped
 
@@ -318,7 +304,6 @@ Deno.test("Task - exec skips in-progress tasks", async () => {
 
 Deno.test("Task - exec with async action", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let actionCompleted = false;
 
   const testTask = new Task({
@@ -330,7 +315,7 @@ Deno.test("Task - exec with async action", async () => {
     uptodate: runAlways, // Force it to run
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   assertEquals(actionCompleted, true);
@@ -339,7 +324,6 @@ Deno.test("Task - exec with async action", async () => {
 
 Deno.test("Task - exec with uptodate check", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let actionCalled = false;
   let uptodateCalled = false;
 
@@ -354,7 +338,7 @@ Deno.test("Task - exec with uptodate check", async () => {
     },
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   assertEquals(uptodateCalled, true);
@@ -363,7 +347,6 @@ Deno.test("Task - exec with uptodate check", async () => {
 
 Deno.test("Task - exec with runAlways", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
   let actionCalled = false;
 
   const testTask = new Task({
@@ -374,7 +357,7 @@ Deno.test("Task - exec with runAlways", async () => {
     uptodate: runAlways,
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   assertEquals(actionCalled, true); // Should always run
@@ -384,7 +367,6 @@ Deno.test("Task - reset cleans targets", async () => {
   const tempFile = await createTempFile("target content");
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   const testTask = new Task({
     name: "testTask" as TaskName,
@@ -392,7 +374,7 @@ Deno.test("Task - reset cleans targets", async () => {
     targets: [targetFile],
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
 
   // Verify file exists
   assertEquals(await targetFile.exists(), true);
@@ -447,7 +429,6 @@ Deno.test("Task - exec with file dependencies updates manifest", async () => {
   const tempFile = await createTempFile("dependency content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   const testTask = new Task({
     name: "testTask" as TaskName,
@@ -455,7 +436,7 @@ Deno.test("Task - exec with file dependencies updates manifest", async () => {
     deps: [trackedFile],
   });
 
-  await testTask.setup(ctx);
+  const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
   // Manifest should have file data
