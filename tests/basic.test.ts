@@ -5,6 +5,7 @@ import {
   task,
   type TrackedFile,
   trackFile,
+  type TaskContext,
 } from "../mod.ts";
 
 import { assertEquals } from "@std/assert";
@@ -77,7 +78,7 @@ Deno.test("task up to date", async () => {
   await Deno.writeTextFile(testFile.path, initialContent);
 
   // Custom uptodate function with detailed logging
-  const customUpToDate = async (ctx: any) => {
+  const customUpToDate = async (ctx: TaskContext) => {
     const manifestData = ctx.exec.manifest.tasks["taskA"];
     const fileData = manifestData?.trackedFiles?.[testFile.path];
     
