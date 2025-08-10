@@ -48,27 +48,84 @@ Deno.test("task up to date", async () => {
   await Deno.mkdir(testDir, { recursive: true });
 
   const tasksDone: { [key: string]: boolean } = {};
+  
+  // Custom hash function with verbose logging
+  const customGetHash = async (filename: string, _stat: Deno.FileInfo) => {
+    const content = await Deno.readTextFile(filename);
+    const hash = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(content));
+    const hashArray = Array.from(new Uint8Array(hash));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    console.log(`[HASH] ${filename}: content="${content}" -> hash=${hashHex}`);
+    return hashHex;
+  };
+
+  // Custom timestamp function with verbose logging  
+  const customGetTimestamp = (_filename: string, stat: Deno.FileInfo) => {
+    const timestamp = stat.mtime?.toISOString() || "";
+    console.log(`[TIMESTAMP] ${_filename}: ${timestamp} (mtime: ${stat.mtime?.getTime()})`);
+    return timestamp;
+  };
 
   const testFile: TrackedFile = trackFile({
     path: path.join(testDir, "testFile.txt"),
+    getHash: customGetHash,
+    getTimestamp: customGetTimestamp,
   });
-  await Deno.writeTextFile(testFile.path, "...");
+  
+  const initialContent = "initial-content-" + crypto.randomUUID();
+  console.log(`[INIT] Writing initial content: "${initialContent}"`);
+  await Deno.writeTextFile(testFile.path, initialContent);
+
+  // Custom uptodate function with detailed logging
+  const customUpToDate = async (ctx: any) => {
+    const manifestData = ctx.exec.manifest.tasks["taskA"];
+    const fileData = manifestData?.trackedFiles?.[testFile.path];
+    
+    console.log(`[UPTODATE] Checking if task is up to date...`);
+    console.log(`[UPTODATE] OS: ${Deno.build.os}`);
+    console.log(`[UPTODATE] File: ${testFile.path}`);
+    console.log(`[UPTODATE] Manifest file data:`, fileData);
+    
+    if (!fileData) {
+      console.log(`[UPTODATE] No manifest data - NOT up to date`);
+      return false;
+    }
+
+    const currentHash = await testFile.getHash();
+    const currentTimestamp = await testFile.getTimestamp();
+    
+    console.log(`[UPTODATE] Current hash: ${currentHash}`);
+    console.log(`[UPTODATE] Manifest hash: ${fileData.hash}`);
+    console.log(`[UPTODATE] Current timestamp: ${currentTimestamp}`);
+    console.log(`[UPTODATE] Manifest timestamp: ${fileData.timestamp}`);
+    
+    const hashMatch = currentHash === fileData.hash;
+    const timestampMatch = currentTimestamp === fileData.timestamp;
+    
+    console.log(`[UPTODATE] Hash match: ${hashMatch}`);
+    console.log(`[UPTODATE] Timestamp match: ${timestampMatch}`);
+    
+    const upToDate = hashMatch || timestampMatch;
+    console.log(`[UPTODATE] Result: ${upToDate ? "UP TO DATE" : "NOT UP TO DATE"}`);
+    
+    return upToDate;
+  };
 
   const taskA = task({
     name: "taskA",
     description: "taskA",
     action: () => {
-      console.log("taskA");
+      console.log("taskA EXECUTED");
       tasksDone["taskA"] = true;
     },
-    deps: [
-      testFile,
-    ],
+    deps: [testFile],
+    uptodate: customUpToDate,
   });
 
   // Setup:
   const manifest = new Manifest(""); // share manifest to simulate independent runs:
 
+  console.log("\n=== FIRST RUN (setup) ===");
   {
     const ctx = await execBasic([], [taskA], manifest);
 
@@ -78,6 +135,7 @@ Deno.test("task up to date", async () => {
     tasksDone["taskA"] = false; // clear to reset
   }
 
+  console.log("\n=== SECOND RUN (should be up to date) ===");
   {
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
@@ -85,18 +143,23 @@ Deno.test("task up to date", async () => {
     assertEquals(tasksDone["taskA"], false); // didn't run because of up-to-date
   }
 
+  console.log("\n=== THIRD RUN (after file modification) ===");
   {
     /// Test: make not-up-to-date again
     tasksDone["taskA"] = false;
     assertEquals(tasksDone["taskA"], false);
 
-    await Deno.writeTextFile(testFile.path, "---!");
+    const newContent = "modified-content-" + crypto.randomUUID();
+    console.log(`[MODIFY] Writing new content: "${newContent}"`);
+    await Deno.writeTextFile(testFile.path, newContent);
 
     // add small delay for windows to allow file system cache to flush
     if (Deno.build.os === "windows") {
+      console.log("[WINDOWS] Adding 50ms delay and forcing stat...");
       await new Promise((resolve) => setTimeout(resolve, 50));
       // Force file system to update metadata by calling stat
-      await Deno.stat(testFile.path);
+      const stat = await Deno.stat(testFile.path);
+      console.log(`[WINDOWS] Post-write stat: mtime=${stat.mtime?.toISOString()}, size=${stat.size}`);
     }
 
     const ctx = await execBasic([], [taskA], manifest);
