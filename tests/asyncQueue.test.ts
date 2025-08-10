@@ -2,33 +2,34 @@ import { AsyncQueue } from "../utils/asyncQueue.ts";
 
 import { assert } from "@std/assert";
 
-class TestHelperCtx {
-  numInProgress = 0;
-  maxInProgress = 0;
-
-  incrementInProgress() {
-    this.numInProgress += 1;
-    this.maxInProgress = Math.max(this.maxInProgress, this.numInProgress);
-  }
-
-  decrementInProgress() {
-    this.numInProgress -= 1;
-  }
-}
-
 class TestHelper {
+  static numInProgress = 0;
+  static maxInProgress = 0;
+  
   started = false;
   completed = false;
 
-  constructor(public ctx: TestHelperCtx) {}
+  static incrementInProgress() {
+    TestHelper.numInProgress += 1;
+    TestHelper.maxInProgress = Math.max(TestHelper.maxInProgress, TestHelper.numInProgress);
+  }
+
+  static decrementInProgress() {
+    TestHelper.numInProgress -= 1;
+  }
+
+  static reset() {
+    TestHelper.numInProgress = 0;
+    TestHelper.maxInProgress = 0;
+  }
 
   action = () => {
     this.started = true;
-    this.ctx.incrementInProgress();
+    TestHelper.incrementInProgress();
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         this.completed = true;
-        this.ctx.decrementInProgress();
+        TestHelper.decrementInProgress();
         resolve();
       }, 10);
     });
@@ -37,12 +38,12 @@ class TestHelper {
 
 Deno.test("async queue", async () => {
   for (let concurrency = 1; concurrency <= 32; concurrency *= 2) {
-    const ctx: TestHelperCtx = new TestHelperCtx();
+    TestHelper.reset();
 
     const numTasks = concurrency * 10;
     const testHelpers: TestHelper[] = [];
     for (let i = 0; i < numTasks; ++i) {
-      testHelpers.push(new TestHelper(ctx));
+      testHelpers.push(new TestHelper());
     }
 
     const asyncQueue = new AsyncQueue(concurrency);
@@ -54,7 +55,7 @@ Deno.test("async queue", async () => {
       //promises.push(th.action()); // equivalent code but without the asyncQueue (runs them all in parallel)
     }
     await Promise.all(promises);
-    console.log(`ctx.maxInProgress: ${ctx.maxInProgress}`);
-    assert(ctx.maxInProgress <= concurrency);
+    console.log(`maxInProgress: ${TestHelper.maxInProgress}`);
+    assert(TestHelper.maxInProgress <= concurrency);
   }
 });
