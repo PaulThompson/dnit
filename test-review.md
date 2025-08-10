@@ -303,22 +303,77 @@ The test suite has significant mock duplication across 9 test files:
 - **Files affected**: 9 out of 19 test files (47%)
 - **Common patterns**: Logger mocks, exec context mocks, console capture, temp file creation
 
+## Mock vs execBasic Analysis
+
+### The Core Issue
+Many tests use mock contexts when `execBasic` already provides a proper testing infrastructure. **execBasic exists specifically for testing** - it's not just for production CLI usage.
+
+### execBasic vs Mock Contexts
+
+#### execBasic provides:
+- **Real ExecContext** with proper initialization
+- **Automatic task registration and setup** via `task.setup(ctx)`
+- **Builtin tasks** (list, clean, tabcompletion) automatically included
+- **Real loggers** for authentic behavior testing
+- **Fully functional context** ready for integration testing
+
+#### Mock contexts provide:
+- **Minimal fake IExecContext** for isolated unit testing
+- **No-op loggers** to avoid console output during tests
+- **Empty collections** (Maps/Sets) without automatic setup
+- **Manual task registration** required
+- **No builtin tasks** or automatic initialization
+
+### Usage Analysis
+
+#### execBasic is correctly used for:
+- **Integration tests** - Full task execution workflows (basic.test.ts, targets.test.ts)
+- **End-to-end scenarios** - Task dependencies, manifest persistence
+- **Real behavior testing** - When you need actual task setup and execution
+
+#### Mock contexts are correctly used for:
+- **Pure unit tests** - Testing individual components in isolation
+- **UI testing** - CLI output, tab completion (tabcompletion.test.ts)
+- **Simple function testing** - Single functions without full context setup
+
+#### Mock contexts are INCORRECTLY used for:
+- **Integration-style tests** - Many tests in uptodate.test.ts, task.test.ts
+- **Task execution testing** - Where proper setup is actually needed
+- **Dependency testing** - Where real context behavior matters
+
+### Problematic Mock Usage
+
+**Files using mocks inappropriately:**
+- `uptodate.test.ts` - Most tests are actually testing integrated up-to-date behavior
+- `task.test.ts` - Many tests need proper task setup but use mocks instead
+- `git.test.ts` - Testing builtin tasks but creating minimal contexts manually
+
+**Symptoms of inappropriate mock usage:**
+- Manual task registration in tests
+- Missing task setup calls
+- Tests that would benefit from real logger output
+- Complex mock configuration to simulate what execBasic provides automatically
+
 ## Recommendations for Review
 
 ### High Priority
-1. **Create shared test utilities module** (`tests/testUtils.ts`)
-   - Export createMockLogger, createMockExecContext with overrides
+1. **Replace inappropriate mock usage with execBasic**
+   - Convert ~50% of mock contexts to use execBasic where tests are doing integration testing
+   - Target files: uptodate.test.ts, task.test.ts, git.test.ts (selective conversion)
+   - Benefits: Simpler test code, more realistic testing, better coverage of setup behavior
+2. **Create minimal shared test utilities module** (`tests/testUtils.ts`)
+   - Export lightweight mocks only for legitimate unit testing needs
    - Centralize captureConsole, createTempFile helpers
-   - Provide typed mock factories with sensible defaults
-2. Investigate and fix the flaky test in basic.test.ts
-3. Expand test coverage for process.test.ts and asyncQueue.test.ts
-4. Review timing-dependent tests for potential race conditions
+   - Provide execBasic wrapper functions for common test scenarios
+3. Investigate and fix the flaky test in basic.test.ts
+4. Expand test coverage for process.test.ts and asyncQueue.test.ts
+5. Review timing-dependent tests for potential race conditions
 
 ### Medium Priority
 1. Standardize test output handling (some tests log to console)
 2. Review cross-platform compatibility of permission tests
 3. Consider adding performance benchmarks for critical paths
-4. Consolidate mock variations into configurable factories
+4. ~~Consolidate mock variations into configurable factories~~ (Superseded by execBasic usage)
 
 ### Low Priority
 1. Improve test naming consistency
@@ -333,3 +388,14 @@ While the test suite is comprehensive, areas that might benefit from additional 
 - Concurrent task execution edge cases
 - Large-scale project scenarios
 - Cross-platform file system operations
+
+## Summary: Key Improvements
+
+The main opportunities for test suite improvement are:
+
+1. **Reduce mock redundancy** by using `execBasic` where appropriate (~200 lines of code reduction)
+2. **Improve test realism** by using proper context initialization instead of minimal mocks
+3. **Simplify test maintenance** with centralized utilities for legitimate mock needs
+4. **Better test coverage** through real setup behavior testing
+
+The current test suite works well but has architectural issues where mocks are used inappropriately for integration-style testing, creating maintenance overhead and reducing test authenticity.
