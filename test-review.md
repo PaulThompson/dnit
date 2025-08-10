@@ -3,8 +3,8 @@
 ## 🎯 Action Items (Priority Order)
 
 ### Immediate Actions (High Impact, Low Effort)
-- [ ] **Remove redundant mock loggers** (~80 lines saved)
-  - Delete `createMockLogger()` from 6 remaining files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, uptodate.test.ts
+- [ ] **Remove redundant mock loggers** (many lines saved)
+  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, uptodate.test.ts
   - Keep only launch.test.ts version (actually collects logs)
   - Use execBasic's default silent loggers instead
 
@@ -12,11 +12,11 @@
   - Investigate commented test at line 46
   - Either fix or remove permanently
 
-### Medium Effort Refactoring (~200 lines saved)
+### Medium Effort Refactoring (many lines saved)
 - [ ] **Replace inappropriate mock contexts with execBasic**
-  - Convert integration tests in uptodate.test.ts (12 tests)
-  - Convert relevant tests in task.test.ts (selective - ~10 tests)  
-  - Convert git.test.ts builtin task tests (3 tests)
+  - Convert integration tests in uptodate.test.ts (many tests)
+  - Convert relevant tests in task.test.ts (selective)  
+  - Convert git.test.ts builtin task tests (few tests)
 
 - [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
   - Export captureConsole, createTempFile helpers
@@ -25,11 +25,11 @@
 
 ### Low Priority Improvements
 - [ ] **Expand minimal test coverage**
-  - Add more tests to process.test.ts (currently 1 test)
-  - Add more tests to asyncQueue.test.ts (currently 1 test)
+  - Add more tests to process.test.ts (few tests currently)
+  - Add more tests to asyncQueue.test.ts (few tests currently)
 
 - [ ] **Review timing-dependent tests**
-  - Check tests with fixed delays (104ms, 710ms)
+  - Check tests with fixed delays
   - Ensure no race conditions
 
 - [ ] **Standardize test patterns**
@@ -76,8 +76,8 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Manifest access
   - Interface compliance
 - **✅ Improvements Made**:
-  - Removed redundant `createMockLogger()` function (10 lines saved)
-  - Converted 4 tests to use `execBasic()` instead of mock contexts
+  - Removed redundant `createMockLogger()` function
+  - Converted several tests to use `execBasic()` instead of mock contexts
   - Updated mock task creation to use proper `Task` instances
   - Now uses real silent loggers and proper task setup
 
