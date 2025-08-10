@@ -132,7 +132,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 
 ### Manifest & Schema
 
-#### manifest.test.ts
+#### manifest.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 12
 - **Description**: Tests manifest file persistence
 - **Key Areas**:
@@ -144,8 +144,9 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Invalid schema handling
   - Multiple save/load cycles
   - Concurrent access simulation
+- **✅ Status**: No mock loggers or inappropriate contexts found - pure unit tests
 
-#### manifestSchemas.test.ts
+#### manifestSchemas.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 11
 - **Description**: Tests manifest data validation schemas
 - **Key Areas**:
@@ -156,8 +157,9 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Manifest structure validation
   - Nested validation errors
   - Extra field rejection
+- **✅ Status**: No mock loggers or contexts needed - pure schema validation tests
 
-#### taskManifest.test.ts
+#### taskManifest.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 13
 - **Description**: Tests task-specific manifest operations
 - **Key Areas**:
@@ -168,6 +170,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Round-trip data consistency
   - Multiple file operations
   - Empty tracked files handling
+- **✅ Status**: No mock loggers or contexts needed - pure data structure tests
 
 ### CLI & User Interface
 
