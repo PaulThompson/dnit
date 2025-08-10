@@ -1,12 +1,9 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import * as path from "@std/path";
-import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
   execCli,
-  type IExecContext,
-  type IManifest,
   Task,
   type TaskName,
   TrackedFile,
@@ -14,7 +11,6 @@ import {
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import { showTaskList } from "../cli/utils.ts";
-
 
 // Test helper to create temporary files
 async function createTempFile(

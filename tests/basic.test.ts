@@ -33,7 +33,7 @@ Deno.test("basic test - two tasks with dependency", async () => {
   });
 
   const ctx = await execBasic(["taskB"], [taskA, taskB], new Manifest(""));
-  
+
   // execute starting from taskB
   await ctx.getTaskByName("taskB")?.exec(ctx);
 
