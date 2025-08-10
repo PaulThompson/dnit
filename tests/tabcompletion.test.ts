@@ -6,18 +6,8 @@ import type { TaskName } from "../interfaces/core/IManifestTypes.ts";
 import { Manifest } from "../manifest.ts";
 import type { Args } from "@std/cli/parse-args";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
 
 // Mock exec context for testing
 function createMockExecContext(manifest: Manifest): IExecContext {
@@ -26,9 +16,9 @@ function createMockExecContext(manifest: Manifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
