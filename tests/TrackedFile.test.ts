@@ -485,37 +485,65 @@ Deno.test("TrackedFile - large file handling", async () => {
 });
 
 Deno.test("TrackedFile - permission denied scenarios", async () => {
-  // This test is OS-dependent and may not work in all environments
-  // Skip if we can't create restricted permissions
+  // Test graceful handling of permission errors across platforms
+  const tempDir = await Deno.makeTempDir({ prefix: "dnit_test_perms_" });
+  
   try {
-    const tempDir = await Deno.makeTempDir({ prefix: "dnit_test_perms_" });
-    const restrictedFile = path.join(tempDir, "restricted.txt");
+    const testFile = path.join(tempDir, "test.txt");
+    await Deno.writeTextFile(testFile, "test content");
 
-    await Deno.writeTextFile(restrictedFile, "restricted content");
+    // Try platform-specific permission restrictions
+    let permissionTestSkipped = false;
+    
+    if (Deno.build.os === "windows") {
+      // Windows: Test with a system path that typically requires elevated privileges
+      const restrictedPath = path.join("C:", "Windows", "System32", "config", "nonexistent");
+      const trackedFile = new TrackedFile({ path: restrictedPath });
+      
+      try {
+        await trackedFile.exists();
+        // If this succeeds without error, test passed
+      } catch (error) {
+        // Expected: should handle permission error gracefully
+        assertEquals(error instanceof Error, true);
+      }
+    } else {
+      // Unix-like: Try to restrict file permissions
+      try {
+        await Deno.chmod(testFile, 0o000);
+        
+        const trackedFile = new TrackedFile({ path: testFile });
+        
+        // Test exists() - behavior may vary by platform/privileges
+        const exists = await trackedFile.exists();
+        assertEquals(typeof exists, "boolean");
+        
+        // Test getHash() - should handle permission errors
+        try {
+          await trackedFile.getHash();
+        } catch (error) {
+          // Permission error expected in some cases
+          assertEquals(error instanceof Error, true);
+        }
 
-    // Try to make file unreadable (may not work in all environments)
-    try {
-      await Deno.chmod(restrictedFile, 0o000);
-
-      const trackedFile = new TrackedFile({ path: restrictedFile });
-
-      // This should handle the permission error gracefully
-      // The exact behavior may vary by OS and permissions
+        // Restore permissions for cleanup
+        await Deno.chmod(testFile, 0o644);
+      } catch (_chmodError) {
+        // chmod failed - likely due to filesystem or privilege restrictions
+        permissionTestSkipped = true;
+      }
+    }
+    
+    if (permissionTestSkipped) {
+      // Test with completely non-existent path instead
+      const nonexistentPath = path.join(tempDir, "definitely", "does", "not", "exist", "file.txt");
+      const trackedFile = new TrackedFile({ path: nonexistentPath });
+      
       const exists = await trackedFile.exists();
-
-      // File exists but may not be readable
-      // We don't assert specific behavior as it's OS-dependent
-      console.log(`Permission test - exists: ${exists}`);
-
-      // Restore permissions for cleanup
-      await Deno.chmod(restrictedFile, 0o644);
-    } catch (_permError) {
-      // Skip if we can't modify permissions
-      console.log("Skipping permission test - chmod not supported");
+      assertEquals(exists, false);
     }
 
+  } finally {
     await Deno.remove(tempDir, { recursive: true });
-  } catch (error) {
-    console.log("Skipping permission test:", (error as Error).message);
   }
 });
