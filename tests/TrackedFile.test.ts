@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import * as path from "@std/path";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   file,
@@ -23,9 +23,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: {} as log.Logger,
-    taskLogger: {} as log.Logger,
-    userLogger: {} as log.Logger,
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
