@@ -9,9 +9,10 @@
   - ✅ Only launch.test.ts version remains (actually collects logs)
   - ✅ Now using execBasic's default silent loggers instead
 
-- [ ] **Fix flaky test** in basic.test.ts
-  - Investigate commented test at line 46
-  - Either fix or remove permanently
+- [x] **Fix flaky test** in basic.test.ts ✅ **FIXED**
+  - Fixed uuid import issues (uuid.v4.generate() → crypto.randomUUID())
+  - Fixed file() function reference (file → trackFile)
+  - Test now passes consistently
 
 ### Medium Effort Refactoring (many lines saved)
 - [x] **Replace inappropriate mock contexts with execBasic** ✅ **COMPLETED** 
