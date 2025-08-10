@@ -163,34 +163,8 @@ Deno.test("task up to date", async () => {
     console.log(`[MODIFY] Writing new content: "${newContent}"`);
     await Deno.writeTextFile(testFile.path, newContent);
 
-    // add delay for windows to allow file system cache to flush
-    if (Deno.build.os === "windows") {
-      console.log("[WINDOWS] Adding 200ms delay and forcing file operations...");
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      
-      // Force file system flush by reading and stating multiple times
-      const content = await Deno.readTextFile(testFile.path);
-      console.log(`[WINDOWS] Read content: "${content}"`);
-      
-      const stat1 = await Deno.stat(testFile.path);
-      console.log(`[WINDOWS] Stat 1: mtime=${stat1.mtime?.toISOString()}, size=${stat1.size}`);
-      
-      // Additional delay and stat
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const stat2 = await Deno.stat(testFile.path);
-      console.log(`[WINDOWS] Stat 2: mtime=${stat2.mtime?.toISOString()}, size=${stat2.size}`);
-      
-      // If timestamp still hasn't updated, try touching the file
-      if (stat1.mtime?.getTime() === stat2.mtime?.getTime()) {
-        console.log("[WINDOWS] Timestamps still match, attempting to touch file...");
-        const tempContent = await Deno.readTextFile(testFile.path);
-        await Deno.writeTextFile(testFile.path, tempContent);
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        
-        const stat3 = await Deno.stat(testFile.path);
-        console.log(`[WINDOWS] Stat 3 (after touch): mtime=${stat3.mtime?.toISOString()}, size=${stat3.size}`);
-      }
-    }
+    // Small delay to ensure file system operations complete
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
