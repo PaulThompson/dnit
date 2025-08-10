@@ -96,7 +96,7 @@ Deno.test("TrackedFilesAsync - async generator with files", async () => {
 
   const gen = async () => {
     // Simulate async work
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => queueMicrotask(() => resolve()));
     return [
       file(tempFile1),
       file(tempFile2),
@@ -121,7 +121,7 @@ Deno.test("TrackedFilesAsync - generator with delayed execution", async () => {
 
   const gen = async () => {
     callCount++;
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 5));
     return [file("/tmp/delayed_" + callCount)];
   };
 
@@ -284,7 +284,7 @@ Deno.test("TrackedFilesAsync - generator with network simulation", async () => {
   // Simulate a generator that might fetch file lists from a remote source
   const gen = async () => {
     // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Simulate response parsing
     const mockApiResponse = [
@@ -374,7 +374,7 @@ Deno.test("TrackedFilesAsync - concurrent access to same generator", async () =>
 
   const gen = async () => {
     const currentCall = ++callCount;
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 5));
     return [file(`/tmp/concurrent_${currentCall}`)];
   };
 

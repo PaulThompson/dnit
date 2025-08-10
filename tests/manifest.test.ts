@@ -226,7 +226,7 @@ Deno.test("Manifest - concurrent access simulation", async () => {
         await manifest1.save();
       })(),
       (async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => queueMicrotask(() => resolve()));
         manifest2.tasks["task2" as TaskName] = new TaskManifest({
           lastExecution: "2023-01-01T00:00:01.000Z",
           trackedFiles: {},

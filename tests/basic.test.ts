@@ -104,7 +104,7 @@ Deno.test("async file deps test", async () => {
     return new Promise<TrackedFile[]>((resolve) => {
       setTimeout(() => {
         resolve([]);
-      }, 1000);
+      }, 10);
     });
   }
 

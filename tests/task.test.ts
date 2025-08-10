@@ -309,7 +309,7 @@ Deno.test("Task - exec with async action", async () => {
   const testTask = new Task({
     name: "testTask" as TaskName,
     action: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => queueMicrotask(() => resolve()));
       actionCompleted = true;
     },
     uptodate: runAlways, // Force it to run

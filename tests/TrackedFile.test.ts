@@ -192,7 +192,7 @@ Deno.test("TrackedFile - async custom hash function", async () => {
     _stat: Deno.FileInfo,
   ): Promise<TrackedFileHash> => {
     return new Promise((resolve) => {
-      setTimeout(() => resolve("async_hash_456"), 10);
+      queueMicrotask(() => resolve("async_hash_456"));
     });
   };
 
@@ -253,7 +253,7 @@ Deno.test("TrackedFile - async custom timestamp function", async () => {
     _stat: Deno.FileInfo,
   ): Promise<Timestamp> => {
     return new Promise((resolve) => {
-      setTimeout(() => resolve("2023-12-31T23:59:59.999Z"), 10);
+      queueMicrotask(() => resolve("2023-12-31T23:59:59.999Z"));
     });
   };
 
