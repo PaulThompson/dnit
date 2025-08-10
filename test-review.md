@@ -3,19 +3,22 @@
 ## 🎯 Action Items (Priority Order)
 
 ### Immediate Actions (High Impact, Low Effort)
-- [ ] **Remove redundant mock loggers** (many lines saved)
-  - Delete `createMockLogger()` from remaining files: git.test.ts, dependencies.test.ts, uptodate.test.ts
-  - Keep only launch.test.ts version (actually collects logs)
-  - Use execBasic's default silent loggers instead
+- [x] **Remove redundant mock loggers** (many lines saved) ✅ **COMPLETED**
+  - ✅ Removed from dependencies.test.ts, uptodate.test.ts
+  - ✅ Updated remaining files to use real loggers
+  - ✅ Only launch.test.ts version remains (actually collects logs)
+  - ✅ Now using execBasic's default silent loggers instead
 
 - [ ] **Fix flaky test** in basic.test.ts
   - Investigate commented test at line 46
   - Either fix or remove permanently
 
 ### Medium Effort Refactoring (many lines saved)
-- [ ] **Replace inappropriate mock contexts with execBasic**
-  - Convert integration tests in uptodate.test.ts (many tests)
-  - Convert git.test.ts builtin task tests (few tests)
+- [x] **Replace inappropriate mock contexts with execBasic** ✅ **COMPLETED** 
+  - ✅ Converted integration tests in uptodate.test.ts (many tests)
+  - ✅ Converted integration tests in dependencies.test.ts (many tests)
+  - ✅ Verified targets.test.ts already uses execBasic properly
+  - [ ] Convert git.test.ts builtin task tests (few tests)
 
 - [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
   - Export captureConsole, createTempFile helpers
@@ -227,7 +230,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 
 ### Dependencies & Build
 
-#### dependencies.test.ts
+#### dependencies.test.ts ✅ **REFACTORED**
 - **Tests**: 14
 - **Description**: Tests dependency resolution system
 - **Key Areas**:
@@ -241,8 +244,13 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Dependency ordering
   - Async file dependency resolution
   - Duplicate run prevention
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Updated mock context to use real loggers
+  - Converted many integration-style tests to use `execBasic()` instead of mock contexts
+  - Now provides proper task setup for dependency resolution testing
 
-#### targets.test.ts
+#### targets.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 10
 - **Description**: Tests target file management
 - **Key Areas**:
@@ -255,8 +263,9 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Deletion error handling
   - Empty targets array
   - Tasks without targets
+- **✅ Status**: No mock loggers found - already uses `execBasic()` properly for integration testing
 
-#### uptodate.test.ts
+#### uptodate.test.ts ✅ **REFACTORED**
 - **Tests**: 12
 - **Description**: Tests up-to-date checking mechanisms
 - **Key Areas**:
@@ -269,7 +278,11 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Cross-run manifest consistency
   - Multiple file dependency changes
   - Context access in custom functions
-- **Notable**: Test output appears truncated
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Updated mock context to use real loggers
+  - Converted all integration-style tests to use `execBasic()` instead of mock contexts
+  - Now provides proper task setup for up-to-date checking behavior testing
 
 ### Utilities
 
