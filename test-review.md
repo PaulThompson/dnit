@@ -4,7 +4,7 @@
 
 ### Immediate Actions (High Impact, Low Effort)
 - [ ] **Remove redundant mock loggers** (many lines saved)
-  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, dependencies.test.ts, cli.test.ts, uptodate.test.ts
+  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, dependencies.test.ts, uptodate.test.ts
   - Keep only launch.test.ts version (actually collects logs)
   - Use execBasic's default silent loggers instead
 
@@ -174,7 +174,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 
 ### CLI & User Interface
 
-#### cli.test.ts
+#### cli.test.ts ✅ **REFACTORED**
 - **Tests**: 18
 - **Description**: Tests command line interface functionality
 - **Key Areas**:
@@ -187,8 +187,12 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Task execution errors
   - Manifest saving after execution
   - File dependency handling
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Updated mock context to use real loggers
+  - Kept legitimate custom logger in one test that captures error output
 
-#### launch.test.ts
+#### launch.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 18
 - **Description**: Tests dnit launcher functionality
 - **Key Areas**:
@@ -201,6 +205,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Permission and flag settings
   - File system boundary handling
 - **Notable**: Multiple tests with post-test output showing script execution
+- **✅ Status**: Mock logger is legitimate - it captures log output for testing launch functionality
 
 #### tabcompletion.test.ts
 - **Tests**: 17
