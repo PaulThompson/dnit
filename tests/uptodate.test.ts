@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
@@ -14,17 +14,6 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import type { TaskContext } from "../core/TaskContext.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
-
 // Mock objects for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
   return {
@@ -32,9 +21,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
@@ -70,7 +59,6 @@ Deno.test("UpToDate - file modification detection by hash", async () => {
   const tempFile = await createTempFile("original content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -82,10 +70,14 @@ Deno.test("UpToDate - file modification detection by hash", async () => {
     deps: [trackedFile],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["hashTestTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("hashTestTask" as TaskName);
 
   // First run - should execute because no previous manifest data
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Reset done tasks to allow re-execution
@@ -93,7 +85,9 @@ Deno.test("UpToDate - file modification detection by hash", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - should skip because file hasn't changed
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1); // Should not increment
 
   // Modify file content
@@ -105,7 +99,9 @@ Deno.test("UpToDate - file modification detection by hash", async () => {
   ctx.inprogressTasks.clear();
 
   // Third run - should execute because file content changed
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2); // Should increment
 
   await cleanup(tempFile);
@@ -126,8 +122,6 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   });
 
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   let taskRunCount = 0;
 
   const task = new Task({
@@ -138,10 +132,14 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
     deps: [trackedFile],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["timestampTestTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("timestampTestTask" as TaskName);
 
   // First run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Get the current file data
@@ -152,7 +150,9 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run with no changes - should not run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1); // Should not increment
 
   // Rewrite the same content but this will change the timestamp
@@ -168,7 +168,9 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   assertEquals(initialFileData.hash !== newFileData.hash, true); // Different timestamp-based "hash"
 
   // Task should run due to timestamp change
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   await cleanup(tempFile);
@@ -176,8 +178,6 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
 
 Deno.test("UpToDate - custom uptodate function execution", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   let taskRunCount = 0;
   let uptodateCallCount = 0;
 
@@ -194,10 +194,14 @@ Deno.test("UpToDate - custom uptodate function execution", async () => {
     uptodate: customUptodate,
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["customUptodateTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("customUptodateTask" as TaskName);
 
   // First run - custom uptodate returns true, so task should not run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(uptodateCallCount, 1);
   assertEquals(taskRunCount, 0);
 
@@ -206,7 +210,9 @@ Deno.test("UpToDate - custom uptodate function execution", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - custom uptodate returns true again
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(uptodateCallCount, 2);
   assertEquals(taskRunCount, 0);
 
@@ -215,15 +221,15 @@ Deno.test("UpToDate - custom uptodate function execution", async () => {
   ctx.inprogressTasks.clear();
 
   // Third run - custom uptodate returns false, so task should run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(uptodateCallCount, 3);
   assertEquals(taskRunCount, 1);
 });
 
 Deno.test("UpToDate - runAlways behavior", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   let taskRunCount = 0;
 
   const task = new Task({
@@ -234,10 +240,14 @@ Deno.test("UpToDate - runAlways behavior", async () => {
     uptodate: runAlways,
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["runAlwaysTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("runAlwaysTask" as TaskName);
 
   // First run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Reset done tasks
@@ -245,7 +255,9 @@ Deno.test("UpToDate - runAlways behavior", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - should always run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   // Reset done tasks
@@ -253,7 +265,9 @@ Deno.test("UpToDate - runAlways behavior", async () => {
   ctx.inprogressTasks.clear();
 
   // Third run - should always run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 3);
 });
 
@@ -263,7 +277,6 @@ Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
   const targetFile = await createTempFile("target content");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -276,10 +289,14 @@ Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
     targets: [target],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["skipTestTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("skipTestTask" as TaskName);
 
   // First run - should execute
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Reset done tasks
@@ -290,7 +307,9 @@ Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
   // 1. File dependencies haven't changed
   // 2. Targets still exist
   // 3. No custom uptodate function forcing re-run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1); // Should not increment
 
   await cleanup(tempFile);
@@ -303,7 +322,6 @@ Deno.test("UpToDate - task runs when target is deleted", async () => {
   const targetFile = await createTempFile("target to delete");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -318,10 +336,14 @@ Deno.test("UpToDate - task runs when target is deleted", async () => {
     targets: [target],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["targetDeletionTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("targetDeletionTask" as TaskName);
 
   // First run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Delete the target file
@@ -332,7 +354,9 @@ Deno.test("UpToDate - task runs when target is deleted", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - should execute because target was deleted
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   await cleanup(tempFile);
@@ -408,7 +432,6 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   const trackedFile1 = new TrackedFile({ path: tempFile1 });
   const trackedFile2 = new TrackedFile({ path: tempFile2 });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -420,10 +443,14 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
     deps: [trackedFile1, trackedFile2],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["multiFileTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("multiFileTask" as TaskName);
 
   // First run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Reset done tasks
@@ -431,7 +458,9 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   ctx.inprogressTasks.clear();
 
   // Second run - no changes, should not run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Modify only first file
@@ -443,7 +472,9 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   ctx.inprogressTasks.clear();
 
   // Third run - should run because first file changed
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   // Reset done tasks
@@ -451,7 +482,9 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   ctx.inprogressTasks.clear();
 
   // Fourth run - should not run again
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   // Modify second file
@@ -463,7 +496,9 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   ctx.inprogressTasks.clear();
 
   // Fifth run - should run because second file changed
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 3);
 
   await cleanup(tempFile1);
@@ -472,8 +507,6 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
 
 Deno.test("UpToDate - task with no dependencies always up-to-date", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   let taskRunCount = 0;
 
   const task = new Task({
@@ -484,10 +517,14 @@ Deno.test("UpToDate - task with no dependencies always up-to-date", async () => 
     // No deps, no targets, no custom uptodate
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["noDepsTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("noDepsTask" as TaskName);
 
   // First run - should not run because it's considered up-to-date
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 0);
 
   // Reset done tasks
@@ -495,7 +532,9 @@ Deno.test("UpToDate - task with no dependencies always up-to-date", async () => 
   ctx.inprogressTasks.clear();
 
   // Second run - still should not run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 0);
 });
 
@@ -503,7 +542,6 @@ Deno.test("UpToDate - task with targets but no dependencies", async () => {
   const targetFile = await createTempFile("target only content");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -515,10 +553,14 @@ Deno.test("UpToDate - task with targets but no dependencies", async () => {
     targets: [target],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["targetOnlyTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("targetOnlyTask" as TaskName);
 
   // First run - should not run because target exists
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 0);
 
   // Delete target
@@ -529,7 +571,9 @@ Deno.test("UpToDate - task with targets but no dependencies", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - should run because target was deleted
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   await cleanup(targetFile);
@@ -537,8 +581,6 @@ Deno.test("UpToDate - task with targets but no dependencies", async () => {
 
 Deno.test("UpToDate - custom uptodate with task context access", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   let taskRunCount = 0;
   let contextReceived = false;
 
@@ -557,8 +599,13 @@ Deno.test("UpToDate - custom uptodate with task context access", async () => {
     uptodate: customUptodate,
   });
 
-  await task.setup(ctx);
-  await task.exec(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["contextTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("contextTask" as TaskName);
+
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   assertEquals(contextReceived, true);
   assertEquals(taskRunCount, 0); // Should NOT run because uptodate returned true (up-to-date)
@@ -568,7 +615,6 @@ Deno.test("UpToDate - file disappears after initial tracking", async () => {
   const tempFile = await createTempFile("file to disappear");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRunCount = 0;
 
@@ -580,10 +626,14 @@ Deno.test("UpToDate - file disappears after initial tracking", async () => {
     deps: [trackedFile],
   });
 
-  await task.setup(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["disappearingFileTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("disappearingFileTask" as TaskName);
 
   // First run - file exists
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 1);
 
   // Delete the file
@@ -594,7 +644,9 @@ Deno.test("UpToDate - file disappears after initial tracking", async () => {
   ctx.inprogressTasks.clear();
 
   // Second run - file is gone, should trigger re-run
-  await task.exec(ctx);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
   assertEquals(taskRunCount, 2);
 
   await cleanup(tempFile);
