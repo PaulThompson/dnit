@@ -3,28 +3,23 @@ import { AsyncQueue } from "../utils/asyncQueue.ts";
 import { assert } from "@std/assert";
 
 class TestHelper {
-  static numInProgress = 0;
-  static maxInProgress = 0;
+  numInProgress = 0;
+  maxInProgress = 0;
 
-  static incrementInProgress() {
-    TestHelper.numInProgress += 1;
-    TestHelper.maxInProgress = Math.max(TestHelper.maxInProgress, TestHelper.numInProgress);
+  incrementInProgress() {
+    this.numInProgress += 1;
+    this.maxInProgress = Math.max(this.maxInProgress, this.numInProgress);
   }
 
-  static decrementInProgress() {
-    TestHelper.numInProgress -= 1;
-  }
-
-  static reset() {
-    TestHelper.numInProgress = 0;
-    TestHelper.maxInProgress = 0;
+  decrementInProgress() {
+    this.numInProgress -= 1;
   }
 
   action = () => {
-    TestHelper.incrementInProgress();
+    this.incrementInProgress();
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        TestHelper.decrementInProgress();
+        this.decrementInProgress();
         resolve();
       }, 10);
     });
@@ -33,19 +28,18 @@ class TestHelper {
 
 Deno.test("async queue", async () => {
   for (let concurrency = 1; concurrency <= 32; concurrency *= 2) {
-    TestHelper.reset();
+    const ctx = new TestHelper();
 
     const numTasks = concurrency * 10;
     const asyncQueue = new AsyncQueue(concurrency);
 
     const promises: Promise<void>[] = [];
     for (let i = 0; i < numTasks; ++i) {
-      const th = new TestHelper();
-      promises.push(asyncQueue.schedule(th.action));
-      //promises.push(th.action()); // equivalent code but without the asyncQueue (runs them all in parallel)
+      promises.push(asyncQueue.schedule(ctx.action));
+      //promises.push(ctx.action()); // equivalent code but without the asyncQueue (runs them all in parallel)
     }
     await Promise.all(promises);
-    console.log(`maxInProgress: ${TestHelper.maxInProgress}`);
-    assert(TestHelper.maxInProgress <= concurrency);
+    console.log(`maxInProgress: ${ctx.maxInProgress}`);
+    assert(ctx.maxInProgress <= concurrency);
   }
 });
