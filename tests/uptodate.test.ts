@@ -1,11 +1,7 @@
 import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
-import * as log from "@std/log";
-import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
-  type IExecContext,
-  type IManifest,
   Task,
   type TaskName,
   TrackedFile,
@@ -14,24 +10,7 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import type { TaskContext } from "../core/TaskContext.ts";
 
-// Mock objects for testing
-function createMockExecContext(manifest: IManifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
-  };
-}
+// Mock objects for testing - removed unused createMockExecContext
 
 // Test helper to create temporary files
 async function createTempFile(

@@ -233,7 +233,7 @@ Deno.test("Task - setup with task dependencies", async () => {
     deps: [depTask],
   });
 
-  const ctx = await execBasic([], [mainTask, depTask], manifest);
+  await execBasic([], [mainTask, depTask], manifest);
 
   // Both tasks should be set up
   assertExists(mainTask.taskManifest);

@@ -5,17 +5,14 @@ import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
   execCli,
-  file,
   type IExecContext,
   type IManifest,
   Task,
-  task,
   type TaskName,
   TrackedFile,
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
-import { builtinTasks } from "../cli/builtinTasks.ts";
 import { showTaskList } from "../cli/utils.ts";
 
 
@@ -76,7 +73,7 @@ function captureConsole(): {
 }
 
 Deno.test("CLI - execCli executes requested task", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   let taskRun = false;
 
   const testTask = new Task({
@@ -95,7 +92,7 @@ Deno.test("CLI - execCli executes requested task", async () => {
 });
 
 Deno.test("CLI - execCli defaults to list task when no args", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   const testTask = new Task({
@@ -118,7 +115,7 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
 });
 
 Deno.test("CLI - execCli handles non-existent task", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   let errorLogged = false;
   let errorMessage = "";
 
@@ -153,7 +150,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
 });
 
 Deno.test("CLI - execCli includes builtin tasks", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   try {
@@ -171,7 +168,7 @@ Deno.test("CLI - execCli includes builtin tasks", async () => {
 });
 
 Deno.test("CLI - builtin list task shows tasks in table format", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   const userTask = new Task({
@@ -200,7 +197,7 @@ Deno.test("CLI - builtin list task shows tasks in table format", async () => {
 });
 
 Deno.test("CLI - builtin list task with --quiet flag", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   const userTask = new Task({
@@ -236,7 +233,7 @@ Deno.test("CLI - builtin list task with --quiet flag", async () => {
 Deno.test("CLI - builtin clean task with no args cleans all tasks", async () => {
   const tempFile = await createTempFile("target content");
   const targetFile = new TrackedFile({ path: tempFile });
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   let taskRun = false;
@@ -316,7 +313,7 @@ Deno.test("CLI - builtin clean task with specific task args", async () => {
 });
 
 Deno.test("CLI - builtin tabcompletion task generates bash script", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const console = captureConsole();
 
   try {
@@ -335,7 +332,7 @@ Deno.test("CLI - builtin tabcompletion task generates bash script", async () => 
 });
 
 Deno.test("CLI - execBasic sets up exec context properly", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const testTask = new Task({
     name: "testTask" as TaskName,
     action: () => {},
@@ -357,7 +354,7 @@ Deno.test("CLI - execBasic sets up exec context properly", async () => {
 });
 
 Deno.test("CLI - showTaskList function with normal output", () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
@@ -392,7 +389,7 @@ Deno.test("CLI - showTaskList function with normal output", () => {
 });
 
 Deno.test("CLI - showTaskList function with quiet output", () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
@@ -419,7 +416,7 @@ Deno.test("CLI - showTaskList function with quiet output", () => {
 });
 
 Deno.test("CLI - showTaskList handles tasks without descriptions", () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
@@ -444,7 +441,7 @@ Deno.test("CLI - showTaskList handles tasks without descriptions", () => {
 });
 
 Deno.test("CLI - execCli handles task execution errors", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   
   const failingTask = new Task({
     name: "failingTask" as TaskName,
@@ -495,7 +492,7 @@ Deno.test("CLI - execCli saves manifest after successful execution", async () =>
 });
 
 Deno.test("CLI - builtin tasks are always registered", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   
   // Test with empty task list
   const ctx = await execBasic([], [], manifest);
@@ -543,7 +540,7 @@ Deno.test("CLI - task execution with file dependencies", async () => {
 });
 
 Deno.test("CLI - concurrent task setup", async () => {
-  const manifest = new Manifest("");
+  const _manifest = new Manifest("");
   
   const tasks = Array.from({ length: 5 }, (_, i) =>
     new Task({

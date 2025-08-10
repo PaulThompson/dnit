@@ -1,7 +1,7 @@
 import { assertEquals, assertExists } from "@std/assert";
 import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
-import type { IExecContext, IManifest, ITask, TaskName } from "../mod.ts";
+import type { IExecContext, IManifest, TaskName } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import {
   type TaskContext as _TaskContext,
