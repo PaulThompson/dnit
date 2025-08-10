@@ -3,7 +3,6 @@ import {
   execBasic,
   runAlways,
   task,
-  type TaskContext,
   type TrackedFile,
   trackFile,
 } from "../mod.ts";
