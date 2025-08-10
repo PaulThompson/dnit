@@ -29,7 +29,7 @@ deno install --global --allow-read --allow-write --allow-run -f --name dnit jsr:
 Install from source checkout:
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit ./main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json ./main.ts
 ```
 
 - Read, Write and Run permissions are required in order to operate on files and
