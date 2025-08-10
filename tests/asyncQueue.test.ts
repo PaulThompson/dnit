@@ -5,6 +5,15 @@ import { assert } from "@std/assert";
 class TestHelperCtx {
   numInProgress = 0;
   maxInProgress = 0;
+
+  incrementInProgress() {
+    this.numInProgress += 1;
+    this.maxInProgress = Math.max(this.maxInProgress, this.numInProgress);
+  }
+
+  decrementInProgress() {
+    this.numInProgress -= 1;
+  }
 }
 
 class TestHelper {
@@ -15,15 +24,11 @@ class TestHelper {
 
   action = () => {
     this.started = true;
-    this.ctx.numInProgress += 1;
-    this.ctx.maxInProgress = Math.max(
-      this.ctx.maxInProgress,
-      this.ctx.numInProgress,
-    );
+    this.ctx.incrementInProgress();
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         this.completed = true;
-        this.ctx.numInProgress -= 1;
+        this.ctx.decrementInProgress();
         resolve();
       }, 10);
     });
