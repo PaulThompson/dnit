@@ -8,7 +8,6 @@ import type { Args } from "@std/cli/parse-args";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 import * as log from "@std/log";
 
-
 // Mock exec context for testing
 function createMockExecContext(manifest: Manifest): IExecContext {
   return {
@@ -98,7 +97,10 @@ Deno.test("TabCompletion - script contains proper bash syntax", () => {
     assertStringIncludes(output, "tasks=$(dnit list --quiet 2>/dev/null)");
 
     // Check for proper array syntax
-    assertStringIncludes(output, 'COMPREPLY=( $(compgen -W "${sub_cmds} ${tasks}" -- ${cur}) )');
+    assertStringIncludes(
+      output,
+      'COMPREPLY=( $(compgen -W "${sub_cmds} ${tasks}" -- ${cur}) )',
+    );
   } finally {
     console.restore();
   }
@@ -190,7 +192,7 @@ Deno.test("TabCompletion - handles empty task list", () => {
   try {
     showTaskList(ctx, { _: [], quiet: true } as Args);
     const output = console.logs.join("\n");
-    
+
     // Should handle empty task list gracefully
     assertEquals(output, "");
   } finally {
@@ -228,7 +230,7 @@ Deno.test("TabCompletion - completion script handles special characters", () => 
     assertStringIncludes(output, "${cur}"); // Variable expansion
     assertStringIncludes(output, "${sub_cmds}"); // Variable expansion
     assertStringIncludes(output, "${tasks}"); // Variable expansion
-    
+
     // Check for proper quoting
     assertStringIncludes(output, '"${sub_cmds} ${tasks}"');
   } finally {
@@ -245,13 +247,13 @@ Deno.test("TabCompletion - script supports multiple completion scenarios", () =>
 
     // Should handle current word completion
     assertStringIncludes(output, "cur prev words cword");
-    
+
     // Should use compgen for word generation
     assertStringIncludes(output, "compgen -W");
-    
+
     // Should handle partial matches with -- ${cur}
     assertStringIncludes(output, "-- ${cur}");
-    
+
     // Should set COMPREPLY for bash completion
     assertStringIncludes(output, "COMPREPLY=( $(compgen");
   } finally {
@@ -268,7 +270,7 @@ Deno.test("TabCompletion - script includes proper error handling", () => {
 
     // Should redirect stderr to avoid error messages in completion
     assertStringIncludes(output, "2>/dev/null");
-    
+
     // Should return 0 for successful completion
     assertStringIncludes(output, "return 0");
   } finally {
@@ -366,7 +368,7 @@ Deno.test("TabCompletion - handles tasks with complex names", () => {
   try {
     showTaskList(ctx, { _: [], quiet: true } as Args);
     const output = console.logs.join("\n");
-    
+
     assertStringIncludes(output, "build:prod-release");
   } finally {
     console.restore();
@@ -381,8 +383,11 @@ Deno.test("TabCompletion - bash completion variables are properly declared", () 
     const output = console.logs.join("\n");
 
     // Should declare all necessary local variables
-    assertStringIncludes(output, "local cur prev words cword basetask sub_cmds tasks i dodof");
-    
+    assertStringIncludes(
+      output,
+      "local cur prev words cword basetask sub_cmds tasks i dodof",
+    );
+
     // Should initialize COMPREPLY
     assertStringIncludes(output, "COMPREPLY=()");
   } finally {
@@ -398,7 +403,10 @@ Deno.test("TabCompletion - uses proper bash completion helper", () => {
     const output = console.logs.join("\n");
 
     // Should use bash completion helper function
-    assertStringIncludes(output, "_get_comp_words_by_ref -n : cur prev words cword");
+    assertStringIncludes(
+      output,
+      "_get_comp_words_by_ref -n : cur prev words cword",
+    );
   } finally {
     console.restore();
   }

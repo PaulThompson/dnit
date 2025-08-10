@@ -24,7 +24,6 @@ deno install --global --allow-read --allow-write --allow-run -f --name dnit --co
 
 (Install instructions from JSR will be added pending final release)
 
-
 - Read, Write and Run permissions are required in order to operate on files and
   execute tasks.
 

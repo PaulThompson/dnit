@@ -46,7 +46,7 @@ Deno.test("filesystem utilities", async (t) => {
   await t.step("statPath - permission error propagates", async () => {
     // Test that permission errors are properly propagated (not converted to NotFound)
     // Use platform-appropriate restricted paths
-    
+
     let restrictedPath: TrackedFileName;
     if (Deno.build.os === "windows") {
       // Windows: Use a system file that typically requires elevated privileges

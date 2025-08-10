@@ -229,13 +229,10 @@ const lint = task({
   name: "lint",
   description: "Run local lint",
   action: async () => {
-    await Promise.all(sourceCheckEntryPoints.map(async (path) => {
-      await runConsole([
-        "deno",
-        "lint",
-        path,
-      ]);
-    }));
+    await runConsole([
+      "deno",
+      "lint",
+    ]);
   },
   deps: [],
   uptodate: runAlways,
@@ -245,13 +242,10 @@ const fmt = task({
   name: "fmt",
   description: "Run local fmt",
   action: async () => {
-    await Promise.all(sourceCheckEntryPoints.map(async (path) => {
-      await runConsole([
-        "deno",
-        "fmt",
-        path,
-      ]);
-    }));
+    await runConsole([
+      "deno",
+      "fmt",
+    ]);
   },
   deps: [],
   uptodate: runAlways,

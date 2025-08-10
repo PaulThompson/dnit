@@ -487,19 +487,25 @@ Deno.test("TrackedFile - large file handling", async () => {
 Deno.test("TrackedFile - permission denied scenarios", async () => {
   // Test graceful handling of permission errors across platforms
   const tempDir = await Deno.makeTempDir({ prefix: "dnit_test_perms_" });
-  
+
   try {
     const testFile = path.join(tempDir, "test.txt");
     await Deno.writeTextFile(testFile, "test content");
 
     // Try platform-specific permission restrictions
     let permissionTestSkipped = false;
-    
+
     if (Deno.build.os === "windows") {
       // Windows: Test with a system path that typically requires elevated privileges
-      const restrictedPath = path.join("C:", "Windows", "System32", "config", "nonexistent");
+      const restrictedPath = path.join(
+        "C:",
+        "Windows",
+        "System32",
+        "config",
+        "nonexistent",
+      );
       const trackedFile = new TrackedFile({ path: restrictedPath });
-      
+
       try {
         await trackedFile.exists();
         // If this succeeds without error, test passed
@@ -511,13 +517,13 @@ Deno.test("TrackedFile - permission denied scenarios", async () => {
       // Unix-like: Try to restrict file permissions
       try {
         await Deno.chmod(testFile, 0o000);
-        
+
         const trackedFile = new TrackedFile({ path: testFile });
-        
+
         // Test exists() - behavior may vary by platform/privileges
         const exists = await trackedFile.exists();
         assertEquals(typeof exists, "boolean");
-        
+
         // Test getHash() - should handle permission errors
         try {
           await trackedFile.getHash();
@@ -533,16 +539,22 @@ Deno.test("TrackedFile - permission denied scenarios", async () => {
         permissionTestSkipped = true;
       }
     }
-    
+
     if (permissionTestSkipped) {
       // Test with completely non-existent path instead
-      const nonexistentPath = path.join(tempDir, "definitely", "does", "not", "exist", "file.txt");
+      const nonexistentPath = path.join(
+        tempDir,
+        "definitely",
+        "does",
+        "not",
+        "exist",
+        "file.txt",
+      );
       const trackedFile = new TrackedFile({ path: nonexistentPath });
-      
+
       const exists = await trackedFile.exists();
       assertEquals(exists, false);
     }
-
   } finally {
     await Deno.remove(tempDir, { recursive: true });
   }

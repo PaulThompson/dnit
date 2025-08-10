@@ -17,7 +17,6 @@ import { Manifest } from "../manifest.ts";
 import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";
 
-
 // Mock objects for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
   return {

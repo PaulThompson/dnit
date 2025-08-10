@@ -15,7 +15,6 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import { showTaskList } from "../cli/utils.ts";
 
-
 // Mock exec context for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
   return {
@@ -210,7 +209,10 @@ Deno.test("CLI - builtin list task with --quiet flag", async () => {
     // Use execBasic to test with specific args
     const ctx = await execBasic(["list"], [userTask], manifest);
     // Override args in context
-    (ctx as unknown as { args: Args }).args = { _: ["list"], quiet: true } as Args;
+    (ctx as unknown as { args: Args }).args = {
+      _: ["list"],
+      quiet: true,
+    } as Args;
 
     const listTask = ctx.taskRegister.get("list" as TaskName);
     if (listTask) {
@@ -442,7 +444,7 @@ Deno.test("CLI - showTaskList handles tasks without descriptions", () => {
 
 Deno.test("CLI - execCli handles task execution errors", async () => {
   const _manifest = new Manifest("");
-  
+
   const failingTask = new Task({
     name: "failingTask" as TaskName,
     action: () => {
@@ -464,7 +466,7 @@ Deno.test("CLI - execCli saves manifest after successful execution", async () =>
   // execCli creates its own manifest with "./dnit" directory
   // We need to test if dnit/.manifest.json is created
   const dnitDir = "./dnit";
-  
+
   let taskRun = false;
   const testTask = new Task({
     name: "testTask" as TaskName,
@@ -493,7 +495,7 @@ Deno.test("CLI - execCli saves manifest after successful execution", async () =>
 
 Deno.test("CLI - builtin tasks are always registered", async () => {
   const _manifest = new Manifest("");
-  
+
   // Test with empty task list
   const ctx = await execBasic([], [], manifest);
 
@@ -506,11 +508,11 @@ Deno.test("CLI - builtin tasks are always registered", async () => {
   const listTask = ctx.taskRegister.get("list" as TaskName);
   assertEquals(listTask?.name, "list");
   assertEquals(listTask?.description, "List tasks");
-  
+
   const cleanTask = ctx.taskRegister.get("clean" as TaskName);
   assertEquals(cleanTask?.name, "clean");
   assertEquals(cleanTask?.description, "Clean tracked files");
-  
+
   const tabTask = ctx.taskRegister.get("tabcompletion" as TaskName);
   assertEquals(tabTask?.name, "tabcompletion");
   assertEquals(tabTask?.description, "Generate shell completion script");
@@ -519,7 +521,7 @@ Deno.test("CLI - builtin tasks are always registered", async () => {
 Deno.test("CLI - task execution with file dependencies", async () => {
   const tempFile = await createTempFile("dependency content");
   const trackedFile = new TrackedFile({ path: tempFile });
-  
+
   let taskRun = false;
   const taskWithDeps = new Task({
     name: "taskWithDeps" as TaskName,
@@ -541,14 +543,13 @@ Deno.test("CLI - task execution with file dependencies", async () => {
 
 Deno.test("CLI - concurrent task setup", async () => {
   const _manifest = new Manifest("");
-  
+
   const tasks = Array.from({ length: 5 }, (_, i) =>
     new Task({
       name: `task${i}` as TaskName,
       description: `Task ${i}`,
       action: () => {},
-    })
-  );
+    }));
 
   const ctx = await execBasic([], tasks, manifest);
 

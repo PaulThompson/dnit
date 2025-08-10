@@ -151,7 +151,11 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
   });
 
   // Use execBasic for proper task setup
-  const ctx = await execBasic(["consumer"], [producerTask, consumerTask], manifest);
+  const ctx = await execBasic(
+    ["consumer"],
+    [producerTask, consumerTask],
+    manifest,
+  );
   const requestedTask = ctx.taskRegister.get("consumer" as TaskName);
   if (requestedTask) {
     await requestedTask.exec(ctx);
@@ -251,7 +255,11 @@ Deno.test("Dependencies - complex dependency chain", async () => {
   });
 
   // Use execBasic for proper task setup and execution
-  const ctx = await execBasic(["taskD"], [taskA, taskB, taskC, taskD], manifest);
+  const ctx = await execBasic(
+    ["taskD"],
+    [taskA, taskB, taskC, taskD],
+    manifest,
+  );
   const requestedTask = ctx.taskRegister.get("taskD" as TaskName);
   if (requestedTask) {
     await requestedTask.exec(ctx);
@@ -312,7 +320,12 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
   });
 
   // Use execBasic for proper task setup and execution
-  const ctx = await execBasic(["final"], [rootTask, leftTask, rightTask, finalTask], manifest);
+  const ctx = await execBasic(["final"], [
+    rootTask,
+    leftTask,
+    rightTask,
+    finalTask,
+  ], manifest);
   const requestedTask = ctx.taskRegister.get("final" as TaskName);
   if (requestedTask) {
     await requestedTask.exec(ctx);

@@ -1,11 +1,6 @@
 import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
-import {
-  execBasic,
-  Task,
-  type TaskName,
-  TrackedFile,
-} from "../mod.ts";
+import { execBasic, Task, type TaskName, TrackedFile } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import type { TaskContext } from "../core/TaskContext.ts";
@@ -607,7 +602,9 @@ Deno.test("UpToDate - file disappears after initial tracking", async () => {
 
   // Use execBasic for proper task setup
   const ctx = await execBasic(["disappearingFileTask"], [task], manifest);
-  const requestedTask = ctx.taskRegister.get("disappearingFileTask" as TaskName);
+  const requestedTask = ctx.taskRegister.get(
+    "disappearingFileTask" as TaskName,
+  );
 
   // First run - file exists
   if (requestedTask) {

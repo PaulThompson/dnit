@@ -109,11 +109,14 @@ Deno.test("git utilities", async (t) => {
   await t.step("requireCleanGit task - with ignore-unclean flag", async () => {
     const manifest = new Manifest("");
     const testTask = new Task({ name: "test" as TaskName, action: () => {} });
-    
+
     // Use execBasic with proper args setup
     const ctx = await execBasic([], [testTask], manifest);
     // Override args to include ignore-unclean flag
-    (ctx as unknown as { args: Args }).args = { _: [], "ignore-unclean": true } as Args;
+    (ctx as unknown as { args: Args }).args = {
+      _: [],
+      "ignore-unclean": true,
+    } as Args;
     const taskCtx = taskContext(ctx, testTask);
 
     // Should not throw when ignore-unclean is set
@@ -126,7 +129,7 @@ Deno.test("git utilities", async (t) => {
       const isClean = await gitIsClean();
       const manifest = new Manifest("");
       const testTask = new Task({ name: "test" as TaskName, action: () => {} });
-      
+
       // Use execBasic for proper context setup
       const ctx = await execBasic([], [testTask], manifest);
       const taskCtx = taskContext(ctx, testTask);

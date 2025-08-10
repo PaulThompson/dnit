@@ -10,7 +10,6 @@ import {
 import { Task } from "../core/task.ts";
 import { execBasic } from "../cli/cli.ts";
 
-
 // Mock exec context for testing
 function createMockExecContext(
   manifest: IManifest,
