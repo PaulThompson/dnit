@@ -1,7 +1,8 @@
 import { assertEquals, assertRejects } from "@std/assert";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import type { IExecContext, IManifest, TaskName } from "../mod.ts";
+import { execBasic } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import { Task } from "../core/task.ts";
 import { taskContext } from "../core/TaskContext.ts";
@@ -13,17 +14,6 @@ import {
   requireCleanGit,
 } from "../utils/git.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
-
 // Mock exec context for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
   return {
@@ -31,9 +21,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
@@ -118,12 +108,13 @@ Deno.test("git utilities", async (t) => {
 
   await t.step("requireCleanGit task - with ignore-unclean flag", async () => {
     const manifest = new Manifest("");
-    const argsWithFlag = { _: [], "ignore-unclean": true } as Args;
-    const ctx = createMockExecContext(manifest);
-    // Override args in mock context
-    (ctx as unknown as { args: Args }).args = argsWithFlag;
-    const task = new Task({ name: "test" as TaskName, action: () => {} });
-    const taskCtx = taskContext(ctx, task);
+    const testTask = new Task({ name: "test" as TaskName, action: () => {} });
+    
+    // Use execBasic with proper args setup
+    const ctx = await execBasic([], [testTask], manifest);
+    // Override args to include ignore-unclean flag
+    (ctx as unknown as { args: Args }).args = { _: [], "ignore-unclean": true } as Args;
+    const taskCtx = taskContext(ctx, testTask);
 
     // Should not throw when ignore-unclean is set
     await requireCleanGit.action(taskCtx);
@@ -134,9 +125,11 @@ Deno.test("git utilities", async (t) => {
     async () => {
       const isClean = await gitIsClean();
       const manifest = new Manifest("");
-      const ctx = createMockExecContext(manifest);
-      const task = new Task({ name: "test" as TaskName, action: () => {} });
-      const taskCtx = taskContext(ctx, task);
+      const testTask = new Task({ name: "test" as TaskName, action: () => {} });
+      
+      // Use execBasic for proper context setup
+      const ctx = await execBasic([], [testTask], manifest);
+      const taskCtx = taskContext(ctx, testTask);
 
       if (isClean) {
         // Should not throw if git is clean
