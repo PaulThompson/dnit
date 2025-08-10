@@ -12,14 +12,12 @@ import { assertEquals } from "@std/assert";
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";
 
-Deno.test("basic test", async () => {
+Deno.test("basic test - two tasks with dependency", async () => {
   const tasksDone: { [key: string]: boolean } = {};
 
   const taskA = task({
     name: "taskA",
-    description: "taskA",
     action: () => {
-      console.log("taskA");
       tasksDone["taskA"] = true;
     },
     uptodate: runAlways,
@@ -27,9 +25,7 @@ Deno.test("basic test", async () => {
 
   const taskB = task({
     name: "taskB",
-    description: "taskB",
     action: () => {
-      console.log("taskB");
       tasksDone["taskB"] = true;
     },
     deps: [taskA],
@@ -37,8 +33,11 @@ Deno.test("basic test", async () => {
   });
 
   const ctx = await execBasic(["taskB"], [taskA, taskB], new Manifest(""));
+  
+  // execute starting from taskB
   await ctx.getTaskByName("taskB")?.exec(ctx);
 
+  // assert that both A and B are done:
   assertEquals(tasksDone["taskA"], true);
   assertEquals(tasksDone["taskB"], true);
 });
@@ -49,57 +48,23 @@ Deno.test("task up to date", async () => {
 
   const tasksDone: { [key: string]: boolean } = {};
 
-  // Custom hash function with verbose logging
-  const customGetHash = async (filename: string, _stat: Deno.FileInfo) => {
-    const content = await Deno.readTextFile(filename);
-    const hash = await crypto.subtle.digest(
-      "SHA-1",
-      new TextEncoder().encode(content),
-    );
-    const hashArray = Array.from(new Uint8Array(hash));
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join(
-      "",
-    );
-    console.log(`[HASH] ${filename}: content="${content}" -> hash=${hashHex}`);
-    return hashHex;
-  };
-
-  // Custom timestamp function with verbose logging
-  const customGetTimestamp = (_filename: string, stat: Deno.FileInfo) => {
-    const timestamp = stat.mtime?.toISOString() || "";
-    console.log(
-      `[TIMESTAMP] ${_filename}: ${timestamp} (mtime: ${stat.mtime?.getTime()})`,
-    );
-    return timestamp;
-  };
-
-  const testFile: TrackedFile = trackFile({
-    path: path.join(testDir, "testFile.txt"),
-    getHash: customGetHash,
-    getTimestamp: customGetTimestamp,
-  });
+  const testFile: TrackedFile = trackFile(path.join(testDir, "testFile.txt"));
 
   const initialContent = "initial-content-" + crypto.randomUUID();
-  console.log(`[INIT] Writing initial content: "${initialContent}"`);
   await Deno.writeTextFile(testFile.path, initialContent);
-
-  // Test now uses the builtin TrackedFile.isUpToDate() logic which has Windows-specific handling
 
   const taskA = task({
     name: "taskA",
-    description: "taskA",
     action: () => {
-      console.log("taskA EXECUTED");
       tasksDone["taskA"] = true;
     },
     deps: [testFile],
-    // Remove custom uptodate function - use the builtin TrackedFile.isUpToDate() logic
   });
 
   // Setup:
   const manifest = new Manifest(""); // share manifest to simulate independent runs:
 
-  console.log("\n=== FIRST RUN (setup) ===");
+  // === FIRST RUN (setup) ===
   {
     const ctx = await execBasic([], [taskA], manifest);
 
@@ -109,7 +74,7 @@ Deno.test("task up to date", async () => {
     tasksDone["taskA"] = false; // clear to reset
   }
 
-  console.log("\n=== SECOND RUN (should be up to date) ===");
+  // === SECOND RUN (should be up to date) ===
   {
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
@@ -117,18 +82,14 @@ Deno.test("task up to date", async () => {
     assertEquals(tasksDone["taskA"], false); // didn't run because of up-to-date
   }
 
-  console.log("\n=== THIRD RUN (after file modification) ===");
+  // === THIRD RUN (after file modification) ===
   {
     /// Test: make not-up-to-date again
     tasksDone["taskA"] = false;
     assertEquals(tasksDone["taskA"], false);
 
     const newContent = "modified-content-" + crypto.randomUUID();
-    console.log(`[MODIFY] Writing new content: "${newContent}"`);
     await Deno.writeTextFile(testFile.path, newContent);
-
-    // Small delay to ensure file system operations complete
-    await new Promise((resolve) => setTimeout(resolve, 10));
 
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
