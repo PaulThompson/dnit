@@ -4,7 +4,7 @@
 
 ### Immediate Actions (High Impact, Low Effort)
 - [ ] **Remove redundant mock loggers** (many lines saved)
-  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, uptodate.test.ts
+  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, dependencies.test.ts, cli.test.ts, uptodate.test.ts
   - Keep only launch.test.ts version (actually collects logs)
   - Use execBasic's default silent loggers instead
 
@@ -15,7 +15,6 @@
 ### Medium Effort Refactoring (many lines saved)
 - [ ] **Replace inappropriate mock contexts with execBasic**
   - Convert integration tests in uptodate.test.ts (many tests)
-  - Convert relevant tests in task.test.ts (selective)  
   - Convert git.test.ts builtin task tests (few tests)
 
 - [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
@@ -81,7 +80,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Updated mock task creation to use proper `Task` instances
   - Now uses real silent loggers and proper task setup
 
-#### task.test.ts
+#### task.test.ts ✅ **REFACTORED**
 - **Tests**: 23
 - **Description**: Comprehensive testing of Task class and task creation
 - **Key Areas**:
@@ -93,6 +92,10 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Task reset and target cleanup
   - TaskContext integration
   - Manifest updates after execution
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Converted several integration-style tests to use `execBasic()` instead of mock contexts
+  - Now uses real silent loggers and proper task setup for execution tests
 
 #### TrackedFile.test.ts
 - **Tests**: 27
