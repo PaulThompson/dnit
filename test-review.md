@@ -3,8 +3,8 @@
 ## 🎯 Action Items (Priority Order)
 
 ### Immediate Actions (High Impact, Low Effort)
-- [ ] **Remove redundant mock loggers** (~80 lines saved)
-  - Delete `createMockLogger()` from 7 files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, TaskContext.test.ts, uptodate.test.ts
+- [x] **Remove redundant mock loggers** (~80 lines saved) ✅ **DONE: TaskContext.test.ts**
+  - Delete `createMockLogger()` from 7 files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, ~~TaskContext.test.ts~~, uptodate.test.ts
   - Keep only launch.test.ts version (actually collects logs)
   - Use execBasic's default silent loggers instead
 
@@ -13,10 +13,11 @@
   - Either fix or remove permanently
 
 ### Medium Effort Refactoring (~200 lines saved)
-- [ ] **Replace inappropriate mock contexts with execBasic**
+- [ ] **Replace inappropriate mock contexts with execBasic** ✅ **PARTIALLY DONE: TaskContext.test.ts (4 tests)**
   - Convert integration tests in uptodate.test.ts (12 tests)
   - Convert relevant tests in task.test.ts (selective - ~10 tests)  
   - Convert git.test.ts builtin task tests (3 tests)
+  - ~~Convert TaskContext.test.ts tests~~ ✅ **DONE**
 
 - [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
   - Export captureConsole, createTempFile helpers
