@@ -52,7 +52,7 @@ Deno.test("task up to date", async () => {
   const testFile: TrackedFile = trackFile({
     path: path.join(testDir, "testFile.txt"),
   });
-  await Deno.writeTextFile(testFile.path, crypto.randomUUID());
+  await Deno.writeTextFile(testFile.path, "...");
 
   const taskA = task({
     name: "taskA",
@@ -88,12 +88,22 @@ Deno.test("task up to date", async () => {
   {
     /// Test: make not-up-to-date again
     tasksDone["taskA"] = false;
-    await Deno.writeTextFile(testFile.path, crypto.randomUUID());
+    assertEquals(tasksDone["taskA"], false);
+
+    await Deno.writeTextFile(testFile.path, "---!");
+
+    // add small delay for windows to allow file system cache to flush
+    if (Deno.build.os === "windows") {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      // Force file system to update metadata by calling stat
+      await Deno.stat(testFile.path);
+    }
 
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
     await ctx.getTaskByName("taskA")?.exec(ctx);
-    assertEquals(tasksDone["taskA"], true); // runs because of not up-to-date
+    
+    assertEquals(tasksDone["taskA"], true); // ran because of not up-to-date
   }
 
   await Deno.remove(testDir, { recursive: true });
