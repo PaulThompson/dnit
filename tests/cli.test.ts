@@ -136,7 +136,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
   });
 
   // Override the task logger in execCli by testing with execBasic and manual execution
-  const ctx = await execBasic(["nonExistentTask"], [testTask], manifest);
+  const ctx = await execBasic(["nonExistentTask"], [testTask], _manifest);
   ctx.taskLogger = mockTaskLogger;
 
   const requestedTask = ctx.taskRegister.get("nonExistentTask" as TaskName);
@@ -207,7 +207,7 @@ Deno.test("CLI - builtin list task with --quiet flag", async () => {
 
   try {
     // Use execBasic to test with specific args
-    const ctx = await execBasic(["list"], [userTask], manifest);
+    const ctx = await execBasic(["list"], [userTask], _manifest);
     // Override args in context
     (ctx as unknown as { args: Args }).args = {
       _: ["list"],
@@ -250,7 +250,7 @@ Deno.test("CLI - builtin clean task with no args cleans all tasks", async () => 
 
   try {
     // First run the task to create the target
-    const ctx = await execBasic(["testTask"], [testTask], manifest);
+    const ctx = await execBasic(["testTask"], [testTask], _manifest);
     await testTask.exec(ctx);
     assertEquals(taskRun, true);
     assertEquals(await targetFile.exists(), true);
@@ -340,7 +340,7 @@ Deno.test("CLI - execBasic sets up exec context properly", async () => {
     action: () => {},
   });
 
-  const ctx = await execBasic(["testTask"], [testTask], manifest);
+  const ctx = await execBasic(["testTask"], [testTask], _manifest);
 
   // Should have the test task registered
   assertEquals(ctx.taskRegister.has("testTask" as TaskName), true);
@@ -357,7 +357,7 @@ Deno.test("CLI - execBasic sets up exec context properly", async () => {
 
 Deno.test("CLI - showTaskList function with normal output", () => {
   const _manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = createMockExecContext(_manifest);
   const console = captureConsole();
 
   const task1 = new Task({
@@ -392,7 +392,7 @@ Deno.test("CLI - showTaskList function with normal output", () => {
 
 Deno.test("CLI - showTaskList function with quiet output", () => {
   const _manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = createMockExecContext(_manifest);
   const console = captureConsole();
 
   const task1 = new Task({
@@ -419,7 +419,7 @@ Deno.test("CLI - showTaskList function with quiet output", () => {
 
 Deno.test("CLI - showTaskList handles tasks without descriptions", () => {
   const _manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = createMockExecContext(_manifest);
   const console = captureConsole();
 
   const taskWithoutDesc = new Task({
@@ -497,7 +497,7 @@ Deno.test("CLI - builtin tasks are always registered", async () => {
   const _manifest = new Manifest("");
 
   // Test with empty task list
-  const ctx = await execBasic([], [], manifest);
+  const ctx = await execBasic([], [], _manifest);
 
   // Builtin tasks should still be available
   assertEquals(ctx.taskRegister.has("list" as TaskName), true);
@@ -551,7 +551,7 @@ Deno.test("CLI - concurrent task setup", async () => {
       action: () => {},
     }));
 
-  const ctx = await execBasic([], tasks, manifest);
+  const ctx = await execBasic([], tasks, _manifest);
 
   // All tasks should be registered and set up
   for (let i = 0; i < 5; i++) {
