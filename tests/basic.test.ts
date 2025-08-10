@@ -43,17 +43,16 @@ Deno.test("basic test", async () => {
   assertEquals(tasksDone["taskB"], true);
 });
 
-/* Something flaky with this test
 Deno.test("task up to date", async () => {
-  const testDir = path.join(".test", uuid.v4.generate());
+  const testDir = path.join(".test", crypto.randomUUID());
   await Deno.mkdir(testDir, { recursive: true });
 
   const tasksDone: { [key: string]: boolean } = {};
 
-  const testFile: TrackedFile = file({
+  const testFile: TrackedFile = trackFile({
     path: path.join(testDir, "testFile.txt"),
   });
-  await Deno.writeTextFile(testFile.path, uuid.v4.generate());
+  await Deno.writeTextFile(testFile.path, crypto.randomUUID());
 
   const taskA = task({
     name: "taskA",
@@ -89,7 +88,7 @@ Deno.test("task up to date", async () => {
   {
     /// Test: make not-up-to-date again
     tasksDone["taskA"] = false;
-    await Deno.writeTextFile(testFile.path, uuid.v4.generate());
+    await Deno.writeTextFile(testFile.path, crypto.randomUUID());
 
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
@@ -99,7 +98,6 @@ Deno.test("task up to date", async () => {
 
   await Deno.remove(testDir, { recursive: true });
 });
-*/
 
 Deno.test("async file deps test", async () => {
   function genTrackedFiles(): Promise<TrackedFile[]> {
