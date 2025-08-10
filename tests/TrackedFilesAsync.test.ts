@@ -96,7 +96,7 @@ Deno.test("TrackedFilesAsync - async generator with files", async () => {
 
   const gen = async () => {
     // Simulate async work
-    await new Promise((resolve) => queueMicrotask(() => resolve()));
+    await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
     return [
       file(tempFile1),
       file(tempFile2),
