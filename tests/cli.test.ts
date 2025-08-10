@@ -15,24 +15,6 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import { showTaskList } from "../cli/utils.ts";
 
-// Mock exec context for testing
-function createMockExecContext(manifest: IManifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
-  };
-}
 
 // Test helper to create temporary files
 async function createTempFile(
@@ -355,11 +337,7 @@ Deno.test("CLI - execBasic sets up exec context properly", async () => {
   assertEquals(ctx.args._, ["testTask"]);
 });
 
-Deno.test("CLI - showTaskList function with normal output", () => {
-  const _manifest = new Manifest("");
-  const ctx = createMockExecContext(_manifest);
-  const console = captureConsole();
-
+Deno.test("CLI - showTaskList function with normal output", async () => {
   const task1 = new Task({
     name: "task1" as TaskName,
     description: "First task",
@@ -372,8 +350,8 @@ Deno.test("CLI - showTaskList function with normal output", () => {
     action: () => {},
   });
 
-  ctx.taskRegister.set("task1" as TaskName, task1);
-  ctx.taskRegister.set("task2" as TaskName, task2);
+  const ctx = await execBasic([], [task1, task2], new Manifest(""));
+  const console = captureConsole();
 
   try {
     showTaskList(ctx, { _: [] } as Args);
@@ -390,18 +368,15 @@ Deno.test("CLI - showTaskList function with normal output", () => {
   }
 });
 
-Deno.test("CLI - showTaskList function with quiet output", () => {
-  const _manifest = new Manifest("");
-  const ctx = createMockExecContext(_manifest);
-  const console = captureConsole();
-
+Deno.test("CLI - showTaskList function with quiet output", async () => {
   const task1 = new Task({
     name: "task1" as TaskName,
     description: "First task",
     action: () => {},
   });
 
-  ctx.taskRegister.set("task1" as TaskName, task1);
+  const ctx = await execBasic([], [task1], new Manifest(""));
+  const console = captureConsole();
 
   try {
     showTaskList(ctx, { _: [], quiet: true } as Args);
@@ -417,18 +392,15 @@ Deno.test("CLI - showTaskList function with quiet output", () => {
   }
 });
 
-Deno.test("CLI - showTaskList handles tasks without descriptions", () => {
-  const _manifest = new Manifest("");
-  const ctx = createMockExecContext(_manifest);
-  const console = captureConsole();
-
+Deno.test("CLI - showTaskList handles tasks without descriptions", async () => {
   const taskWithoutDesc = new Task({
     name: "noDesc" as TaskName,
     // No description provided
     action: () => {},
   });
 
-  ctx.taskRegister.set("noDesc" as TaskName, taskWithoutDesc);
+  const ctx = await execBasic([], [taskWithoutDesc], new Manifest(""));
+  const console = captureConsole();
 
   try {
     showTaskList(ctx, { _: [] } as Args);
