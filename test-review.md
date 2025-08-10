@@ -17,8 +17,8 @@
 - [x] **Replace inappropriate mock contexts with execBasic** ✅ **COMPLETED** 
   - ✅ Converted integration tests in uptodate.test.ts (many tests)
   - ✅ Converted integration tests in dependencies.test.ts (many tests)
+  - ✅ Converted git.test.ts builtin task tests (few tests)
   - ✅ Verified targets.test.ts already uses execBasic properly
-  - [ ] Convert git.test.ts builtin task tests (few tests)
 
 - [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
   - Export captureConsole, createTempFile helpers
@@ -42,10 +42,10 @@
 
 The dnit project has a comprehensive test suite with **19 test files** containing **215 tests**, all of which are currently passing. However, there are significant architectural issues with **280+ lines of redundant mock code**.
 
-### Critical Findings
-- **Mock loggers are completely unnecessary** - execBasic provides silent loggers by default
-- **Mock contexts are overused** for integration-style tests that need real setup  
-- **280+ lines of redundant code** can be eliminated with minimal risk
+### Critical Findings ✅ **ADDRESSED**
+- ✅ **Mock loggers eliminated** - execBasic provides silent loggers by default
+- ✅ **Mock contexts replaced** for integration-style tests that need real setup  
+- ✅ **Many lines of redundant code eliminated** with zero test failures
 
 ### Overall Statistics
 - **Total Test Files**: 19
@@ -53,7 +53,16 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 - **Test Status**: ✅ All tests passing
 - **Test Framework**: Deno test runner
 - **Assertions Library**: @std/assert
-- **Code Reduction Potential**: ~280 lines (13% of test code)
+- **✅ Code Reduction Achieved**: ~50+ lines of redundant mock code eliminated
+
+### ✅ **REFACTORING COMPLETED**
+- **Files Refactored**: 6 files improved
+  - TaskContext.test.ts, task.test.ts, dependencies.test.ts, uptodate.test.ts, cli.test.ts, git.test.ts
+- **Files Already Clean**: 10 files confirmed clean
+  - TrackedFilesAsync.test.ts, manifest.test.ts, manifestSchemas.test.ts, taskManifest.test.ts, launch.test.ts, targets.test.ts, filesystem.test.ts, process.test.ts, textTable.test.ts, asyncQueue.test.ts, basic.test.ts
+- **Mock Loggers Eliminated**: All redundant `createMockLogger()` functions removed
+- **Integration Tests Improved**: Many tests converted from mock contexts to `execBasic()`
+- **Architecture**: Tests now use real loggers and proper task contexts
 
 ### Test Categories
 1. **Core Components** (81 tests) - Task execution, file tracking, contexts
@@ -298,7 +307,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Special character handling
   - Error propagation
 
-#### git.test.ts
+#### git.test.ts ✅ **REFACTORED**
 - **Tests**: 8 (2 tests with subtests)
 - **Description**: Tests git integration utilities
 - **Key Areas**:
@@ -310,14 +319,20 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Error handling for git commands
   - Regex handling
 - **Notable**: Tests skip if not in git repository
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Updated mock context to use real loggers
+  - Converted builtin task tests to use `execBasic()` instead of mock contexts
+  - Now provides proper task setup for git builtin task testing
 
-#### process.test.ts
+#### process.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 1
 - **Description**: Tests process execution
 - **Key Areas**:
   - Basic run functionality
+- **✅ Status**: No mock loggers or contexts - pure utility function test
 
-#### textTable.test.ts
+#### textTable.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 11 (1 test with 11 subtests)
 - **Description**: Tests text table formatting
 - **Key Areas**:
@@ -328,15 +343,17 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Column alignment
   - Mixed content types
   - Consistent formatting
+- **✅ Status**: No mock loggers or contexts - pure utility function tests
 
-#### asyncQueue.test.ts
+#### asyncQueue.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 1
 - **Description**: Tests asynchronous task queue
 - **Key Areas**:
   - Queue operations with varying concurrency levels
 - **Notable**: Shows maxInProgress values from 1 to 32
+- **✅ Status**: No mock loggers or contexts - pure utility class test
 
-#### basic.test.ts
+#### basic.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 4
 - **Description**: Basic integration tests
 - **Key Areas**:
@@ -344,6 +361,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Async file dependencies
   - Tasks with targets and clean
 - **Notable**: Contains commented flaky test (line 46)
+- **✅ Status**: No mock loggers - already uses `execBasic()` properly for integration testing
 
 ## Notable Findings
 
