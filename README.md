@@ -17,13 +17,13 @@ It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit jsr:@dnit/dnit@2.0.0/main
+deno install --global --allow-read --allow-write --allow-run -f --name dnit --config jsr:@dnit/dnit@2.0.0/deno.json jsr:@dnit/dnit@2.0.0/main
 ```
 
 Install latest from JSR:
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit jsr:@dnit/dnit/main
+deno install --global --allow-read --allow-write --allow-run -f --name dnit --config jsr:@dnit/dnit/deno.json jsr:@dnit/dnit/main
 ```
 
 Install from source checkout:
