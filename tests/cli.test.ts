@@ -1,5 +1,6 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import * as path from "@std/path";
+import type * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
