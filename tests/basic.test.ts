@@ -94,7 +94,7 @@ Deno.test("task up to date", async () => {
 
     // add small delay for windows to allow file system cache to flush
     if (Deno.build.os === "windows") {
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       // Force file system to update metadata by calling stat
       await Deno.stat(testFile.path);
     }
@@ -102,7 +102,7 @@ Deno.test("task up to date", async () => {
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
     await ctx.getTaskByName("taskA")?.exec(ctx);
-    
+
     assertEquals(tasksDone["taskA"], true); // ran because of not up-to-date
   }
 
