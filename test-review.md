@@ -1,8 +1,49 @@
-# Dnit Test Suite Review
+# Dnit Test Suite Review & Action Plan
+
+## 🎯 Action Items (Priority Order)
+
+### Immediate Actions (High Impact, Low Effort)
+- [ ] **Remove redundant mock loggers** (~80 lines saved)
+  - Delete `createMockLogger()` from 7 files: tabcompletion.test.ts, git.test.ts, task.test.ts, dependencies.test.ts, cli.test.ts, TaskContext.test.ts, uptodate.test.ts
+  - Keep only launch.test.ts version (actually collects logs)
+  - Use execBasic's default silent loggers instead
+
+- [ ] **Fix flaky test** in basic.test.ts
+  - Investigate commented test at line 46
+  - Either fix or remove permanently
+
+### Medium Effort Refactoring (~200 lines saved)
+- [ ] **Replace inappropriate mock contexts with execBasic**
+  - Convert integration tests in uptodate.test.ts (12 tests)
+  - Convert relevant tests in task.test.ts (selective - ~10 tests)  
+  - Convert git.test.ts builtin task tests (3 tests)
+
+- [ ] **Create minimal shared test utilities** (tests/testUtils.ts)
+  - Export captureConsole, createTempFile helpers
+  - Lightweight mocks for legitimate unit testing only
+  - execBasic wrapper functions for common scenarios
+
+### Low Priority Improvements
+- [ ] **Expand minimal test coverage**
+  - Add more tests to process.test.ts (currently 1 test)
+  - Add more tests to asyncQueue.test.ts (currently 1 test)
+
+- [ ] **Review timing-dependent tests**
+  - Check tests with fixed delays (104ms, 710ms)
+  - Ensure no race conditions
+
+- [ ] **Standardize test patterns**
+  - Consistent naming conventions
+  - Cross-platform permission test compatibility
 
 ## Executive Summary
 
-The dnit project has a comprehensive test suite with **19 test files** containing **215 tests**, all of which are currently passing. The tests cover all major components of the system including core functionality, CLI operations, file tracking, dependency management, and various utilities.
+The dnit project has a comprehensive test suite with **19 test files** containing **215 tests**, all of which are currently passing. However, there are significant architectural issues with **280+ lines of redundant mock code**.
+
+### Critical Findings
+- **Mock loggers are completely unnecessary** - execBasic provides silent loggers by default
+- **Mock contexts are overused** for integration-style tests that need real setup  
+- **280+ lines of redundant code** can be eliminated with minimal risk
 
 ### Overall Statistics
 - **Total Test Files**: 19
@@ -10,6 +51,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 - **Test Status**: ✅ All tests passing
 - **Test Framework**: Deno test runner
 - **Assertions Library**: @std/assert
+- **Code Reduction Potential**: ~280 lines (13% of test code)
 
 ### Test Categories
 1. **Core Components** (81 tests) - Task execution, file tracking, contexts
@@ -376,35 +418,9 @@ Many tests use mock contexts when `execBasic` already provides a proper testing 
 #### The Irony
 Tests create elaborate mock loggers to avoid console output, but `execBasic` already provides silent loggers by default!
 
-## Recommendations for Review
+## Detailed Analysis Below
 
-### High Priority
-1. **Eliminate redundant mock loggers entirely** 
-   - Remove `createMockLogger()` from 7 files (keep only launch.test.ts custom version)
-   - Use execBasic's default silent loggers instead of mocks
-   - Benefit: ~80 lines of redundant code eliminated immediately
-2. **Replace inappropriate mock usage with execBasic**
-   - Convert ~50% of mock contexts to use execBasic where tests are doing integration testing
-   - Target files: uptodate.test.ts, task.test.ts, git.test.ts (selective conversion)
-   - Benefits: Simpler test code, more realistic testing, better coverage of setup behavior
-3. **Create minimal shared test utilities module** (`tests/testUtils.ts`)
-   - Export lightweight mocks only for legitimate unit testing needs (very few needed)
-   - Centralize captureConsole, createTempFile helpers
-   - Provide execBasic wrapper functions for common test scenarios
-4. Investigate and fix the flaky test in basic.test.ts
-5. Expand test coverage for process.test.ts and asyncQueue.test.ts
-6. Review timing-dependent tests for potential race conditions
-
-### Medium Priority
-1. Standardize test output handling (some tests log to console)
-2. Review cross-platform compatibility of permission tests
-3. Consider adding performance benchmarks for critical paths
-4. ~~Consolidate mock variations into configurable factories~~ (Superseded by execBasic usage)
-
-### Low Priority
-1. Improve test naming consistency
-2. Add more integration tests for complex workflows
-3. Consider property-based testing for schema validation
+*See action items at top for prioritized todo list*
 
 ## Test Coverage Analysis
 
@@ -415,18 +431,3 @@ While the test suite is comprehensive, areas that might benefit from additional 
 - Large-scale project scenarios
 - Cross-platform file system operations
 
-## Summary: Key Improvements
-
-The main opportunities for test suite improvement are:
-
-1. **Eliminate mock redundancy** by using `execBasic` where appropriate (~280 lines of code reduction)
-   - ~80 lines from removing redundant mock loggers
-   - ~200 lines from replacing inappropriate mock contexts with execBasic
-2. **Improve test realism** by using proper context initialization instead of minimal mocks
-3. **Simplify test maintenance** - no mock factories needed for most tests
-4. **Better test coverage** through real setup behavior testing
-
-The current test suite works well but has significant architectural issues:
-- **Mock loggers are completely unnecessary** - execBasic provides silent loggers by default
-- **Mock contexts are overused** for integration-style tests that need real setup
-- **280+ lines of redundant code** that adds maintenance overhead without benefit
