@@ -97,7 +97,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Converted several integration-style tests to use `execBasic()` instead of mock contexts
   - Now uses real silent loggers and proper task setup for execution tests
 
-#### TrackedFile.test.ts
+#### TrackedFile.test.ts ✅ **REFACTORED**
 - **Tests**: 27
 - **Description**: Tests file tracking functionality
 - **Key Areas**:
@@ -111,8 +111,11 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Binary and large file handling
   - Permission scenarios
 - **Notable**: Permission test has post-test output
+- **✅ Improvements Made**:
+  - Updated mock context to use real loggers instead of empty object literals
+  - Mock usage is appropriate here since tests focus on TrackedFile unit functionality
 
-#### TrackedFilesAsync.test.ts
+#### TrackedFilesAsync.test.ts ✅ **ALREADY CLEAN**
 - **Tests**: 17
 - **Description**: Tests asynchronous file tracking
 - **Key Areas**:
@@ -125,6 +128,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Performance with many files
   - Concurrent access handling
   - Memory usage with large result sets
+- **✅ Status**: No mock loggers or inappropriate contexts found - already well-structured
 
 ### Manifest & Schema
 
