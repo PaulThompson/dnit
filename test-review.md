@@ -4,7 +4,7 @@
 
 ### Immediate Actions (High Impact, Low Effort)
 - [ ] **Remove redundant mock loggers** (many lines saved)
-  - Delete `createMockLogger()` from remaining files: tabcompletion.test.ts, git.test.ts, dependencies.test.ts, uptodate.test.ts
+  - Delete `createMockLogger()` from remaining files: git.test.ts, dependencies.test.ts, uptodate.test.ts
   - Keep only launch.test.ts version (actually collects logs)
   - Use execBasic's default silent loggers instead
 
@@ -207,7 +207,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 - **Notable**: Multiple tests with post-test output showing script execution
 - **✅ Status**: Mock logger is legitimate - it captures log output for testing launch functionality
 
-#### tabcompletion.test.ts
+#### tabcompletion.test.ts ✅ **REFACTORED**
 - **Tests**: 17
 - **Description**: Tests bash tab completion generation
 - **Key Areas**:
@@ -220,6 +220,10 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Error handling in script
   - Filename completion support
   - Complex task names
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function
+  - Updated mock context to use real loggers
+  - Mock usage is appropriate here for UI testing and completion script generation
 
 ### Dependencies & Build
 
