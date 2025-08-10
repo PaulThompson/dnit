@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
-import type * as log from "@std/log";
+import * as log from "@std/log";
 import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
@@ -16,17 +16,6 @@ import {
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 
-// Mock logger for testing
-function createMockLogger(): log.Logger {
-  return {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-}
-
 // Mock objects for testing
 function createMockExecContext(manifest: IManifest): IExecContext {
   return {
@@ -34,9 +23,9 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     targetRegister: new Map(),
     doneTasks: new Set(),
     inprogressTasks: new Set(),
-    internalLogger: createMockLogger(),
-    taskLogger: createMockLogger(),
-    userLogger: createMockLogger(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
     concurrency: 1,
     verbose: false,
     manifest,
@@ -105,7 +94,6 @@ Deno.test("Dependencies - file → task dependencies", async () => {
   const tempFile = await createTempFile("dependency content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let taskRun = false;
 
@@ -118,8 +106,12 @@ Deno.test("Dependencies - file → task dependencies", async () => {
     uptodate: runAlways,
   });
 
-  await mainTask.setup(ctx);
-  await mainTask.exec(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["mainTask"], [mainTask], manifest);
+  const requestedTask = ctx.taskRegister.get("mainTask" as TaskName);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   assertEquals(taskRun, true);
   assertEquals(ctx.doneTasks.has(mainTask), true);
@@ -136,7 +128,6 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
   const tempFile = await createTempFile("target content");
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let producerRun = false;
   let consumerRun = false;
@@ -159,9 +150,12 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
     uptodate: runAlways,
   });
 
-  await producerTask.setup(ctx);
-  await consumerTask.setup(ctx);
-  await consumerTask.exec(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["consumer"], [producerTask, consumerTask], manifest);
+  const requestedTask = ctx.taskRegister.get("consumer" as TaskName);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   // Producer should run first to create the target
   assertEquals(producerRun, true);
@@ -176,7 +170,6 @@ Deno.test("Dependencies - mixed dependency types", async () => {
   const tempFile = await createTempFile("mixed dep content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
 
   let depTaskRun = false;
   let mainTaskRun = false;
@@ -203,8 +196,12 @@ Deno.test("Dependencies - mixed dependency types", async () => {
     uptodate: runAlways,
   });
 
-  await mainTask.setup(ctx);
-  await mainTask.exec(ctx);
+  // Use execBasic for proper task setup
+  const ctx = await execBasic(["mainTask"], [depTask, mainTask], manifest);
+  const requestedTask = ctx.taskRegister.get("mainTask" as TaskName);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   assertEquals(depTaskRun, true);
   assertEquals(mainTaskRun, true);
@@ -216,8 +213,6 @@ Deno.test("Dependencies - mixed dependency types", async () => {
 
 Deno.test("Dependencies - complex dependency chain", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   const executionOrder: string[] = [];
 
   const taskA = new Task({
@@ -255,8 +250,12 @@ Deno.test("Dependencies - complex dependency chain", async () => {
     uptodate: runAlways,
   });
 
-  await taskD.setup(ctx);
-  await taskD.exec(ctx);
+  // Use execBasic for proper task setup and execution
+  const ctx = await execBasic(["taskD"], [taskA, taskB, taskC, taskD], manifest);
+  const requestedTask = ctx.taskRegister.get("taskD" as TaskName);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   // Should execute in dependency order: A first, then B and C (order may vary), then D
   assertEquals(executionOrder[0], "A");
@@ -274,8 +273,6 @@ Deno.test("Dependencies - complex dependency chain", async () => {
 
 Deno.test("Dependencies - diamond dependency pattern", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
-
   const executionOrder: string[] = [];
 
   // Diamond pattern: Root -> [Left, Right] -> Final
@@ -314,8 +311,12 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
     uptodate: runAlways,
   });
 
-  await finalTask.setup(ctx);
-  await finalTask.exec(ctx);
+  // Use execBasic for proper task setup and execution
+  const ctx = await execBasic(["final"], [rootTask, leftTask, rightTask, finalTask], manifest);
+  const requestedTask = ctx.taskRegister.get("final" as TaskName);
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
 
   // Root should run once, then left and right, then final
   assertEquals(executionOrder[0], "root");
