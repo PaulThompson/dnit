@@ -43,9 +43,7 @@ Deno.test("basic test - two tasks with dependency", async () => {
 });
 
 Deno.test("task up to date", async () => {
-  const testDir = path.join(".test", crypto.randomUUID());
-  await Deno.mkdir(testDir, { recursive: true });
-
+  const testDir = await Deno.makeTempDir();
   const tasksDone: { [key: string]: boolean } = {};
 
   const testFile: TrackedFile = trackFile(path.join(testDir, "testFile.txt"));
@@ -114,7 +112,6 @@ Deno.test("async file deps test", async () => {
 
   const taskA = task({
     name: "taskA",
-    description: "taskA",
     action: () => {
       console.log("taskA");
       tasksDone["taskA"] = true;
@@ -124,7 +121,6 @@ Deno.test("async file deps test", async () => {
 
   const taskB = task({
     name: "taskB",
-    description: "taskB",
     action: () => {
       console.log("taskB");
       tasksDone["taskB"] = true;
@@ -142,8 +138,6 @@ Deno.test("async file deps test", async () => {
 
 Deno.test("tasks with target and clean", async () => {
   const tempDir = await Deno.makeTempDir();
-
-  console.log("tempDir", tempDir);
 
   const exampleTarget1 = trackFile({
     path: path.join(tempDir, "exampleTarget1.txt"),
