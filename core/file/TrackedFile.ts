@@ -113,7 +113,12 @@ export class TrackedFile {
     // On Windows, check hash first since timestamp caching can be unreliable
     if (Deno.build.os === "windows") {
       const hash = await this.getHash(statResult);
-      return hash === tData.hash;
+      if (hash !== tData.hash) {
+        return false;
+      }
+      // If hash matches, check timestamp as well
+      const mtime = await this.getTimestamp(statResult);
+      return mtime === tData.timestamp;
     }
 
     // On other platforms, check timestamp first (faster)
