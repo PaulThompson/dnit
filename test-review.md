@@ -65,7 +65,7 @@ The dnit project has a comprehensive test suite with **19 test files** containin
 
 ### Core Components
 
-#### TaskContext.test.ts
+#### TaskContext.test.ts ✅ **REFACTORED**
 - **Tests**: 13
 - **Description**: Tests the TaskContext creation and functionality
 - **Key Areas**:
@@ -76,6 +76,11 @@ The dnit project has a comprehensive test suite with **19 test files** containin
   - Task scheduling through exec
   - Manifest access
   - Interface compliance
+- **✅ Improvements Made**:
+  - Removed redundant `createMockLogger()` function (10 lines saved)
+  - Converted 4 tests to use `execBasic()` instead of mock contexts
+  - Updated mock task creation to use proper `Task` instances
+  - Now uses real silent loggers and proper task setup
 
 #### task.test.ts
 - **Tests**: 23
