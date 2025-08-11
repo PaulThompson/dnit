@@ -16,11 +16,11 @@ export const builtinTasks: Task[] = [
           .filter((task) => task !== undefined)
         : Array.from(ctx.exec.taskRegister.values());
       if (affectedTasks.length > 0) {
-        console.log("Clean tasks:");
+        ctx.exec.stdout("Clean tasks:");
         /// Reset tasks
         await Promise.all(
           affectedTasks.map((t) => {
-            console.log(`  ${t.name}`);
+            ctx.exec.stdout(`  ${t.name}`);
             return ctx.exec.schedule(() => t.reset(ctx.exec));
           }),
         );
@@ -42,10 +42,10 @@ export const builtinTasks: Task[] = [
   task({
     name: "tabcompletion",
     description: "Generate shell completion script",
-    action: () => {
+    action: (ctx: TaskContext) => {
       // todo: detect shell type and generate appropriate script
       // or add args for shell type
-      echoBashCompletionScript();
+      echoBashCompletionScript(ctx.exec);
     },
     uptodate: runAlways,
   }),

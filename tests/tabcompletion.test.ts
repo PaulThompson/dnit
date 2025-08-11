@@ -1,30 +1,22 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { echoBashCompletionScript, showTaskList } from "../cli/utils.ts";
-import { execCli } from "../cli/cli.ts";
+import { execBasic, execCli } from "../cli/cli.ts";
 import { Task, task } from "../core/task.ts";
 import type { TaskName } from "../interfaces/core/IManifestTypes.ts";
 import { Manifest } from "../manifest.ts";
 import type { Args } from "@std/cli/parse-args";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
-import * as log from "@std/log";
 
-// Mock exec context for testing
-function createMockExecContext(manifest: Manifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
+// Create a context with stdout capture for testing
+async function createTestContext(tasks: Task[] = []): Promise<IExecContext & { stdoutLogs: string[] }> {
+  const ctx = await execBasic([], tasks, new Manifest(""));
+  const stdoutLogs: string[] = [];
+  const originalStdout = ctx.stdout;
+  ctx.stdout = (message: string) => {
+    stdoutLogs.push(message);
+    originalStdout(message);
   };
+  return Object.assign(ctx, { stdoutLogs });
 }
 
 // Capture console output
@@ -47,36 +39,32 @@ function captureConsole(): {
   };
 }
 
-Deno.test("TabCompletion - echoBashCompletionScript generates valid bash script", () => {
-  const console = captureConsole();
+Deno.test("TabCompletion - echoBashCompletionScript generates valid bash script", async () => {
+  const ctx = await createTestContext();
+  
+  echoBashCompletionScript(ctx);
+  const output = ctx.stdoutLogs.join("\n");
 
-  try {
-    echoBashCompletionScript();
-    const output = console.logs.join("\n");
+  // Should contain bash completion script header
+  assertStringIncludes(output, "# bash completion for dnit");
+  assertStringIncludes(output, "# auto-generate by `dnit tabcompletion`");
 
-    // Should contain bash completion script header
-    assertStringIncludes(output, "# bash completion for dnit");
-    assertStringIncludes(output, "# auto-generate by `dnit tabcompletion`");
+  // Should contain function definition
+  assertStringIncludes(output, "_dnit()");
+  assertStringIncludes(output, "COMPREPLY=()");
 
-    // Should contain function definition
-    assertStringIncludes(output, "_dnit()");
-    assertStringIncludes(output, "COMPREPLY=()");
+  // Should contain completion logic
+  assertStringIncludes(output, "_get_comp_words_by_ref");
+  assertStringIncludes(output, "compgen -W");
 
-    // Should contain completion logic
-    assertStringIncludes(output, "_get_comp_words_by_ref");
-    assertStringIncludes(output, "compgen -W");
+  // Should contain task discovery command
+  assertStringIncludes(output, "dnit list --quiet");
 
-    // Should contain task discovery command
-    assertStringIncludes(output, "dnit list --quiet");
+  // Should register the completion function
+  assertStringIncludes(output, "complete -o filenames -F _dnit dnit");
 
-    // Should register the completion function
-    assertStringIncludes(output, "complete -o filenames -F _dnit dnit");
-
-    // Should contain usage instructions
-    assertStringIncludes(output, "source <(dnit tabcompletion)");
-  } finally {
-    console.restore();
-  }
+  // Should contain usage instructions
+  assertStringIncludes(output, "source <(dnit tabcompletion)");
 });
 
 Deno.test("TabCompletion - script contains proper bash syntax", () => {
