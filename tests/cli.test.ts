@@ -97,26 +97,20 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
   let errorLogged = false;
   let errorMessage = "";
 
-  // Mock task logger to capture error
-  const mockTaskLogger: log.Logger = {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: (msg: string) => {
-      errorLogged = true;
-      errorMessage = msg;
-    },
-    critical: () => {},
-  } as unknown as log.Logger;
-
   const testTask = new Task({
     name: "existingTask" as TaskName,
     action: () => {},
   });
 
-  // Override the task logger in execCli by testing with execBasic and manual execution
   const ctx = await execBasic(["nonExistentTask"], [testTask], _manifest);
-  ctx.taskLogger = mockTaskLogger;
+  // Simple error capture - override the error method
+  const originalError = ctx.taskLogger.error;
+  Object.assign(ctx.taskLogger, {
+    error: (msg: string) => {
+      errorLogged = true;
+      errorMessage = msg;
+    }
+  });
 
   const requestedTask = ctx.taskRegister.get("nonExistentTask" as TaskName);
   if (requestedTask === undefined) {

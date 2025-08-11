@@ -123,17 +123,13 @@ Deno.test("TaskContext - context allows logger access", () => {
   const manifest = new Manifest("");
   let loggedMessage = "";
 
-  const mockLogger: log.Logger = {
-    debug: () => {},
+  const ctx = createMockExecContext(manifest);
+  // Simple info capture - override the info method
+  Object.assign(ctx.taskLogger, {
     info: (msg: string) => {
       loggedMessage = msg;
-    },
-    warn: () => {},
-    error: () => {},
-    critical: () => {},
-  } as unknown as log.Logger;
-
-  const ctx = createMockExecContext(manifest, { taskLogger: mockLogger });
+    }
+  });
   const task = createMockTask("testTask");
   const taskCtx = taskContext(ctx, task);
 
