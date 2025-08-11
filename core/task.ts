@@ -174,7 +174,7 @@ export class Task implements ITask {
         for (const fdep of this.file_deps) {
           promisesInProgress.push(
             ctx.schedule(async () => {
-              const trackedFileData = await fdep.getFileData(ctx);
+              const trackedFileData = await fdep.getFileData();
               this.taskManifest?.setFileData(fdep.path, trackedFileData);
             }),
           );

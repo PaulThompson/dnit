@@ -117,7 +117,7 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   assertEquals(taskRunCount, 1);
 
   // Get the current file data
-  const initialFileData = await trackedFile.getFileData(ctx);
+  const initialFileData = await trackedFile.getFileData();
 
   // Reset done tasks to allow re-execution
   ctx.doneTasks.clear();
@@ -138,7 +138,7 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   ctx.inprogressTasks.clear();
 
   // Should detect timestamp change via custom hash function
-  const newFileData = await trackedFile.getFileData(ctx);
+  const newFileData = await trackedFile.getFileData();
   assertEquals(initialFileData.hash !== newFileData.hash, true); // Different timestamp-based "hash"
 
   // Task should run due to timestamp change

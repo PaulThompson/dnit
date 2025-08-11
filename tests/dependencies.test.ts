@@ -1,12 +1,8 @@
 import { assertEquals } from "@std/assert";
 import * as path from "@std/path";
-import * as log from "@std/log";
-import type { Args } from "@std/cli/parse-args";
 import {
   execBasic,
   file,
-  type IExecContext,
-  type IManifest,
   Task,
   task,
   type TaskName,
@@ -15,25 +11,6 @@ import {
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
-
-// Mock objects for testing
-function createMockExecContext(manifest: IManifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
-  };
-}
 
 // Test helper to create temporary files
 async function createTempFile(
@@ -344,7 +321,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
 
 Deno.test("Dependencies - circular dependency detection", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   // Create tasks that depend on each other
   const taskA = new Task({
@@ -377,7 +354,7 @@ Deno.test("Dependencies - circular dependency detection", async () => {
 
 Deno.test("Dependencies - dependency ordering with multiple levels", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   const executionOrder: string[] = [];
 
@@ -436,7 +413,7 @@ Deno.test("Dependencies - async file dependencies resolution", async () => {
   const tempFile1 = await createTempFile("async dep 1", "file1.txt");
   const tempFile2 = await createTempFile("async dep 2", "file2.txt");
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   let taskRun = false;
 
@@ -469,7 +446,7 @@ Deno.test("Dependencies - async file dependencies resolution", async () => {
 
 Deno.test("Dependencies - empty dependencies", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   let taskRun = false;
 
@@ -496,7 +473,7 @@ Deno.test("Dependencies - task with file dependencies that don't exist", async (
   const nonExistentFile = "/tmp/does_not_exist_" + Date.now() + ".txt";
   const trackedFile = new TrackedFile({ path: nonExistentFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   let taskRun = false;
 
@@ -528,7 +505,7 @@ Deno.test("Dependencies - target registry population during setup", async () => 
   const tempFile = await createTempFile("target content");
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   const taskWithTarget = new Task({
     name: "taskWithTarget" as TaskName,
@@ -550,7 +527,7 @@ Deno.test("Dependencies - target registry population during setup", async () => 
 
 Deno.test("Dependencies - dependency execution prevents duplicate runs", async () => {
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   let sharedTaskRunCount = 0;
   let task1RunCount = 0;

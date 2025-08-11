@@ -29,6 +29,7 @@ function createMockExecContext(
     args: { _: [] } as Args,
     getTaskByName: () => undefined,
     schedule: <T>(action: () => Promise<T>) => action(),
+    stdout: () => {},
     ...overrides,
   };
 }
@@ -55,15 +56,13 @@ Deno.test("TaskContext - taskContext function creates context", async () => {
   assertEquals(taskCtx.exec, ctx);
 });
 
-Deno.test("TaskContext - context uses taskLogger from exec context", () => {
-  const manifest = new Manifest("");
-  const customTaskLogger = log.getLogger("custom");
-  const ctx = createMockExecContext(manifest, { taskLogger: customTaskLogger });
+Deno.test("TaskContext - context uses taskLogger from exec context", async () => {
   const task = createMockTask("testTask");
-
+  const ctx = await execBasic([], [task], new Manifest(""));
+  
   const taskCtx = taskContext(ctx, task);
 
-  assertEquals(taskCtx.logger, customTaskLogger);
+  assertEquals(taskCtx.logger, ctx.taskLogger);
 });
 
 Deno.test("TaskContext - context preserves task reference", async () => {

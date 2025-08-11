@@ -5,8 +5,29 @@ import { Task, task } from "../core/task.ts";
 import type { TaskName } from "../interfaces/core/IManifestTypes.ts";
 import { Manifest } from "../manifest.ts";
 import type { Args } from "@std/cli/parse-args";
+import * as log from "@std/log";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
+import type { IManifest } from "../interfaces/core/IManifest.ts";
 
+// Mock exec context for testing
+function createMockExecContext(manifest: IManifest): IExecContext {
+  return {
+    taskRegister: new Map(),
+    targetRegister: new Map(),
+    doneTasks: new Set(),
+    inprogressTasks: new Set(),
+    internalLogger: log.getLogger("internal"),
+    taskLogger: log.getLogger("task"),
+    userLogger: log.getLogger("user"),
+    concurrency: 1,
+    verbose: false,
+    manifest,
+    args: { _: [] } as Args,
+    getTaskByName: () => undefined,
+    schedule: <T>(action: () => Promise<T>) => action(),
+    stdout: () => {},
+  };
+}
 
 // Capture console output
 function captureConsole(): {
@@ -59,10 +80,12 @@ Deno.test("TabCompletion - echoBashCompletionScript generates valid bash script"
 });
 
 Deno.test("TabCompletion - script contains proper bash syntax", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Check for proper bash function syntax
@@ -86,10 +109,12 @@ Deno.test("TabCompletion - script contains proper bash syntax", () => {
 });
 
 Deno.test("TabCompletion - script includes sub-commands", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should include list as a sub-command
@@ -198,10 +223,12 @@ Deno.test("TabCompletion - includes builtin tasks in completion", async () => {
 });
 
 Deno.test("TabCompletion - completion script handles special characters", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Check that special bash characters are properly handled
@@ -218,10 +245,12 @@ Deno.test("TabCompletion - completion script handles special characters", () => 
 });
 
 Deno.test("TabCompletion - script supports multiple completion scenarios", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should handle current word completion
@@ -241,10 +270,12 @@ Deno.test("TabCompletion - script supports multiple completion scenarios", () =>
 });
 
 Deno.test("TabCompletion - script includes proper error handling", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should redirect stderr to avoid error messages in completion
@@ -293,11 +324,13 @@ Deno.test("TabCompletion - task helper function creates proper task", () => {
 });
 
 Deno.test("TabCompletion - completion script generation is consistent", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console1 = captureConsole();
   let output1: string;
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     output1 = console1.logs.join("\n");
   } finally {
     console1.restore();
@@ -307,7 +340,7 @@ Deno.test("TabCompletion - completion script generation is consistent", () => {
   let output2: string;
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     output2 = console2.logs.join("\n");
   } finally {
     console2.restore();
@@ -318,10 +351,12 @@ Deno.test("TabCompletion - completion script generation is consistent", () => {
 });
 
 Deno.test("TabCompletion - script supports filename completion", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should enable filename completion
@@ -355,10 +390,12 @@ Deno.test("TabCompletion - handles tasks with complex names", () => {
 });
 
 Deno.test("TabCompletion - bash completion variables are properly declared", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should declare all necessary local variables
@@ -375,10 +412,12 @@ Deno.test("TabCompletion - bash completion variables are properly declared", () 
 });
 
 Deno.test("TabCompletion - uses proper bash completion helper", () => {
+  const manifest = new Manifest("");
+  const ctx = createMockExecContext(manifest);
   const console = captureConsole();
 
   try {
-    echoBashCompletionScript();
+    echoBashCompletionScript(ctx);
     const output = console.logs.join("\n");
 
     // Should use bash completion helper function

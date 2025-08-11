@@ -33,6 +33,7 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     args: { _: [] } as Args,
     getTaskByName: () => undefined,
     schedule: <T>(action: () => Promise<T>) => action(),
+    stdout: () => {},
   };
 }
 

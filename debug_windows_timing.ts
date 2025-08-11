@@ -70,7 +70,7 @@ async function debugTimingIssue() {
     const ctx = await execBasic([], [taskA], manifest);
 
     // Check file data before execution
-    const fileDataBefore = await testFile.getFileData(ctx);
+    const fileDataBefore = await testFile.getFileData();
     console.log("File data before second run:");
     console.log("  Hash:", fileDataBefore.hash);
     console.log("  Timestamp:", fileDataBefore.timestamp);
@@ -97,7 +97,7 @@ async function debugTimingIssue() {
         console.log("    Timestamp:", fileDataInManifest.timestamp);
       }
 
-      const currentFileData = await testFile.getFileData(ctx);
+      const currentFileData = await testFile.getFileData();
       console.log("  Current file data:");
       console.log("    Hash:", currentFileData.hash);
       console.log("    Timestamp:", currentFileData.timestamp);

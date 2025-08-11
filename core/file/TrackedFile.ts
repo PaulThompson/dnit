@@ -97,7 +97,6 @@ export class TrackedFile {
 
   /// whether this is up to date w.r.t. the given TrackedFileData
   async isUpToDate(
-    _ctx: IExecContext,
     tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<boolean> {
@@ -132,7 +131,6 @@ export class TrackedFile {
 
   /// Recalculate timestamp and hash data
   async getFileData(
-    _ctx: IExecContext,
     statInput?: StatResult,
   ): Promise<TrackedFileData> {
     let statResult = statInput;
@@ -159,14 +157,14 @@ export class TrackedFile {
       statResult = await this.stat();
     }
 
-    if (tData !== undefined && await this.isUpToDate(ctx, tData, statResult)) {
+    if (tData !== undefined && await this.isUpToDate(tData, statResult)) {
       return {
         tData,
         upToDate: true,
       };
     }
     return {
-      tData: await this.getFileData(ctx, statResult),
+      tData: await this.getFileData(statResult),
       upToDate: false,
     };
   }

@@ -1,11 +1,8 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import * as path from "@std/path";
-import * as log from "@std/log";
-import type { Args } from "@std/cli/parse-args";
 import {
+  execBasic,
   file,
-  type IExecContext,
-  type IManifest,
   isTrackedFile,
   type ITask,
   type TaskName,
@@ -16,24 +13,6 @@ import {
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 
-// Mock objects to avoid "as any" assertions
-function createMockExecContext(manifest: IManifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
-  };
-}
 
 function createMockTask(name: string): ITask {
   return {
@@ -295,10 +274,9 @@ Deno.test("TrackedFile - delete non-existent file", async () => {
 Deno.test("TrackedFile - getFileData", async () => {
   const tempFile = await createTempFile("test content for file data");
   const trackedFile = new TrackedFile({ path: tempFile });
-  const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
-  const fileData = await trackedFile.getFileData(ctx);
+  const fileData = await trackedFile.getFileData();
 
   assertEquals(typeof fileData.hash, "string");
   assertEquals(fileData.hash.length, 40); // SHA1 hash
@@ -312,13 +290,13 @@ Deno.test("TrackedFile - isUpToDate with matching data", async () => {
   const tempFile = await createTempFile("consistent content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   // Get initial file data
-  const initialData = await trackedFile.getFileData(ctx);
+  const initialData = await trackedFile.getFileData();
 
   // Check if up to date (should be true)
-  const upToDate = await trackedFile.isUpToDate(ctx, initialData);
+  const upToDate = await trackedFile.isUpToDate(initialData);
   assertEquals(upToDate, true);
 
   await cleanup(tempFile);
@@ -328,17 +306,17 @@ Deno.test("TrackedFile - isUpToDate with changed content", async () => {
   const tempFile = await createTempFile("original content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   // Get initial file data
-  const initialData = await trackedFile.getFileData(ctx);
+  const initialData = await trackedFile.getFileData();
 
   // Modify file (add small delay to ensure timestamp changes)
   await new Promise((resolve) => setTimeout(resolve, 10));
   await Deno.writeTextFile(tempFile, "modified content");
 
   // Check if up to date (should be false)
-  const upToDate = await trackedFile.isUpToDate(ctx, initialData);
+  const upToDate = await trackedFile.isUpToDate(initialData);
   assertEquals(upToDate, false);
 
   await cleanup(tempFile);
@@ -348,10 +326,10 @@ Deno.test("TrackedFile - isUpToDate with undefined data", async () => {
   const tempFile = await createTempFile("test content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
   // Check with undefined data (should be false)
-  const upToDate = await trackedFile.isUpToDate(ctx, undefined);
+  const upToDate = await trackedFile.isUpToDate(undefined);
   assertEquals(upToDate, false);
 
   await cleanup(tempFile);
@@ -361,9 +339,9 @@ Deno.test("TrackedFile - getFileDataOrCached up to date", async () => {
   const tempFile = await createTempFile("cached test content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
-  const initialData = await trackedFile.getFileData(ctx);
+  const initialData = await trackedFile.getFileData();
 
   const result = await trackedFile.getFileDataOrCached(ctx, initialData);
   assertEquals(result.upToDate, true);
@@ -376,9 +354,9 @@ Deno.test("TrackedFile - getFileDataOrCached not up to date", async () => {
   const tempFile = await createTempFile("original cached content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
-  const ctx = createMockExecContext(manifest);
+  const ctx = await execBasic([], [], new Manifest(""));
 
-  const initialData = await trackedFile.getFileData(ctx);
+  const initialData = await trackedFile.getFileData();
 
   // Modify file (add small delay to ensure timestamp changes)
   await new Promise((resolve) => setTimeout(resolve, 10));

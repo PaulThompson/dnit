@@ -30,6 +30,7 @@ function createMockExecContext(manifest: IManifest): IExecContext {
     args: { _: [] } as Args,
     getTaskByName: () => undefined,
     schedule: <T>(action: () => Promise<T>) => action(),
+    stdout: () => {},
   };
 }
 
@@ -78,28 +79,28 @@ Deno.test("git utilities", async (t) => {
     }
   });
 
-  await t.step("fetchTags task - properties", () => {
+  await t.step("fetchTags task - properties", async () => {
     assertEquals(fetchTags.name, "fetch-tags");
     assertEquals(fetchTags.description, "Git remote fetch tags");
     assertEquals(typeof fetchTags.action, "function");
     assertEquals(typeof fetchTags.uptodate, "function");
     if (fetchTags.uptodate) {
       const manifest = new Manifest("");
-      const ctx = createMockExecContext(manifest);
+      const ctx = await execBasic([], [], new Manifest(""));
       const task = new Task({ name: "test" as TaskName, action: () => {} });
       const taskCtx = taskContext(ctx, task);
       assertEquals(fetchTags.uptodate(taskCtx), false);
     }
   });
 
-  await t.step("requireCleanGit task - properties", () => {
+  await t.step("requireCleanGit task - properties", async () => {
     assertEquals(requireCleanGit.name, "git-is-clean");
     assertEquals(requireCleanGit.description, "Check git status is clean");
     assertEquals(typeof requireCleanGit.action, "function");
     assertEquals(typeof requireCleanGit.uptodate, "function");
     if (requireCleanGit.uptodate) {
       const manifest = new Manifest("");
-      const ctx = createMockExecContext(manifest);
+      const ctx = await execBasic([], [], new Manifest(""));
       const task = new Task({ name: "test" as TaskName, action: () => {} });
       const taskCtx = taskContext(ctx, task);
       assertEquals(requireCleanGit.uptodate(taskCtx), false);
