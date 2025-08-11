@@ -11,10 +11,8 @@ import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 async function createTestContext(tasks: Task[] = []): Promise<IExecContext & { stdoutLogs: string[] }> {
   const ctx = await execBasic([], tasks, new Manifest(""));
   const stdoutLogs: string[] = [];
-  const originalStdout = ctx.stdout;
   ctx.stdout = (message: string) => {
     stdoutLogs.push(message);
-    originalStdout(message);
   };
   return Object.assign(ctx, { stdoutLogs });
 }
