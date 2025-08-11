@@ -7,15 +7,6 @@ import { Manifest } from "../manifest.ts";
 import type { Args } from "@std/cli/parse-args";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 
-// Create a context with stdout capture for testing
-async function createTestContext(tasks: Task[] = []): Promise<IExecContext & { stdoutLogs: string[] }> {
-  const ctx = await execBasic([], tasks, new Manifest(""));
-  const stdoutLogs: string[] = [];
-  ctx.stdout = (message: string) => {
-    stdoutLogs.push(message);
-  };
-  return Object.assign(ctx, { stdoutLogs });
-}
 
 // Capture console output
 function captureConsole(): {
@@ -38,10 +29,12 @@ function captureConsole(): {
 }
 
 Deno.test("TabCompletion - echoBashCompletionScript generates valid bash script", async () => {
-  const ctx = await createTestContext();
+  const ctx = await execBasic([], [], new Manifest(""));
+  const stdoutLogs: string[] = [];
+  ctx.stdout = (message: string) => stdoutLogs.push(message);
   
   echoBashCompletionScript(ctx);
-  const output = ctx.stdoutLogs.join("\n");
+  const output = stdoutLogs.join("\n");
 
   // Should contain bash completion script header
   assertStringIncludes(output, "# bash completion for dnit");
