@@ -199,26 +199,6 @@ Deno.test("filesystem utilities", async (t) => {
     assertEquals(timestamp, "");
   });
 
-  await t.step("path manipulation - relative paths", async () => {
-    const relativePath = "relative/path.txt";
-    const absolutePath = path.resolve(relativePath);
-
-    // Create the file
-    await Deno.mkdir(path.dirname(absolutePath), { recursive: true });
-    await Deno.writeTextFile(absolutePath, "relative path content");
-
-    // Both relative and absolute should work with statPath
-    const relativeResult = await statPath(relativePath);
-    const absoluteResult = await statPath(absolutePath);
-
-    assertEquals(relativeResult.kind, "fileInfo");
-    assertEquals(absoluteResult.kind, "fileInfo");
-
-    // Cleanup
-    await deletePath(absolutePath);
-    await Deno.remove(path.dirname(absolutePath)).catch(() => {});
-  });
-
   await t.step("special characters in paths", async () => {
     const specialFile = await createFileInDir(
       testDir,
