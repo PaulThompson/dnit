@@ -70,7 +70,7 @@ Deno.test("Task - task with dependencies", async () => {
   assertEquals(mainTask.task_deps.has(depTask), true);
   assertEquals(mainTask.file_deps.has(trackedFile), true);
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - task with targets", async () => {
@@ -89,7 +89,7 @@ Deno.test("Task - task with targets", async () => {
   // Target should have task assigned
   assertEquals(targetFile.getTask(), testTask);
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - task with TrackedFilesAsync dependencies", () => {
@@ -164,7 +164,7 @@ Deno.test("Task - duplicate target assignment throws error", async () => {
     "Duplicate tasks generating TrackedFile as target",
   );
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - setup registers targets", async () => {
@@ -183,7 +183,7 @@ Deno.test("Task - setup registers targets", async () => {
   assertEquals(ctx.targetRegister.get(targetFile.path), testTask);
   assertExists(testTask.taskManifest);
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - setup with task dependencies", async () => {
@@ -350,7 +350,7 @@ Deno.test("Task - reset cleans targets", async () => {
   // File should be deleted
   assertEquals(await targetFile.exists(), false);
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - taskContext creation", async () => {
@@ -411,7 +411,7 @@ Deno.test("Task - exec with file dependencies updates manifest", async () => {
   assertEquals(typeof fileData.hash, "string");
   assertEquals(typeof fileData.timestamp, "string");
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - task with mixed dependency types", async () => {
@@ -438,7 +438,7 @@ Deno.test("Task - task with mixed dependency types", async () => {
   assertEquals(mainTask.file_deps.size, 1);
   assertEquals(mainTask.async_files_deps.size, 1);
 
-  await cleanup(tempFile);
+  await cleanup(path.dirname(tempFile));
 });
 
 Deno.test("Task - no description is optional", () => {

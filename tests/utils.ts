@@ -10,8 +10,7 @@ export async function createTempFile(
   return filePath;
 }
 
-export async function cleanup(filePath: string): Promise<void> {
-  const dir = path.dirname(filePath);
-  await Deno.remove(dir, { recursive: true });
+export async function cleanup(dirName: string): Promise<void> {
+  await Deno.remove(dirName, { recursive: true });
 }
 
