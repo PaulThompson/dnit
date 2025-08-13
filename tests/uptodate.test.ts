@@ -108,6 +108,7 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   assertEquals(taskRunCount, 1); // Should not increment
 
   // Rewrite the same content but this will change the timestamp
+  await new Promise((resolve) => setTimeout(resolve, 10)); // Wait for timestamp to change
   await Deno.writeTextFile(tempFile, "timestamp test"); // Same content, new timestamp
 
   // Reset done tasks to allow re-execution
