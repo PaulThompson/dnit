@@ -1,5 +1,5 @@
 import { crypto } from "@std/crypto/crypto";
-import { Sha1 } from "@std/crypto/sha1";
+import { encodeHex } from "@std/encoding/hex";
 import type {
   Timestamp,
   TrackedFileHash,
@@ -48,29 +48,21 @@ export async function getFileSha1Sum(
 ): Promise<TrackedFileHash> {
   const stat = await Deno.stat(filename);
   const fileSizeThreshold = 1024 * 1024; // 1MB
-  const hasher = new Sha1();
 
   if (stat.size < fileSizeThreshold) {
     const data = await Deno.readFile(filename);
-    hasher.update(data);
-    return hasher.hex();
+    const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+    return encodeHex(hashBuffer);
   }
 
-  // Use chunked approach for large files
+  // Use streaming approach for large files
   const file = await Deno.open(filename, { read: true });
-  const chunkSize = 64 * 1024; // 64KB chunks
-  const buffer = new Uint8Array(chunkSize);
-
   try {
-    let bytesRead = 0;
-    while ((bytesRead = await file.read(buffer)) !== null) {
-      hasher.update(buffer.slice(0, bytesRead));
-    }
+    const hashBuffer = await crypto.subtle.digest("SHA-1", file.readable);
+    return encodeHex(hashBuffer);
   } finally {
     file.close();
   }
-
-  return hasher.hex();
 }
 
 export function getFileTimestamp(
