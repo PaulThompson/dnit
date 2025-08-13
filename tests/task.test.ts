@@ -19,17 +19,17 @@ import { type TaskContext, taskContext } from "../core/TaskContext.ts";
 import { createFileInDir, createTempDir } from "./utils.ts";
 
 Deno.test("Task - basic task creation", () => {
-  const mockAction: Action = () => {};
+  const testAction: Action = () => {};
 
   const testTask = new Task({
     name: "testTask" as TaskName,
     description: "A test task",
-    action: mockAction,
+    action: testAction,
   });
 
   assertEquals(testTask.name, "testTask");
   assertEquals(testTask.description, "A test task");
-  assertEquals(testTask.action, mockAction);
+  assertEquals(testTask.action, testAction);
   assertEquals(testTask.task_deps.size, 0);
   assertEquals(testTask.file_deps.size, 0);
   assertEquals(testTask.async_files_deps.size, 0);
@@ -37,12 +37,12 @@ Deno.test("Task - basic task creation", () => {
 });
 
 Deno.test("Task - task() function", () => {
-  const mockAction: Action = () => {};
+  const testAction: Action = () => {};
 
   const testTask = task({
     name: "testTask" as TaskName,
     description: "A test task",
-    action: mockAction,
+    action: testAction,
   });
 
   assertEquals(testTask instanceof Task, true);
@@ -94,10 +94,11 @@ Deno.test("Task - task with targets", async () => {
   await cleanup();
 });
 
-Deno.test("Task - task with TrackedFilesAsync dependencies", () => {
-  const generator = async () => {
-    const { dirPath, cleanup } = await createTempDir();
+Deno.test("Task - task with TrackedFilesAsync dependencies", async () => {
+  const { dirPath, cleanup } = await createTempDir();
   const tempFile = await createFileInDir(dirPath, "test_file.txt", "async content");
+  
+  const generator = async () => {
     return [file(tempFile)];
   };
 
@@ -111,12 +112,14 @@ Deno.test("Task - task with TrackedFilesAsync dependencies", () => {
 
   assertEquals(testTask.async_files_deps.size, 1);
   assertEquals(testTask.async_files_deps.has(asyncFiles), true);
+  
+  await cleanup();
 });
 
 Deno.test("Task - task with custom uptodate function", () => {
-  let _uptodateCalled = false;
+  let uptodateCalled = false;
   const customUptodate: IsUpToDate = () => {
-    _uptodateCalled = true;
+    uptodateCalled = true;
     return false;
   };
 
@@ -127,6 +130,7 @@ Deno.test("Task - task with custom uptodate function", () => {
   });
 
   assertEquals(testTask.uptodate, customUptodate);
+  assertEquals(uptodateCalled, false); // Should not be called during task creation
 });
 
 Deno.test("Task - runAlways uptodate helper", () => {
