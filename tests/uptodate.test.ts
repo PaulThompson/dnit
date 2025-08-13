@@ -3,24 +3,8 @@ import * as path from "@std/path";
 import { execBasic, Task, type TaskName, TrackedFile } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
+import { createFileInDir, createTempDir } from "./utils.ts";
 import type { TaskContext } from "../core/TaskContext.ts";
-
-// Test helper to create temporary files
-async function createTempFile(
-  content: string,
-  fileName = "test_file.txt",
-): Promise<string> {
-  const tempDir = await Deno.makeTempDir({ prefix: "dnit_uptodate_test_" });
-  const filePath = path.join(tempDir, fileName);
-  await Deno.writeTextFile(filePath, content);
-  return filePath;
-}
-
-// Test helper to cleanup temp directory
-async function cleanup(filePath: string) {
-  const dir = path.dirname(filePath);
-  await Deno.remove(dir, { recursive: true });
-}
 
 // Helper to wait for file timestamp to change
 async function waitForTimestampChange(): Promise<void> {
@@ -28,7 +12,8 @@ async function waitForTimestampChange(): Promise<void> {
 }
 
 Deno.test("UpToDate - file modification detection by hash", async () => {
-  const tempFile = await createTempFile("original content");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(dirPath, "test_file.txt", "original content");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
 
@@ -75,11 +60,12 @@ Deno.test("UpToDate - file modification detection by hash", async () => {
   }
   assertEquals(taskRunCount, 2); // Should increment
 
-  await cleanup(tempFile);
+  await cleanup();
 });
 
 Deno.test("UpToDate - timestamp-based change detection", async () => {
-  const tempFile = await createTempFile("timestamp test");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(dirPath, "test_file.txt", "timestamp test");
 
   // Create a TrackedFile with a custom hash function that includes timestamp
   const timestampBasedHash = (_filePath: string, stat: Deno.FileInfo) => {
@@ -144,7 +130,7 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
   }
   assertEquals(taskRunCount, 2);
 
-  await cleanup(tempFile);
+  await cleanup();
 });
 
 Deno.test("UpToDate - custom uptodate function execution", async () => {
@@ -243,9 +229,10 @@ Deno.test("UpToDate - runAlways behavior", async () => {
 });
 
 Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
-  const tempFile = await createTempFile("skip test content");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(dirPath, "test_file.txt", "skip test content");
   const trackedFile = new TrackedFile({ path: tempFile });
-  const targetFile = await createTempFile("target content");
+  const targetFile = await createFileInDir(dirPath, "target_file.txt", "target content");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
 
@@ -283,14 +270,15 @@ Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
   }
   assertEquals(taskRunCount, 1); // Should not increment
 
-  await cleanup(tempFile);
-  await cleanup(targetFile);
+  await cleanup();
+  await cleanup();
 });
 
 Deno.test("UpToDate - task runs when target is deleted", async () => {
-  const tempFile = await createTempFile("target deletion test");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(dirPath, "test_file.txt", "target deletion test");
   const trackedFile = new TrackedFile({ path: tempFile });
-  const targetFile = await createTempFile("target to delete");
+  const targetFile = await createFileInDir(dirPath, "target_file.txt", "target to delete");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
 
@@ -330,8 +318,8 @@ Deno.test("UpToDate - task runs when target is deleted", async () => {
   }
   assertEquals(taskRunCount, 2);
 
-  await cleanup(tempFile);
-  await cleanup(targetFile);
+  await cleanup();
+  await cleanup();
 });
 
 Deno.test("UpToDate - cross-run manifest state consistency", async () => {
@@ -398,8 +386,9 @@ Deno.test("UpToDate - cross-run manifest state consistency", async () => {
 });
 
 Deno.test("UpToDate - multiple file dependencies change detection", async () => {
-  const tempFile1 = await createTempFile("file 1 content", "file1.txt");
-  const tempFile2 = await createTempFile("file 2 content", "file2.txt");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile1 = await createFileInDir(dirPath, "file1.txt", "file 1 content");
+  const tempFile2 = await createFileInDir(dirPath, "file2.txt", "file 2 content");
   const trackedFile1 = new TrackedFile({ path: tempFile1 });
   const trackedFile2 = new TrackedFile({ path: tempFile2 });
   const manifest = new Manifest("");
@@ -472,8 +461,7 @@ Deno.test("UpToDate - multiple file dependencies change detection", async () => 
   }
   assertEquals(taskRunCount, 3);
 
-  await cleanup(tempFile1);
-  await cleanup(tempFile2);
+  await cleanup();
 });
 
 Deno.test("UpToDate - task with no dependencies always up-to-date", async () => {
@@ -510,7 +498,8 @@ Deno.test("UpToDate - task with no dependencies always up-to-date", async () => 
 });
 
 Deno.test("UpToDate - task with targets but no dependencies", async () => {
-  const targetFile = await createTempFile("target only content");
+  const { dirPath, cleanup } = await createTempDir();
+  const targetFile = await createFileInDir(dirPath, "target_file.txt", "target only content");
   const target = new TrackedFile({ path: targetFile });
   const manifest = new Manifest("");
 
@@ -547,7 +536,7 @@ Deno.test("UpToDate - task with targets but no dependencies", async () => {
   }
   assertEquals(taskRunCount, 1);
 
-  await cleanup(targetFile);
+  await cleanup();
 });
 
 Deno.test("UpToDate - custom uptodate with task context access", async () => {
@@ -583,7 +572,8 @@ Deno.test("UpToDate - custom uptodate with task context access", async () => {
 });
 
 Deno.test("UpToDate - file disappears after initial tracking", async () => {
-  const tempFile = await createTempFile("file to disappear");
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(dirPath, "test_file.txt", "file to disappear");
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
 
@@ -622,5 +612,5 @@ Deno.test("UpToDate - file disappears after initial tracking", async () => {
   }
   assertEquals(taskRunCount, 2);
 
-  await cleanup(tempFile);
+  await cleanup();
 });
