@@ -11,6 +11,7 @@ import { assertEquals } from "@std/assert";
 
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";
+import { createFileInDir, createTempDir } from "./utils.ts";
 
 Deno.test("basic test - two tasks with dependency", async () => {
   const tasksDone: { [key: string]: boolean } = {};
@@ -43,10 +44,10 @@ Deno.test("basic test - two tasks with dependency", async () => {
 });
 
 Deno.test("task up to date", async () => {
-  const testDir = await Deno.makeTempDir();
+  const { dirPath, cleanup } = await createTempDir();
   const tasksDone: { [key: string]: boolean } = {};
 
-  const testFile: TrackedFile = trackFile(path.join(testDir, "testFile.txt"));
+  const testFile: TrackedFile = trackFile(path.join(dirPath, "testFile.txt"));
 
   const initialContent = "initial-content-" + crypto.randomUUID();
   await Deno.writeTextFile(testFile.path, initialContent);
@@ -96,7 +97,7 @@ Deno.test("task up to date", async () => {
     assertEquals(tasksDone["taskA"], true); // ran because of not up-to-date
   }
 
-  await Deno.remove(testDir, { recursive: true });
+  await cleanup();
 });
 
 Deno.test("async file deps test", async () => {
@@ -137,10 +138,10 @@ Deno.test("async file deps test", async () => {
 });
 
 Deno.test("tasks with target and clean", async () => {
-  const tempDir = await Deno.makeTempDir();
+  const { dirPath, cleanup } = await createTempDir();
 
   const exampleTarget1 = trackFile({
-    path: path.join(tempDir, "exampleTarget1.txt"),
+    path: path.join(dirPath, "exampleTarget1.txt"),
   });
   const testTask1 = task({
     name: "testTask1",
@@ -152,7 +153,7 @@ Deno.test("tasks with target and clean", async () => {
   });
 
   const exampleTarget2 = trackFile({
-    path: path.join(tempDir, "exampleTarget2.txt"),
+    path: path.join(dirPath, "exampleTarget2.txt"),
   });
   const testTask2 = task({
     name: "testTask2",
@@ -185,5 +186,5 @@ Deno.test("tasks with target and clean", async () => {
   assertEquals(await exampleTarget2.exists(), false);
 
   // clean tempdir
-  await Deno.remove(tempDir, { recursive: true });
+  await cleanup();
 });
