@@ -7,9 +7,10 @@ import {
   statPath,
 } from "../utils/filesystem.ts";
 import type { TrackedFileName } from "../interfaces/core/IManifestTypes.ts";
+import { createFileInDir, createTempDir } from "./utils.ts";
 
 Deno.test("filesystem utilities", async (t) => {
-  const testDir = await Deno.makeTempDir({ prefix: "dnit_filesystem_test_" });
+  const { dirPath: testDir, cleanup } = await createTempDir();
 
   await t.step("statPath - file exists", async () => {
     const testFile = path.join(testDir, "test.txt");
@@ -240,5 +241,5 @@ Deno.test("filesystem utilities", async (t) => {
   });
 
   // Cleanup test directory
-  await Deno.remove(testDir, { recursive: true }).catch(() => {});
+  await cleanup();
 });
