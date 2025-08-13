@@ -5,7 +5,16 @@ export async function createTempDir(): Promise<{ dirPath: string; cleanup: () =>
   
   return {
     dirPath: tempDir,
-    cleanup: () => Deno.remove(tempDir, { recursive: true }),
+    cleanup: async () => {
+      try {
+        await Deno.remove(tempDir, { recursive: true });
+      } catch (err) {
+        // Ignore NotFound errors - directory may already be cleaned up
+        if (!(err instanceof Deno.errors.NotFound)) {
+          throw err;
+        }
+      }
+    },
   };
 }
 

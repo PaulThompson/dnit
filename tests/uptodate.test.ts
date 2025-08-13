@@ -271,7 +271,6 @@ Deno.test("UpToDate - task execution skipping when up-to-date", async () => {
   assertEquals(taskRunCount, 1); // Should not increment
 
   await cleanup();
-  await cleanup();
 });
 
 Deno.test("UpToDate - task runs when target is deleted", async () => {
@@ -318,7 +317,6 @@ Deno.test("UpToDate - task runs when target is deleted", async () => {
   }
   assertEquals(taskRunCount, 2);
 
-  await cleanup();
   await cleanup();
 });
 
