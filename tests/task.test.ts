@@ -16,22 +16,7 @@ import {
 import { Manifest } from "../manifest.ts";
 import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";
-
-// Test helpers
-
-// Test helper to create temporary files
-async function createTempFile(content: string): Promise<string> {
-  const tempDir = await Deno.makeTempDir({ prefix: "dnit_test_" });
-  const filePath = path.join(tempDir, "test_file.txt");
-  await Deno.writeTextFile(filePath, content);
-  return filePath;
-}
-
-// Test helper to cleanup temp directory
-async function cleanup(filePath: string) {
-  const dir = path.dirname(filePath);
-  await Deno.remove(dir, { recursive: true });
-}
+import { cleanup, createTempFile } from "./utils.ts";
 
 Deno.test("Task - basic task creation", () => {
   const mockAction: Action = () => {};
