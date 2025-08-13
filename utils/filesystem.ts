@@ -46,16 +46,6 @@ export async function deletePath(path: TrackedFileName): Promise<void> {
 export async function getFileSha1Sum(
   filename: string,
 ): Promise<TrackedFileHash> {
-  const stat = await Deno.stat(filename);
-  const fileSizeThreshold = 1024 * 1024; // 1MB
-
-  if (stat.size < fileSizeThreshold) {
-    const data = await Deno.readFile(filename);
-    const hashBuffer = await crypto.subtle.digest("SHA-1", data);
-    return encodeHex(hashBuffer);
-  }
-
-  // Use streaming approach for large files
   const file = await Deno.open(filename, { read: true });
   try {
     const hashBuffer = await crypto.subtle.digest("SHA-1", file.readable);
