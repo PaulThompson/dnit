@@ -47,12 +47,8 @@ export async function getFileSha1Sum(
   filename: string,
 ): Promise<TrackedFileHash> {
   const file = await Deno.open(filename, { read: true });
-  try {
-    const hashBuffer = await crypto.subtle.digest("SHA-1", file.readable);
-    return encodeHex(hashBuffer);
-  } finally {
-    file.close();
-  }
+  const hashBuffer = await crypto.subtle.digest("SHA-1", file.readable);
+  return encodeHex(hashBuffer);
 }
 
 export function getFileTimestamp(
