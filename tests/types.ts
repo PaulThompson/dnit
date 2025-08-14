@@ -37,8 +37,8 @@ type TrackedFileDataCheck = Equivalent<z.infer<typeof TrackedFileDataSchema>, Tr
 type TaskDataCheck = Equivalent<z.infer<typeof TaskDataSchema>, TaskData>;
 type ManifestCheck = Equivalent<z.infer<typeof ManifestSchema>, Manifest>;
 
-// Record of all type checks - will cause compile error if any check fails
-const allChecks: Partial<{
+// Type-level check - will cause compile error if any check fails
+type AllChecks = {
   taskName: TaskNameCheck;
   trackedFileName: TrackedFileNameCheck;
   trackedFileHash: TrackedFileHashCheck;
@@ -46,7 +46,7 @@ const allChecks: Partial<{
   trackedFileData: TrackedFileDataCheck;
   taskData: TaskDataCheck;
   manifest: ManifestCheck;
-}> = {};
+};
 
 Deno.test("type checks pass at runtime", () => {
   // Simple runtime test that the checks are defined
