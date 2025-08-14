@@ -1,5 +1,5 @@
 import { crypto } from "@std/crypto/crypto";
-import { encodeHex } from "@std/encoding/hex";
+import { encodeHex } from "@std/encoding";
 import type {
   Timestamp,
   TrackedFileHash,
