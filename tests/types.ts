@@ -8,7 +8,7 @@ import type {
   TrackedFileHash,
   TrackedFileName,
 } from "../interfaces/core/IManifestTypes.ts";
-import {
+import type {
   ManifestSchema,
   TaskDataSchema,
   TaskNameSchema,
