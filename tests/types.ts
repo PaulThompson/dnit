@@ -25,6 +25,7 @@ import type {
 
 // Utility types for bidirectional checking
 type And<A extends boolean, B extends boolean> = A extends true ? B extends true ? true : false : false;
+type AllOf<T extends readonly boolean[]> = T[number] extends true ? true : false;
 type Equivalent<A, B> = And<A extends B ? true : false, B extends A ? true : false>;
 
 // Type checks using utility types
@@ -37,15 +38,19 @@ type TaskDataCheck = Equivalent<z.infer<typeof TaskDataSchema>, TaskData>;
 type ManifestCheck = Equivalent<z.infer<typeof ManifestSchema>, Manifest>;
 
 // Ensure all checks pass (will cause compile error if any fail)
-const allChecksPass: [
-  TaskNameCheck,
-  TrackedFileNameCheck,
-  TrackedFileHashCheck,
-  TimestampCheck,
-  TrackedFileDataCheck,
-  TaskDataCheck,
-  ManifestCheck,
-] = [true, true, true, true, true, true, true] as const;
+const allChecksPass = [
+  true as TaskNameCheck,
+  true as TrackedFileNameCheck,
+  true as TrackedFileHashCheck,
+  true as TimestampCheck,
+  true as TrackedFileDataCheck,
+  true as TaskDataCheck,
+  true as ManifestCheck,
+] as const;
+
+// Compile-time verification that all checks pass
+type AllChecksPass = AllOf<typeof allChecksPass>;
+const _compileTimeCheck: AllChecksPass = true;
 
 Deno.test("type checks pass at runtime", () => {
   // Verify all type checks evaluate to true
