@@ -67,4 +67,11 @@ Deno.test("type checks pass at runtime", () => {
   if (!passed) {
     throw new Error("Type checks failed");
   }
+  
+  // Verify all checks in the object are true
+  for (const [key, value] of Object.entries(allChecks)) {
+    if (value !== true) {
+      throw new Error(`Type check failed for ${key}`);
+    }
+  }
 });
