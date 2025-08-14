@@ -12,7 +12,8 @@ export type ExecResult = {
 // Initialize execution context with logging, manifest, and registered tasks.
 export async function execContextInit(
   args: Args,
-  tasks: Task[]
+  tasks: Task[],
+  overrides?: Partial<ExecContext>,
 ) : Promise<ExecContext> {
   setupLogging();
 
@@ -21,7 +22,7 @@ export async function execContextInit(
   
   const manifest = new Manifest(dnitDir);
   
-  const ctx = await execContextInitBasicArgs(args, tasks, manifest);
+  const ctx = await execContextInitBasicArgs(args, tasks, manifest, overrides);
   return ctx
 }
 
@@ -67,10 +68,11 @@ export function getRequestedTaskName(args: Args) {
 export async function execCli(
   cliArgs: string[],
   tasks: Task[],
+  overrides?: Partial<ExecContext>,
 ): Promise<ExecResult> {
   const args = parseArgs(cliArgs);
 
-  const ctx = await execContextInit(args, tasks);
+  const ctx = await execContextInit(args, tasks, overrides);
 
   const requestedTaskName: string = getRequestedTaskName(args);
   const result = await executeRequestedTask(ctx, requestedTaskName);
