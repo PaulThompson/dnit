@@ -22,15 +22,10 @@ export async function execCli(
   const dnitDir = args["dnitDir"] || "./dnit";
   delete args["dnitDir"];
 
-  const ctx = new ExecContext(new Manifest(dnitDir), args);
-
-  /// register tasks as provided by user's source:
-  tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
-
-  /// register built-in tasks:
-  for (const t of builtinTasks) {
-    ctx.taskRegister.set(t.name, t);
-  }
+  const manifest = new Manifest(dnitDir);
+  
+  // Use execBasic to set up the context
+  const ctx = await execBasic(cliArgs, tasks, manifest);
 
   let requestedTaskName: string | null = null;
   const positionalArgs = args["_"];
@@ -45,13 +40,6 @@ export async function execCli(
   try {
     /// Load manifest (dependency tracking data)
     await ctx.manifest.load();
-
-    /// Run async setup on all tasks:
-    await Promise.all(
-      Array.from(ctx.taskRegister.values()).map((t) =>
-        ctx.schedule(() => t.setup(ctx))
-      ),
-    );
 
     /// Find the requested task:
     const requestedTask = ctx.taskRegister.get(requestedTaskName);
