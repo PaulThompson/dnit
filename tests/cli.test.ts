@@ -31,12 +31,13 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
   let output = "";
   const manifest = new Manifest("");
   const args = parseArgs([]);
-  const ctx = await execContextInitBasicArgs(args, [testTask], manifest);
   
-  // Override stdout to capture output
-  ctx.stdout = (text: string) => {
-    output += text;
-  };
+  // Create context with stdout override
+  const ctx = await execContextInitBasicArgs(args, [testTask], manifest, {
+    stdout: (text: string) => {
+      output += text;
+    }
+  });
 
   // Execute with empty args (should default to "list")
   const requestedTaskName: string = getRequestedTaskName(args);

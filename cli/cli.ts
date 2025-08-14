@@ -82,8 +82,14 @@ export async function execContextInitBasicArgs(
   args: Args,
   tasks: Task[],
   manifest: Manifest,
+  overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
   const ctx = new ExecContext(manifest, args);
+  
+  // Apply overrides if provided
+  if (overrides) {
+    Object.assign(ctx, overrides);
+  }
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
@@ -105,9 +111,10 @@ export async function execContextInitBasic(
   cliArgs: string[],
   tasks: Task[],
   manifest: Manifest,
+  overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
   const args = parseArgs(cliArgs);
-  const ctx = await execContextInitBasicArgs(args, tasks, manifest);
+  const ctx = await execContextInitBasicArgs(args, tasks, manifest, overrides);
   return ctx;
 }
 
