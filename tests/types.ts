@@ -53,6 +53,8 @@ type AllChecksPass = AllOf<[AllChecks[keyof AllChecks]]>;
 const passed: AllChecksPass = true as const;
 
 Deno.test("type checks pass at runtime", () => {
-  // Simple runtime test that the checks are defined
-  console.log("All type checks passed at compile time");
+  // Verify all type checks passed at compile time
+  if (!passed) {
+    throw new Error("Type checks failed");
+  }
 });
