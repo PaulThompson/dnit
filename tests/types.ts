@@ -48,6 +48,9 @@ type AllChecks = {
   manifest: ManifestCheck;
 };
 
+// Ensure all checks pass using AllOf
+type AllChecksPass = AllOf<[AllChecks[keyof AllChecks]]>;
+
 Deno.test("type checks pass at runtime", () => {
   // Simple runtime test that the checks are defined
   console.log("All type checks passed at compile time");
