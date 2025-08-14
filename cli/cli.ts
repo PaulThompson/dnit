@@ -53,7 +53,7 @@ export async function executeRequestedTask(ctx: ExecContext, requestedTaskName: 
 }
 
 // get requested task name from args
-function getRequestedTaskName(args: Args) {
+export function getRequestedTaskName(args: Args) {
   const positionalArgs = args["_"];
   if (positionalArgs.length > 0) {
     return `${positionalArgs[0]}`;
