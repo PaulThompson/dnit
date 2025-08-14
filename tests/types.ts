@@ -23,37 +23,18 @@ import type {
  * These checks will cause TypeScript compilation to fail if the schemas diverge from the types.
  */
 
-// Basic flavored string type checks
-type TaskNameCheck = z.infer<typeof TaskNameSchema> extends string
-  ? TaskName extends string ? true : false
-  : false;
+// Utility types for bidirectional checking
+type And<A extends boolean, B extends boolean> = A extends true ? B extends true ? true : false : false;
+type Equivalent<A, B> = And<A extends B ? true : false, B extends A ? true : false>;
 
-type TrackedFileNameCheck =
-  z.infer<typeof TrackedFileNameSchema> extends string
-    ? TrackedFileName extends string ? true : false
-    : false;
-
-type TrackedFileHashCheck =
-  z.infer<typeof TrackedFileHashSchema> extends string
-    ? TrackedFileHash extends string ? true : false
-    : false;
-
-type TimestampCheck = z.infer<typeof TimestampSchema> extends string
-  ? Timestamp extends string ? true : false
-  : false;
-
-// Complex type structure checks
-type TrackedFileDataCheck = z.infer<typeof TrackedFileDataSchema> extends TrackedFileData
-  ? TrackedFileData extends z.infer<typeof TrackedFileDataSchema> ? true : false
-  : false;
-
-type TaskDataCheck = z.infer<typeof TaskDataSchema> extends TaskData
-  ? TaskData extends z.infer<typeof TaskDataSchema> ? true : false
-  : false;
-
-type ManifestCheck = z.infer<typeof ManifestSchema> extends Manifest
-  ? Manifest extends z.infer<typeof ManifestSchema> ? true : false
-  : false;
+// Type checks using utility types
+type TaskNameCheck = Equivalent<z.infer<typeof TaskNameSchema>, TaskName>;
+type TrackedFileNameCheck = Equivalent<z.infer<typeof TrackedFileNameSchema>, TrackedFileName>;
+type TrackedFileHashCheck = Equivalent<z.infer<typeof TrackedFileHashSchema>, TrackedFileHash>;
+type TimestampCheck = Equivalent<z.infer<typeof TimestampSchema>, Timestamp>;
+type TrackedFileDataCheck = Equivalent<z.infer<typeof TrackedFileDataSchema>, TrackedFileData>;
+type TaskDataCheck = Equivalent<z.infer<typeof TaskDataSchema>, TaskData>;
+type ManifestCheck = Equivalent<z.infer<typeof ManifestSchema>, Manifest>;
 
 // Ensure all checks pass (will cause compile error if any fail)
 const allChecksPass: [
