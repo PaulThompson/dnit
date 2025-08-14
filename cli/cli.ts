@@ -26,6 +26,7 @@ export async function execContextInit(
 }
 
 
+// Execute a specific task by name, handling manifest load/save and error reporting.
 export async function executeRequestedTask(ctx: ExecContext, requestedTaskName: string) {
   
   try {
@@ -76,6 +77,7 @@ export async function execCli(
   return result;
 }
 
+// Create execution context from parsed args with tasks registered and setup methods called.
 export async function execContextInitBasicArgs(
   args: Args,
   tasks: Task[],
