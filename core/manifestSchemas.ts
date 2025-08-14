@@ -55,18 +55,3 @@ export const ManifestSchema: z.ZodObject<{
   tasks: z.record(TaskNameSchema, TaskDataSchema),
 });
 
-// Type assertions to ensure Zod schemas match our interfaces
-export type _TaskNameCheck = z.infer<typeof TaskNameSchema> extends string
-  ? TaskName extends string ? true : false
-  : false;
-export type _TrackedFileNameCheck =
-  z.infer<typeof TrackedFileNameSchema> extends string
-    ? TrackedFileName extends string ? true : false
-    : false;
-export type _TrackedFileHashCheck =
-  z.infer<typeof TrackedFileHashSchema> extends string
-    ? TrackedFileHash extends string ? true : false
-    : false;
-export type _TimestampCheck = z.infer<typeof TimestampSchema> extends string
-  ? Timestamp extends string ? true : false
-  : false;
