@@ -65,3 +65,12 @@ const allChecksPass: [
   TaskDataCheck,
   ManifestCheck,
 ] = [true, true, true, true, true, true, true] as const;
+
+Deno.test("type checks pass at runtime", () => {
+  // Verify all type checks evaluate to true
+  for (const check of allChecksPass) {
+    if (check !== true) {
+      throw new Error("Type check failed");
+    }
+  }
+});
