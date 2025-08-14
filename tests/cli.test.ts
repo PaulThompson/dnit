@@ -1,5 +1,7 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
-import { execCli, task, runAlways, execBasic, Manifest } from "../mod.ts";
+import { execCli, task, runAlways, Manifest } from "../mod.ts";
+import { execContextInitBasicArgs, executeRequestedTask } from "../cli/cli.ts";
+import { parseArgs } from "@std/cli/parse-args";
 
 Deno.test("CLI - execCli executes the requested task", async () => {
   let taskRun = false;
@@ -28,14 +30,16 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
 
   let output = "";
   const manifest = new Manifest("");
-  const ctx = await execBasic([], [testTask], manifest);
+  const args = parseArgs([]);
+  const ctx = await execContextInitBasicArgs(args, [testTask], manifest);
   
   // Override stdout to capture output
   ctx.stdout = (text: string) => {
     output += text;
   };
 
-  await ctx.getTaskByName("list")?.exec(ctx);
+  // Execute with empty args (should default to "list")
+  await executeRequestedTask(ctx, "list");
 
   assertStringIncludes(output, "myTask");
   assertStringIncludes(output, "My test task");
