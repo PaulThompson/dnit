@@ -87,7 +87,7 @@ Deno.test("git utilities", async (t) => {
     if (fetchTags.uptodate) {
       const manifest = new Manifest("");
       const ctx = await execBasic([], [], new Manifest(""));
-      const task = new Task({ name: "test" as TaskName, action: () => {} });
+      const task = new Task({ name: "test", action: () => {} });
       const taskCtx = taskContext(ctx, task);
       assertEquals(fetchTags.uptodate(taskCtx), false);
     }
@@ -101,7 +101,7 @@ Deno.test("git utilities", async (t) => {
     if (requireCleanGit.uptodate) {
       const manifest = new Manifest("");
       const ctx = await execBasic([], [], new Manifest(""));
-      const task = new Task({ name: "test" as TaskName, action: () => {} });
+      const task = new Task({ name: "test", action: () => {} });
       const taskCtx = taskContext(ctx, task);
       assertEquals(requireCleanGit.uptodate(taskCtx), false);
     }
@@ -109,7 +109,7 @@ Deno.test("git utilities", async (t) => {
 
   await t.step("requireCleanGit task - with ignore-unclean flag", async () => {
     const manifest = new Manifest("");
-    const testTask = new Task({ name: "test" as TaskName, action: () => {} });
+    const testTask = new Task({ name: "test", action: () => {} });
 
     // Use execBasic with proper args setup
     const ctx = await execBasic([], [testTask], manifest);
@@ -129,7 +129,7 @@ Deno.test("git utilities", async (t) => {
     async () => {
       const isClean = await gitIsClean();
       const manifest = new Manifest("");
-      const testTask = new Task({ name: "test" as TaskName, action: () => {} });
+      const testTask = new Task({ name: "test", action: () => {} });
 
       // Use execBasic for proper context setup
       const ctx = await execBasic([], [testTask], manifest);

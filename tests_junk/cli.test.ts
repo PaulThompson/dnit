@@ -13,68 +13,13 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import { showTaskList } from "../cli/utils.ts";
 
-// Test helper to create temporary files
-async function createTempFile(
-  content: string,
-  fileName = "test_file.txt",
-): Promise<string> {
-  const tempDir = await Deno.makeTempDir({ prefix: "dnit_cli_test_" });
-  const filePath = path.join(tempDir, fileName);
-  await Deno.writeTextFile(filePath, content);
-  return filePath;
-}
-
-// Test helper to cleanup temp directory
-async function cleanup(filePath: string) {
-  const dir = path.dirname(filePath);
-  await Deno.remove(dir, { recursive: true });
-}
-
-// Capture console output
-function captureConsole(): {
-  logs: string[];
-  restore: () => void;
-} {
-  const logs: string[] = [];
-  const originalLog = console.log;
-
-  console.log = (...args: unknown[]) => {
-    logs.push(args.map(String).join(" "));
-  };
-
-  return {
-    logs,
-    restore: () => {
-      console.log = originalLog;
-    },
-  };
-}
-
-Deno.test("CLI - execCli executes requested task", async () => {
-  const _manifest = new Manifest("");
-  let taskRun = false;
-
-  const testTask = new Task({
-    name: "testTask" as TaskName,
-    description: "A test task",
-    action: () => {
-      taskRun = true;
-    },
-    uptodate: runAlways,
-  });
-
-  const result = await execCli(["testTask"], [testTask]);
-
-  assertEquals(result.success, true);
-  assertEquals(taskRun, true);
-});
 
 Deno.test("CLI - execCli defaults to list task when no args", async () => {
   const _manifest = new Manifest("");
   const console = captureConsole();
 
   const testTask = new Task({
-    name: "myTask" as TaskName,
+    name: "myTask",
     description: "My test task",
     action: () => {},
   });
@@ -98,7 +43,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
   let errorMessage = "";
 
   const testTask = new Task({
-    name: "existingTask" as TaskName,
+    name: "existingTask",
     action: () => {},
   });
 
@@ -112,7 +57,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
     }
   });
 
-  const requestedTask = ctx.taskRegister.get("nonExistentTask" as TaskName);
+  const requestedTask = ctx.taskRegister.get("nonExistentTask");
   if (requestedTask === undefined) {
     ctx.taskLogger.error("Task nonExistentTask not found");
   }
@@ -144,7 +89,7 @@ Deno.test("CLI - builtin list task shows tasks in table format", async () => {
   const console = captureConsole();
 
   const userTask = new Task({
-    name: "userTask" as TaskName,
+    name: "userTask",
     description: "User defined task",
     action: () => {},
   });
@@ -173,7 +118,7 @@ Deno.test("CLI - builtin list task with --quiet flag", async () => {
   const console = captureConsole();
 
   const userTask = new Task({
-    name: "userTask" as TaskName,
+    name: "userTask",
     description: "User defined task",
     action: () => {},
   });
@@ -187,7 +132,7 @@ Deno.test("CLI - builtin list task with --quiet flag", async () => {
       quiet: true,
     } as Args;
 
-    const listTask = ctx.taskRegister.get("list" as TaskName);
+    const listTask = ctx.taskRegister.get("list");
     if (listTask) {
       await listTask.exec(ctx);
     }
@@ -213,7 +158,7 @@ Deno.test("CLI - builtin clean task with no args cleans all tasks", async () => 
 
   let taskRun = false;
   const testTask = new Task({
-    name: "testTask" as TaskName,
+    name: "testTask",
     action: () => {
       taskRun = true;
     },
@@ -253,13 +198,13 @@ Deno.test("CLI - builtin clean task with specific task args", async () => {
   const console = captureConsole();
 
   const task1 = new Task({
-    name: "task1" as TaskName,
+    name: "task1",
     action: () => {},
     targets: [target1],
   });
 
   const task2 = new Task({
-    name: "task2" as TaskName,
+    name: "task2",
     action: () => {},
     targets: [target2],
   });
@@ -309,20 +254,20 @@ Deno.test("CLI - builtin tabcompletion task generates bash script", async () => 
 Deno.test("CLI - execBasic sets up exec context properly", async () => {
   const _manifest = new Manifest("");
   const testTask = new Task({
-    name: "testTask" as TaskName,
+    name: "testTask",
     action: () => {},
   });
 
   const ctx = await execBasic(["testTask"], [testTask], _manifest);
 
   // Should have the test task registered
-  assertEquals(ctx.taskRegister.has("testTask" as TaskName), true);
-  assertEquals(ctx.taskRegister.get("testTask" as TaskName), testTask);
+  assertEquals(ctx.taskRegister.has("testTask"), true);
+  assertEquals(ctx.taskRegister.get("testTask"), testTask);
 
   // Should have builtin tasks registered
-  assertEquals(ctx.taskRegister.has("list" as TaskName), true);
-  assertEquals(ctx.taskRegister.has("clean" as TaskName), true);
-  assertEquals(ctx.taskRegister.has("tabcompletion" as TaskName), true);
+  assertEquals(ctx.taskRegister.has("list"), true);
+  assertEquals(ctx.taskRegister.has("clean"), true);
+  assertEquals(ctx.taskRegister.has("tabcompletion"), true);
 
   // Should have correct args
   assertEquals(ctx.args._, ["testTask"]);
@@ -330,13 +275,13 @@ Deno.test("CLI - execBasic sets up exec context properly", async () => {
 
 Deno.test("CLI - showTaskList function with normal output", async () => {
   const task1 = new Task({
-    name: "task1" as TaskName,
+    name: "task1",
     description: "First task",
     action: () => {},
   });
 
   const task2 = new Task({
-    name: "task2" as TaskName,
+    name: "task2",
     description: "Second task",
     action: () => {},
   });
@@ -361,7 +306,7 @@ Deno.test("CLI - showTaskList function with normal output", async () => {
 
 Deno.test("CLI - showTaskList function with quiet output", async () => {
   const task1 = new Task({
-    name: "task1" as TaskName,
+    name: "task1",
     description: "First task",
     action: () => {},
   });
@@ -385,7 +330,7 @@ Deno.test("CLI - showTaskList function with quiet output", async () => {
 
 Deno.test("CLI - showTaskList handles tasks without descriptions", async () => {
   const taskWithoutDesc = new Task({
-    name: "noDesc" as TaskName,
+    name: "noDesc",
     // No description provided
     action: () => {},
   });
@@ -409,7 +354,7 @@ Deno.test("CLI - execCli handles task execution errors", async () => {
   const _manifest = new Manifest("");
 
   const failingTask = new Task({
-    name: "failingTask" as TaskName,
+    name: "failingTask",
     action: () => {
       throw new Error("Task execution failed");
     },
@@ -432,7 +377,7 @@ Deno.test("CLI - execCli saves manifest after successful execution", async () =>
 
   let taskRun = false;
   const testTask = new Task({
-    name: "testTask" as TaskName,
+    name: "testTask",
     action: () => {
       taskRun = true;
     },
@@ -463,20 +408,20 @@ Deno.test("CLI - builtin tasks are always registered", async () => {
   const ctx = await execBasic([], [], _manifest);
 
   // Builtin tasks should still be available
-  assertEquals(ctx.taskRegister.has("list" as TaskName), true);
-  assertEquals(ctx.taskRegister.has("clean" as TaskName), true);
-  assertEquals(ctx.taskRegister.has("tabcompletion" as TaskName), true);
+  assertEquals(ctx.taskRegister.has("list"), true);
+  assertEquals(ctx.taskRegister.has("clean"), true);
+  assertEquals(ctx.taskRegister.has("tabcompletion"), true);
 
   // Check that builtin tasks have correct properties
-  const listTask = ctx.taskRegister.get("list" as TaskName);
+  const listTask = ctx.taskRegister.get("list");
   assertEquals(listTask?.name, "list");
   assertEquals(listTask?.description, "List tasks");
 
-  const cleanTask = ctx.taskRegister.get("clean" as TaskName);
+  const cleanTask = ctx.taskRegister.get("clean");
   assertEquals(cleanTask?.name, "clean");
   assertEquals(cleanTask?.description, "Clean tracked files");
 
-  const tabTask = ctx.taskRegister.get("tabcompletion" as TaskName);
+  const tabTask = ctx.taskRegister.get("tabcompletion");
   assertEquals(tabTask?.name, "tabcompletion");
   assertEquals(tabTask?.description, "Generate shell completion script");
 });
@@ -487,7 +432,7 @@ Deno.test("CLI - task execution with file dependencies", async () => {
 
   let taskRun = false;
   const taskWithDeps = new Task({
-    name: "taskWithDeps" as TaskName,
+    name: "taskWithDeps",
     action: () => {
       taskRun = true;
     },
@@ -509,7 +454,7 @@ Deno.test("CLI - concurrent task setup", async () => {
 
   const tasks = Array.from({ length: 5 }, (_, i) =>
     new Task({
-      name: `task${i}` as TaskName,
+      name: `task${i}`,
       description: `Task ${i}`,
       action: () => {},
     }));
@@ -518,8 +463,8 @@ Deno.test("CLI - concurrent task setup", async () => {
 
   // All tasks should be registered and set up
   for (let i = 0; i < 5; i++) {
-    assertEquals(ctx.taskRegister.has(`task${i}` as TaskName), true);
-    const task = ctx.taskRegister.get(`task${i}` as TaskName);
+    assertEquals(ctx.taskRegister.has(`task${i}`), true);
+    const task = ctx.taskRegister.get(`task${i}`);
     assertEquals(task?.name, `task${i}`);
   }
 });

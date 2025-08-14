@@ -37,7 +37,7 @@ function createMockExecContext(
 // Mock task for testing
 function createMockTask(name: string): Task {
   return new Task({
-    name: name as TaskName,
+    name: name,
     description: `Mock task ${name}`,
     action: () => {},
   });
@@ -106,7 +106,7 @@ Deno.test("TaskContext - context works with real Task instance", async () => {
   const manifest = new Manifest("");
 
   const realTask = new Task({
-    name: "realTask" as TaskName,
+    name: "realTask",
     description: "A real task instance",
     action: () => {},
   });
@@ -202,8 +202,8 @@ Deno.test("TaskContext - context allows getTaskByName lookup", () => {
   const task = createMockTask("testTask");
   const taskCtx = taskContext(ctx, task);
 
-  const foundTask = taskCtx.exec.getTaskByName("lookupTask" as TaskName);
-  const notFoundTask = taskCtx.exec.getTaskByName("nonexistent" as TaskName);
+  const foundTask = taskCtx.exec.getTaskByName("lookupTask");
+  const notFoundTask = taskCtx.exec.getTaskByName("nonexistent");
 
   assertEquals(foundTask, lookupTask);
   assertEquals(notFoundTask, undefined);

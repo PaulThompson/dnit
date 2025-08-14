@@ -16,7 +16,7 @@ import { Manifest } from "../manifest.ts";
 
 function createMockTask(name: string): ITask {
   return {
-    name: name as TaskName,
+    name: name,
     description: `Mock task ${name}`,
     exec: async () => {},
     setup: async () => {},

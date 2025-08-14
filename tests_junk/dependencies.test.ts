@@ -36,7 +36,7 @@ Deno.test("Dependencies - simple task → task dependencies", async () => {
   let mainTaskRun = false;
 
   const depTask = new Task({
-    name: "depTask" as TaskName,
+    name: "depTask",
     action: () => {
       depTaskRun = true;
     },
@@ -44,7 +44,7 @@ Deno.test("Dependencies - simple task → task dependencies", async () => {
   });
 
   const mainTask = new Task({
-    name: "mainTask" as TaskName,
+    name: "mainTask",
     action: () => {
       mainTaskRun = true;
     },
@@ -55,7 +55,7 @@ Deno.test("Dependencies - simple task → task dependencies", async () => {
   // Use execBasic for proper task registration and setup
   const ctx = await execBasic(["mainTask"], [depTask, mainTask], manifest);
 
-  const requestedTask = ctx.taskRegister.get("mainTask" as TaskName);
+  const requestedTask = ctx.taskRegister.get("mainTask");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -75,7 +75,7 @@ Deno.test("Dependencies - file → task dependencies", async () => {
   let taskRun = false;
 
   const mainTask = new Task({
-    name: "mainTask" as TaskName,
+    name: "mainTask",
     action: () => {
       taskRun = true;
     },
@@ -85,7 +85,7 @@ Deno.test("Dependencies - file → task dependencies", async () => {
 
   // Use execBasic for proper task setup
   const ctx = await execBasic(["mainTask"], [mainTask], manifest);
-  const requestedTask = ctx.taskRegister.get("mainTask" as TaskName);
+  const requestedTask = ctx.taskRegister.get("mainTask");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -110,7 +110,7 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
   let consumerRun = false;
 
   const producerTask = new Task({
-    name: "producer" as TaskName,
+    name: "producer",
     action: () => {
       producerRun = true;
     },
@@ -119,7 +119,7 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
   });
 
   const consumerTask = new Task({
-    name: "consumer" as TaskName,
+    name: "consumer",
     action: () => {
       consumerRun = true;
     },
@@ -133,7 +133,7 @@ Deno.test("Dependencies - task → file dependencies (target)", async () => {
     [producerTask, consumerTask],
     manifest,
   );
-  const requestedTask = ctx.taskRegister.get("consumer" as TaskName);
+  const requestedTask = ctx.taskRegister.get("consumer");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -156,7 +156,7 @@ Deno.test("Dependencies - mixed dependency types", async () => {
   let mainTaskRun = false;
 
   const depTask = new Task({
-    name: "depTask" as TaskName,
+    name: "depTask",
     action: () => {
       depTaskRun = true;
     },
@@ -169,7 +169,7 @@ Deno.test("Dependencies - mixed dependency types", async () => {
   const asyncFiles = new TrackedFilesAsync(generator);
 
   const mainTask = new Task({
-    name: "mainTask" as TaskName,
+    name: "mainTask",
     action: () => {
       mainTaskRun = true;
     },
@@ -179,7 +179,7 @@ Deno.test("Dependencies - mixed dependency types", async () => {
 
   // Use execBasic for proper task setup
   const ctx = await execBasic(["mainTask"], [depTask, mainTask], manifest);
-  const requestedTask = ctx.taskRegister.get("mainTask" as TaskName);
+  const requestedTask = ctx.taskRegister.get("mainTask");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -197,7 +197,7 @@ Deno.test("Dependencies - complex dependency chain", async () => {
   const executionOrder: string[] = [];
 
   const taskA = new Task({
-    name: "taskA" as TaskName,
+    name: "taskA",
     action: () => {
       executionOrder.push("A");
     },
@@ -205,7 +205,7 @@ Deno.test("Dependencies - complex dependency chain", async () => {
   });
 
   const taskB = new Task({
-    name: "taskB" as TaskName,
+    name: "taskB",
     action: () => {
       executionOrder.push("B");
     },
@@ -214,7 +214,7 @@ Deno.test("Dependencies - complex dependency chain", async () => {
   });
 
   const taskC = new Task({
-    name: "taskC" as TaskName,
+    name: "taskC",
     action: () => {
       executionOrder.push("C");
     },
@@ -223,7 +223,7 @@ Deno.test("Dependencies - complex dependency chain", async () => {
   });
 
   const taskD = new Task({
-    name: "taskD" as TaskName,
+    name: "taskD",
     action: () => {
       executionOrder.push("D");
     },
@@ -237,7 +237,7 @@ Deno.test("Dependencies - complex dependency chain", async () => {
     [taskA, taskB, taskC, taskD],
     manifest,
   );
-  const requestedTask = ctx.taskRegister.get("taskD" as TaskName);
+  const requestedTask = ctx.taskRegister.get("taskD");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -262,7 +262,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
 
   // Diamond pattern: Root -> [Left, Right] -> Final
   const rootTask = new Task({
-    name: "root" as TaskName,
+    name: "root",
     action: () => {
       executionOrder.push("root");
     },
@@ -270,7 +270,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
   });
 
   const leftTask = new Task({
-    name: "left" as TaskName,
+    name: "left",
     action: () => {
       executionOrder.push("left");
     },
@@ -279,7 +279,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
   });
 
   const rightTask = new Task({
-    name: "right" as TaskName,
+    name: "right",
     action: () => {
       executionOrder.push("right");
     },
@@ -288,7 +288,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
   });
 
   const finalTask = new Task({
-    name: "final" as TaskName,
+    name: "final",
     action: () => {
       executionOrder.push("final");
     },
@@ -303,7 +303,7 @@ Deno.test("Dependencies - diamond dependency pattern", async () => {
     rightTask,
     finalTask,
   ], manifest);
-  const requestedTask = ctx.taskRegister.get("final" as TaskName);
+  const requestedTask = ctx.taskRegister.get("final");
   if (requestedTask) {
     await requestedTask.exec(ctx);
   }
@@ -325,13 +325,13 @@ Deno.test("Dependencies - circular dependency detection", async () => {
 
   // Create tasks that depend on each other
   const taskA = new Task({
-    name: "taskA" as TaskName,
+    name: "taskA",
     action: () => {},
     uptodate: runAlways,
   });
 
   const taskB = new Task({
-    name: "taskB" as TaskName,
+    name: "taskB",
     action: () => {},
     deps: [taskA],
     uptodate: runAlways,
@@ -360,7 +360,7 @@ Deno.test("Dependencies - dependency ordering with multiple levels", async () =>
 
   // Create a more complex dependency tree
   const level0 = new Task({
-    name: "level0" as TaskName,
+    name: "level0",
     action: () => {
       executionOrder.push("level0");
     },
@@ -368,7 +368,7 @@ Deno.test("Dependencies - dependency ordering with multiple levels", async () =>
   });
 
   const level1a = new Task({
-    name: "level1a" as TaskName,
+    name: "level1a",
     action: () => {
       executionOrder.push("level1a");
     },
@@ -377,7 +377,7 @@ Deno.test("Dependencies - dependency ordering with multiple levels", async () =>
   });
 
   const level1b = new Task({
-    name: "level1b" as TaskName,
+    name: "level1b",
     action: () => {
       executionOrder.push("level1b");
     },
@@ -386,7 +386,7 @@ Deno.test("Dependencies - dependency ordering with multiple levels", async () =>
   });
 
   const level2 = new Task({
-    name: "level2" as TaskName,
+    name: "level2",
     action: () => {
       executionOrder.push("level2");
     },
@@ -423,7 +423,7 @@ Deno.test("Dependencies - async file dependencies resolution", async () => {
   const asyncFiles = new TrackedFilesAsync(generator);
 
   const mainTask = new Task({
-    name: "mainTask" as TaskName,
+    name: "mainTask",
     action: () => {
       taskRun = true;
     },
@@ -451,7 +451,7 @@ Deno.test("Dependencies - empty dependencies", async () => {
   let taskRun = false;
 
   const taskWithNoDeps = new Task({
-    name: "noDepsTask" as TaskName,
+    name: "noDepsTask",
     action: () => {
       taskRun = true;
     },
@@ -478,7 +478,7 @@ Deno.test("Dependencies - task with file dependencies that don't exist", async (
   let taskRun = false;
 
   const taskWithMissingFile = new Task({
-    name: "missingFileTask" as TaskName,
+    name: "missingFileTask",
     action: () => {
       taskRun = true;
     },
@@ -508,7 +508,7 @@ Deno.test("Dependencies - target registry population during setup", async () => 
   const ctx = await execBasic([], [], new Manifest(""));
 
   const taskWithTarget = new Task({
-    name: "taskWithTarget" as TaskName,
+    name: "taskWithTarget",
     action: () => {},
     targets: [targetFile],
   });
@@ -534,7 +534,7 @@ Deno.test("Dependencies - dependency execution prevents duplicate runs", async (
   let task2RunCount = 0;
 
   const sharedDep = new Task({
-    name: "shared" as TaskName,
+    name: "shared",
     action: () => {
       sharedTaskRunCount++;
     },
@@ -542,7 +542,7 @@ Deno.test("Dependencies - dependency execution prevents duplicate runs", async (
   });
 
   const task1 = new Task({
-    name: "task1" as TaskName,
+    name: "task1",
     action: () => {
       task1RunCount++;
     },
@@ -551,7 +551,7 @@ Deno.test("Dependencies - dependency execution prevents duplicate runs", async (
   });
 
   const task2 = new Task({
-    name: "task2" as TaskName,
+    name: "task2",
     action: () => {
       task2RunCount++;
     },
@@ -580,12 +580,12 @@ Deno.test("Dependencies - task function creates proper dependencies", async () =
   const trackedFile = new TrackedFile({ path: tempFile });
 
   const depTask = task({
-    name: "depTask" as TaskName,
+    name: "depTask",
     action: () => {},
   });
 
   const mainTask = task({
-    name: "mainTask" as TaskName,
+    name: "mainTask",
     action: () => {},
     deps: [depTask, trackedFile],
   });

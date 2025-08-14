@@ -149,26 +149,26 @@ Deno.test("TabCompletion - task list integration for completion", () => {
 
   // Create test tasks
   const task1 = new Task({
-    name: "build" as TaskName,
+    name: "build",
     description: "Build the project",
     action: () => {},
   });
 
   const task2 = new Task({
-    name: "test" as TaskName,
+    name: "test",
     description: "Run tests",
     action: () => {},
   });
 
   const task3 = new Task({
-    name: "deploy" as TaskName,
+    name: "deploy",
     description: "Deploy application",
     action: () => {},
   });
 
-  ctx.taskRegister.set("build" as TaskName, task1);
-  ctx.taskRegister.set("test" as TaskName, task2);
-  ctx.taskRegister.set("deploy" as TaskName, task3);
+  ctx.taskRegister.set("build", task1);
+  ctx.taskRegister.set("test", task2);
+  ctx.taskRegister.set("deploy", task3);
 
   try {
     // Test quiet mode (used by completion script)
@@ -290,7 +290,7 @@ Deno.test("TabCompletion - script includes proper error handling", () => {
 
 Deno.test("TabCompletion - completion works with user tasks", async () => {
   const userTask = new Task({
-    name: "customBuild" as TaskName,
+    name: "customBuild",
     description: "Custom build task",
     action: () => {},
   });
@@ -372,12 +372,12 @@ Deno.test("TabCompletion - handles tasks with complex names", () => {
   const console = captureConsole();
 
   const complexTask = new Task({
-    name: "build:prod-release" as TaskName,
+    name: "build:prod-release",
     description: "Production release build",
     action: () => {},
   });
 
-  ctx.taskRegister.set("build:prod-release" as TaskName, complexTask);
+  ctx.taskRegister.set("build:prod-release", complexTask);
 
   try {
     showTaskList(ctx, { _: [], quiet: true } as Args);

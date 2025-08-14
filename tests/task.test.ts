@@ -93,6 +93,7 @@ Deno.test("Task - task with TrackedFilesAsync dependencies", async () => {
   const tempFile = await createFileInDir(dirPath, "test_file.txt", "async content");
   
   const generator = async () => {
+    // await something to make it actually async
     await new Promise<void>((resolve) => queueMicrotask(resolve));
     return [file(tempFile)];
   };

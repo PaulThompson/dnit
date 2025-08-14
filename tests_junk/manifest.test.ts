@@ -58,19 +58,19 @@ Deno.test("Manifest - save and load with task data", async () => {
       },
     };
 
-    manifest.tasks["testTask" as TaskName] = new TaskManifest(taskData);
+    manifest.tasks["testTask"] = new TaskManifest(taskData);
     await manifest.save();
 
     const loadedManifest = new Manifest(tempDir);
     await loadedManifest.load();
 
-    assertExists(loadedManifest.tasks["testTask" as TaskName]);
+    assertExists(loadedManifest.tasks["testTask"]);
     assertEquals(
-      loadedManifest.tasks["testTask" as TaskName].lastExecution,
+      loadedManifest.tasks["testTask"].lastExecution,
       "2023-01-01T00:00:00.000Z",
     );
     assertEquals(
-      loadedManifest.tasks["testTask" as TaskName].getFileData("test.txt"),
+      loadedManifest.tasks["testTask"].getFileData("test.txt"),
       {
         hash: "abc123",
         timestamp: "2023-01-01T00:00:00.000Z",
@@ -147,8 +147,8 @@ Deno.test("Manifest - save creates valid JSON structure", async () => {
       },
     };
 
-    manifest.tasks["task1" as TaskName] = new TaskManifest(taskData);
-    manifest.tasks["task2" as TaskName] = new TaskManifest({
+    manifest.tasks["task1"] = new TaskManifest(taskData);
+    manifest.tasks["task2"] = new TaskManifest({
       lastExecution: null,
       trackedFiles: {},
     });
@@ -169,7 +169,7 @@ Deno.test("Manifest - save creates valid JSON structure", async () => {
 Deno.test("Manifest - multiple save/load cycles preserve data", async () => {
   await withTempDir(async (tempDir) => {
     const manifest1 = new Manifest(tempDir);
-    manifest1.tasks["test" as TaskName] = new TaskManifest({
+    manifest1.tasks["test"] = new TaskManifest({
       lastExecution: "2023-01-01T00:00:00.000Z",
       trackedFiles: {
         "file.txt": {
@@ -182,7 +182,7 @@ Deno.test("Manifest - multiple save/load cycles preserve data", async () => {
 
     const manifest2 = new Manifest(tempDir);
     await manifest2.load();
-    manifest2.tasks["test" as TaskName].setFileData("file.txt", {
+    manifest2.tasks["test"].setFileData("file.txt", {
       hash: "updated",
       timestamp: "2023-01-01T00:00:01.000Z",
     });
@@ -191,7 +191,7 @@ Deno.test("Manifest - multiple save/load cycles preserve data", async () => {
     const manifest3 = new Manifest(tempDir);
     await manifest3.load();
 
-    const fileData = manifest3.tasks["test" as TaskName].getFileData(
+    const fileData = manifest3.tasks["test"].getFileData(
       "file.txt",
     );
     assertEquals(fileData?.hash, "updated");
@@ -219,7 +219,7 @@ Deno.test("Manifest - concurrent access simulation", async () => {
     // Simulate concurrent writes
     const promises = [
       (async () => {
-        manifest1.tasks["task1" as TaskName] = new TaskManifest({
+        manifest1.tasks["task1"] = new TaskManifest({
           lastExecution: "2023-01-01T00:00:00.000Z",
           trackedFiles: {},
         });
@@ -227,7 +227,7 @@ Deno.test("Manifest - concurrent access simulation", async () => {
       })(),
       (async () => {
         await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
-        manifest2.tasks["task2" as TaskName] = new TaskManifest({
+        manifest2.tasks["task2"] = new TaskManifest({
           lastExecution: "2023-01-01T00:00:01.000Z",
           trackedFiles: {},
         });
@@ -242,7 +242,7 @@ Deno.test("Manifest - concurrent access simulation", async () => {
     await finalManifest.load();
 
     // Only task2 should remain (last write wins)
-    assertExists(finalManifest.tasks["task2" as TaskName]);
+    assertExists(finalManifest.tasks["task2"]);
     assertEquals(Object.keys(finalManifest.tasks).length, 1);
   });
 });
