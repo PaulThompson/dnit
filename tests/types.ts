@@ -50,6 +50,7 @@ type AllChecks = {
 
 // Ensure all checks pass using AllOf
 type AllChecksPass = AllOf<[AllChecks[keyof AllChecks]]>;
+const passed: AllChecksPass = true as const;
 
 Deno.test("type checks pass at runtime", () => {
   // Simple runtime test that the checks are defined
