@@ -35,7 +35,16 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
     }
   });
 
-  console.log(output)
   assertStringIncludes(output, "myTask");
   assertStringIncludes(output, "My test task");
+  
+  // check for all builtin tasks in the list
+  assertStringIncludes(output, "clean");
+  assertStringIncludes(output, "Clean tracked files");
+  
+  assertStringIncludes(output, "list");
+  assertStringIncludes(output, "List tasks");
+  
+  assertStringIncludes(output, "tabcompletion");
+  assertStringIncludes(output, "Generate shell completion script");
 });
