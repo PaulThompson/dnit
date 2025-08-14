@@ -48,6 +48,16 @@ type AllChecks = {
   manifest: ManifestCheck;
 };
 
+const allChecks: AllChecks = {
+  taskName: true,
+  trackedFileName: true,
+  trackedFileHash: true,
+  timestamp: true,
+  trackedFileData: true,
+  taskData: true,
+  manifest: true,
+};
+
 // Ensure all checks pass using AllOf
 type AllChecksPass = AllOf<[AllChecks[keyof AllChecks]]>;
 const passed: AllChecksPass = true as const;
