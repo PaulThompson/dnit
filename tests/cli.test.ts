@@ -28,13 +28,14 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
 
   let output = "";
   
-  // Use execCli directly with stdout override
+  // run cli with no arg to test the 'list' feature on no args.
   await execCli([], [testTask], {
     stdout: (text: string) => {
       output += text;
     }
   });
 
+  console.log(output)
   assertStringIncludes(output, "myTask");
   assertStringIncludes(output, "My test task");
 });
