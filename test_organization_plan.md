@@ -135,14 +135,15 @@ implementation details.
 - ❌ Handle corrupt manifest files
 - ❌ Manifest schema validation
 - ❌ Concurrent access handling
+- ❌ Multiple save/load cycles
+- ❌ State consistency across runs
 
 ### 6.2 Task State Tracking
 
 - ✅ Track last execution time
 - ✅ Track file hashes and timestamps
 - ✅ Update manifest after execution
-- ❌ Multiple save/load cycles
-- ❌ State consistency across runs
+
 
 ## 7. Git Integration (Developer Workflow)
 
