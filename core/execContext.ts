@@ -67,7 +67,6 @@ export class ExecContext implements IExecContext {
     return this.asyncQueue.schedule(action);
   }
 
-
   get concurrency(): number {
     return this.asyncQueue.concurrency || 4;
   }

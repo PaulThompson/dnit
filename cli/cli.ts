@@ -87,15 +87,20 @@ export async function execContextInitBasicArgs(
 ): Promise<ExecContext> {
   // Extract loggers and other overrides
   const defaultLoggers = createConsoleLoggers();
-  const { 
+  const {
     internalLogger = defaultLoggers.internalLogger,
-    taskLogger = defaultLoggers.taskLogger, 
+    taskLogger = defaultLoggers.taskLogger,
     userLogger = defaultLoggers.userLogger,
     cliLogger = defaultLoggers.cliLogger,
-    ...otherOverrides 
+    ...otherOverrides
   } = overrides || {};
 
-  const loggers : ILoggers = { internalLogger, taskLogger, userLogger, cliLogger };
+  const loggers: ILoggers = {
+    internalLogger,
+    taskLogger,
+    userLogger,
+    cliLogger,
+  };
   const ctx = new ExecContext(manifest, args, loggers);
 
   // Apply other overrides if any

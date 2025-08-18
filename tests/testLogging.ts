@@ -27,7 +27,9 @@ export function createTestLoggers(): TestLogCapture {
   const testStdErr = new TestCaptureHandler();
 
   const loggers: ILoggers = {
-    internalLogger: new log.Logger("internal", "WARN", { handlers: [testStdErr] }),
+    internalLogger: new log.Logger("internal", "WARN", {
+      handlers: [testStdErr],
+    }),
     taskLogger: new log.Logger("task", "INFO", { handlers: [testStdErr] }),
     userLogger: new log.Logger("user", "INFO", { handlers: [testStdOut] }),
     cliLogger: new log.Logger("cli", "INFO", { handlers: [testStdOut] }),

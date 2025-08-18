@@ -14,12 +14,13 @@ class StdErrPlainHandler extends log.BaseHandler {
   }
 }
 
-
 export function createConsoleLoggers(): ILoggers {
   const stderrHandler = new StdErrPlainHandler("DEBUG");
-  
+
   return {
-    internalLogger: new log.Logger("internal", "WARN", { handlers: [stderrHandler] }),
+    internalLogger: new log.Logger("internal", "WARN", {
+      handlers: [stderrHandler],
+    }),
     taskLogger: new log.Logger("task", "INFO", { handlers: [stderrHandler] }),
     userLogger: new log.Logger("user", "INFO", { handlers: [stderrHandler] }),
     cliLogger: new log.Logger("cli", "INFO", { handlers: [stderrHandler] }),

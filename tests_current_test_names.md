@@ -1,21 +1,25 @@
 # Test Names from Current tests/ Directory
 
 ## asyncQueue.test.ts (1 test)
+
 1. "async queue"
 
 ## basic.test.ts (4 tests)
+
 1. "basic test - two tasks with dependency"
 2. "task up to date"
 3. "async file deps test"
 4. "tasks with target and clean"
 
 ## cli.test.ts (4 tests)
+
 1. "CLI - execCli executes the requested task"
 2. "CLI - execCli defaults to list task when no args"
 3. "CLI - execCli handles non-existent task"
 4. "CLI - execCli handles task execution errors"
 
 ## filesystem.test.ts (1 test with 15 sub-tests)
+
 1. "filesystem utilities" (with sub-tests via t.step):
    - "statPath - file exists"
    - "statPath - file does not exist"
@@ -34,6 +38,7 @@
    - "special characters in paths"
 
 ## task.test.ts (21 tests)
+
 1. "Task - basic task creation"
 2. "Task - task() function"
 3. "Task - task with dependencies"
@@ -59,6 +64,7 @@
 23. "Task - description is optional"
 
 ## textTable.test.ts (1 test with 11 sub-tests)
+
 1. "textTable utilities" (with sub-tests via t.step):
    - "basic table with single row"
    - "empty table with headers only"
@@ -73,9 +79,11 @@
    - "table line structure"
 
 ## types.ts (1 test)
+
 1. "type checks pass at runtime"
 
 ## uptodate.test.ts (12 tests)
+
 1. "UpToDate - file modification detection by hash"
 2. "UpToDate - timestamp-based change detection"
 3. "UpToDate - custom uptodate function execution"
@@ -90,6 +98,7 @@
 12. "UpToDate - file disappears after initial tracking"
 
 ## Total Test Count
+
 - **8 test files** (excluding helper files)
 - **45 main test cases**
 - **26 sub-tests** (via t.step)
@@ -100,11 +109,13 @@
 ### Coverage Differences
 
 **Better Coverage in Current Tests:**
+
 - AsyncQueue concurrency testing (not in old tests)
 - Filesystem utilities (comprehensive new coverage)
 - Type checking tests (new)
 
 **Lost Coverage from Old Tests:**
+
 - TrackedFile class (27 tests → integrated into other tests)
 - TrackedFilesAsync class (18 tests → reduced coverage)
 - Dependencies testing (14 tests → integrated into basic and task tests)
@@ -115,6 +126,7 @@
 - Clean task specifics (integrated into basic tests)
 
 ### Consolidation Achieved:
+
 - TaskContext tests merged into task.test.ts
 - Manifest tests simplified
 - Up-to-date logic consolidated

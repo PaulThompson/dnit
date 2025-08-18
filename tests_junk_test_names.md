@@ -1,6 +1,7 @@
 # Test Names from tests_junk Directory
 
 ## TaskContext.test.ts (15 tests)
+
 1. "TaskContext - taskContext function creates context"
 2. "TaskContext - context uses taskLogger from exec context"
 3. "TaskContext - context preserves task reference"
@@ -16,6 +17,7 @@
 13. "TaskContext - interface compliance"
 
 ## TrackedFile.test.ts (23 tests)
+
 1. "TrackedFile - basic file creation"
 2. "TrackedFile - file() function"
 3. "TrackedFile - trackFile() alias"
@@ -45,6 +47,7 @@
 27. "TrackedFile - permission denied scenarios"
 
 ## TrackedFilesAsync.test.ts (18 tests)
+
 1. "TrackedFilesAsync - basic creation"
 2. "TrackedFilesAsync - asyncFiles function"
 3. "TrackedFilesAsync - isTrackedFileAsync type guard"
@@ -64,6 +67,7 @@
 17. "TrackedFilesAsync - memory usage with large result sets"
 
 ## cli.test.ts (12 tests)
+
 1. "CLI - builtin clean task with no args cleans all tasks"
 2. "CLI - builtin clean task with specific task args"
 3. "CLI - builtin tabcompletion task generates bash script"
@@ -78,6 +82,7 @@
 12. "CLI - concurrent task setup"
 
 ## dependencies.test.ts (14 tests)
+
 1. "Dependencies - simple task → task dependencies"
 2. "Dependencies - file → task dependencies"
 3. "Dependencies - task → file dependencies (target)"
@@ -94,6 +99,7 @@
 14. "Dependencies - task function creates proper dependencies"
 
 ## git.test.ts (2 tests + sub-tests)
+
 1. "git utilities" (with 6 sub-tests via t.step):
    - "gitIsClean - basic functionality"
    - "gitLastCommitMessage - returns string"
@@ -108,6 +114,7 @@
    - "regex handling in gitLatestTag"
 
 ## launch.test.ts (17 tests)
+
 1. "Launch - parseDotDenoVersionFile parses version requirement"
 2. "Launch - parseDotDenoVersionFile handles multiline requirements"
 3. "Launch - getDenoVersion returns current deno version"
@@ -128,6 +135,7 @@
 18. "Launch - stops at root directory"
 
 ## manifest.test.ts (12 tests)
+
 1. "Manifest - constructor creates filename path"
 2. "Manifest - constructor with custom filename"
 3. "Manifest - load non-existent file"
@@ -142,6 +150,7 @@
 12. "Manifest - concurrent access simulation"
 
 ## manifestSchemas.test.ts (11 tests)
+
 1. "ManifestSchemas - TaskNameSchema validates strings"
 2. "ManifestSchemas - TrackedFileNameSchema validates strings"
 3. "ManifestSchemas - TrackedFileHashSchema validates strings"
@@ -155,9 +164,11 @@
 11. "ManifestSchemas - nested validation errors"
 
 ## process.test.ts (1 test)
+
 1. "Process - run"
 
 ## tabcompletion.test.ts (17 tests)
+
 1. "TabCompletion - echoBashCompletionScript generates valid bash script"
 2. "TabCompletion - script contains proper bash syntax"
 3. "TabCompletion - script includes sub-commands"
@@ -177,6 +188,7 @@
 17. "TabCompletion - uses proper bash completion helper"
 
 ## targets.test.ts (10 tests)
+
 1. "target file creation and validation"
 2. "multiple targets per task"
 3. "target file conflicts and overwrites"
@@ -189,6 +201,7 @@
 10. "task without targets"
 
 ## taskManifest.test.ts (13 tests)
+
 1. "TaskManifest - constructor with empty data"
 2. "TaskManifest - constructor with populated data"
 3. "TaskManifest - getFileData returns undefined for non-existent file"
@@ -204,6 +217,7 @@
 13. "TaskManifest - handles empty tracked files"
 
 ## textTable.test.ts (1 test with 12 sub-tests)
+
 1. "textTable utilities" (with sub-tests via t.step):
    - "basic table with single row"
    - "empty table with headers only"
@@ -218,6 +232,7 @@
    - "table line structure"
 
 ## uptodate.test.ts (12 tests)
+
 1. "UpToDate - file modification detection by hash"
 2. "UpToDate - timestamp-based change detection"
 3. "UpToDate - custom uptodate function execution"
@@ -232,5 +247,6 @@
 12. "UpToDate - file disappears after initial tracking"
 
 ## Total Test Count
+
 - **15 test files**
 - **Approximately 195 individual test cases** (including sub-tests)

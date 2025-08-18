@@ -724,7 +724,10 @@ Deno.test("UpToDate - custom timestamp from file content", async () => {
   ctx.inprogressTasks.clear();
 
   // Change content but keep same timestamp in file
-  await Deno.writeTextFile(tempFile, "# Timestamp: 2023-01-01T00:00:00.000Z\ndifferent content here");
+  await Deno.writeTextFile(
+    tempFile,
+    "# Timestamp: 2023-01-01T00:00:00.000Z\ndifferent content here",
+  );
 
   // Should NOT run because custom hash is constant and timestamp didn't change
   if (requestedTask) {
@@ -732,12 +735,15 @@ Deno.test("UpToDate - custom timestamp from file content", async () => {
   }
   assertEquals(taskRunCount, 1);
 
-  // Reset done tasks  
+  // Reset done tasks
   ctx.doneTasks.clear();
   ctx.inprogressTasks.clear();
 
   // Keep same content but change timestamp in file
-  await Deno.writeTextFile(tempFile, "# Timestamp: 2023-12-31T23:59:59.999Z\ndifferent content here");
+  await Deno.writeTextFile(
+    tempFile,
+    "# Timestamp: 2023-12-31T23:59:59.999Z\ndifferent content here",
+  );
 
   // Should run because timestamp changed (now both hash AND timestamp must match)
   if (requestedTask) {
@@ -802,7 +808,7 @@ Deno.test("UpToDate - combined custom hash and timestamp functions", async () =>
   ctx.doneTasks.clear();
   ctx.inprogressTasks.clear();
 
-  // Change version (hash changes) but keep same size (timestamp same) 
+  // Change version (hash changes) but keep same size (timestamp same)
   await Deno.writeTextFile(tempFile, "version: 2\ndata: some content");
 
   // Should run because hash changed (version: 1 → version: 2)
@@ -816,7 +822,10 @@ Deno.test("UpToDate - combined custom hash and timestamp functions", async () =>
   ctx.inprogressTasks.clear();
 
   // Change size (timestamp changes) but keep same version (hash same)
-  await Deno.writeTextFile(tempFile, "version: 2\ndata: different content here");
+  await Deno.writeTextFile(
+    tempFile,
+    "version: 2\ndata: different content here",
+  );
 
   // Should run because timestamp changed (file size changed)
   if (requestedTask) {

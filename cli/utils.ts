@@ -4,7 +4,9 @@ import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 
 export function showTaskList(ctx: IExecContext, args: Args) {
   if (args["quiet"]) {
-    Array.from(ctx.taskRegister.values()).map((task) => ctx.cliLogger.info(task.name));
+    Array.from(ctx.taskRegister.values()).map((task) =>
+      ctx.cliLogger.info(task.name)
+    );
   } else {
     ctx.cliLogger.info(
       textTable(
