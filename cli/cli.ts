@@ -84,22 +84,21 @@ export async function execContextInitBasicArgs(
   manifest: Manifest,
   overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
-  // Create default loggers if not provided in overrides
+  // Extract loggers and other overrides
   const defaultLoggers = createConsoleLoggers();
-  const loggers = {
-    internalLogger: overrides?.internalLogger || defaultLoggers.internalLogger,
-    taskLogger: overrides?.taskLogger || defaultLoggers.taskLogger,
-    userLogger: overrides?.userLogger || defaultLoggers.userLogger,
-    cliLogger: overrides?.cliLogger || defaultLoggers.cliLogger,
-  };
+  const { 
+    internalLogger = defaultLoggers.internalLogger,
+    taskLogger = defaultLoggers.taskLogger, 
+    userLogger = defaultLoggers.userLogger,
+    cliLogger = defaultLoggers.cliLogger,
+    ...otherOverrides 
+  } = overrides || {};
 
+  const loggers = { internalLogger, taskLogger, userLogger, cliLogger };
   const ctx = new ExecContext(manifest, args, loggers);
 
-  // Apply other overrides if provided
-  if (overrides) {
-    const { internalLogger: _, taskLogger: __, userLogger: ___, cliLogger: ____, ...otherOverrides } = overrides;
-    Object.assign(ctx, otherOverrides);
-  }
+  // Apply other overrides if any
+  Object.assign(ctx, otherOverrides);
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
