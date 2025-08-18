@@ -1,5 +1,5 @@
 import type { Args } from "@std/cli/parse-args";
-import * as log from "@std/log";
+import type * as log from "@std/log";
 import { version } from "../version.ts";
 import { AsyncQueue } from "../utils/asyncQueue.ts";
 import type { Manifest } from "../manifest.ts";

@@ -4,6 +4,7 @@ import { ExecContext } from "../core/execContext.ts";
 import type { Task } from "../core/task.ts";
 import { builtinTasks } from "./builtinTasks.ts";
 import { createConsoleLoggers } from "./logging.ts";
+import type { ILoggers } from "../interfaces/core/ICoreInterfaces.ts";
 
 export type ExecResult = {
   success: boolean;
@@ -94,11 +95,13 @@ export async function execContextInitBasicArgs(
     ...otherOverrides 
   } = overrides || {};
 
-  const loggers = { internalLogger, taskLogger, userLogger, cliLogger };
+  const loggers : ILoggers = { internalLogger, taskLogger, userLogger, cliLogger };
   const ctx = new ExecContext(manifest, args, loggers);
 
   // Apply other overrides if any
   Object.assign(ctx, otherOverrides);
+
+  // register given tasks:
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 
   /// register built-in tasks:
@@ -106,7 +109,7 @@ export async function execContextInitBasicArgs(
     ctx.taskRegister.set(t.name, t);
   }
 
-  // execute setup on all tasks
+  // execute setup on all tasks:
   await Promise.all(
     Array.from(ctx.taskRegister.values()).map((t) =>
       ctx.schedule(() => t.setup(ctx))

@@ -14,25 +14,6 @@ import {
   requireCleanGit,
 } from "../utils/git.ts";
 
-// Mock exec context for testing
-function createMockExecContext(manifest: IManifest): IExecContext {
-  return {
-    taskRegister: new Map(),
-    targetRegister: new Map(),
-    doneTasks: new Set(),
-    inprogressTasks: new Set(),
-    internalLogger: log.getLogger("internal"),
-    taskLogger: log.getLogger("task"),
-    userLogger: log.getLogger("user"),
-    concurrency: 1,
-    verbose: false,
-    manifest,
-    args: { _: [] } as Args,
-    getTaskByName: () => undefined,
-    schedule: <T>(action: () => Promise<T>) => action(),
-    stdout: () => {},
-  };
-}
 
 Deno.test("git utilities", async (t) => {
   // Skip tests if not in a git repository
