@@ -1,4 +1,5 @@
 import * as log from "@std/log";
+import type { ILoggers } from "../interfaces/core/ICoreInterfaces.ts";
 
 /// StdErr plaintext handler (no color codes)
 class StdErrPlainHandler extends log.BaseHandler {
@@ -20,33 +21,15 @@ class StdErrHandler extends log.ConsoleHandler {
   }
 }
 
-export function setupLogging() {
-  log.setup({
-    handlers: {
-      stderr: new StdErrHandler("DEBUG"),
-      stderrPlain: new StdErrPlainHandler("DEBUG"),
-    },
-
-    loggers: {
-      // internals of dnit tooling
-      internal: {
-        level: "WARN",
-        handlers: ["stderrPlain"],
-      },
-
-      // basic events eg start of task or task already up to date
-      task: {
-        level: "INFO",
-        handlers: ["stderrPlain"],
-      },
-
-      // for user to use within task actions
-      user: {
-        level: "INFO",
-        handlers: ["stderrPlain"],
-      },
-    },
-  });
+export function createConsoleLoggers(): ILoggers {
+  const stderrHandler = new StdErrPlainHandler("DEBUG");
+  
+  return {
+    internalLogger: new log.Logger("internal", "WARN", { handlers: [stderrHandler] }),
+    taskLogger: new log.Logger("task", "INFO", { handlers: [stderrHandler] }),
+    userLogger: new log.Logger("user", "INFO", { handlers: [stderrHandler] }),
+    cliLogger: new log.Logger("cli", "INFO", { handlers: [stderrHandler] }),
+  };
 }
 
 /** Convenience access to a setup logger for tasks */

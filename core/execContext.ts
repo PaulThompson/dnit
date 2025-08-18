@@ -9,6 +9,7 @@ import type {
 } from "../interfaces/core/IManifestTypes.ts";
 import type {
   IExecContext,
+  ILoggers,
   ITask,
 } from "../interfaces/core/ICoreInterfaces.ts";
 
@@ -31,16 +32,23 @@ export class ExecContext implements IExecContext {
   /// Queue for scheduling async work with specified number allowable concurrently.
   asyncQueue: AsyncQueue;
 
-  internalLogger: log.Logger = log.getLogger("internal");
-  taskLogger: log.Logger = log.getLogger("task");
-  userLogger: log.Logger = log.getLogger("user");
+  readonly internalLogger: log.Logger;
+  readonly taskLogger: log.Logger;
+  readonly userLogger: log.Logger;
+  readonly cliLogger: log.Logger;
 
   constructor(
     /// loaded hash manifest
     readonly manifest: Manifest,
     /// commandline args
     readonly args: Args,
+    /// loggers
+    loggers: ILoggers,
   ) {
+    this.internalLogger = loggers.internalLogger;
+    this.taskLogger = loggers.taskLogger;
+    this.userLogger = loggers.userLogger;
+    this.cliLogger = loggers.cliLogger;
     if (args["verbose"] !== undefined) {
       this.internalLogger.levelName = "INFO";
     }
@@ -59,13 +67,6 @@ export class ExecContext implements IExecContext {
     return this.asyncQueue.schedule(action);
   }
 
-  stdout(message: string): void {
-    console.log(message);
-  }
-
-  stderr(message: string): void {
-    console.error(message);
-  }
 
   get concurrency(): number {
     return this.asyncQueue.concurrency || 4;

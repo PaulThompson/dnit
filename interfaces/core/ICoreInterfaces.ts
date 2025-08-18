@@ -13,6 +13,13 @@ export interface ITask {
 }
 
 // Execution context interface
+export interface ILoggers {
+  readonly internalLogger: log.Logger;
+  readonly taskLogger: log.Logger;
+  readonly userLogger: log.Logger;
+  readonly cliLogger: log.Logger;
+}
+
 export interface IExecContext {
   // Task registry
   readonly taskRegister: Map<TaskName, ITask>;
@@ -26,6 +33,7 @@ export interface IExecContext {
   readonly internalLogger: log.Logger;
   readonly taskLogger: log.Logger;
   readonly userLogger: log.Logger;
+  readonly cliLogger: log.Logger;
 
   // Configuration
   readonly concurrency: number;
@@ -38,8 +46,6 @@ export interface IExecContext {
   // Methods
   getTaskByName(name: TaskName): ITask | undefined;
   schedule<T>(action: () => Promise<T>): Promise<T>;
-  stdout(message: string): void;
-  stderr(message: string): void;
 }
 
 // Task execution context passed to actions

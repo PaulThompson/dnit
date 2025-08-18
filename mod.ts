@@ -55,7 +55,7 @@ export {
   type ExecResult,
   main,
 } from "./cli/cli.ts";
-export { getLogger, setupLogging } from "./cli/logging.ts";
+export { getLogger } from "./cli/logging.ts";
 
 // Manifest handling
 export { Manifest } from "./manifest.ts";

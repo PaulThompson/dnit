@@ -16,11 +16,11 @@ export const builtinTasks: Task[] = [
           .filter((task) => task !== undefined)
         : Array.from(ctx.exec.taskRegister.values());
       if (affectedTasks.length > 0) {
-        ctx.exec.stdout("Clean tasks:");
+        ctx.exec.cliLogger.info("Clean tasks:");
         /// Reset tasks
         await Promise.all(
           affectedTasks.map((t) => {
-            ctx.exec.stdout(`  ${t.name}`);
+            ctx.exec.cliLogger.info(`  ${t.name}`);
             return ctx.exec.schedule(() => t.reset(ctx.exec));
           }),
         );

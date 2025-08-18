@@ -3,7 +3,7 @@ import { Manifest } from "../manifest.ts";
 import { ExecContext } from "../core/execContext.ts";
 import type { Task } from "../core/task.ts";
 import { builtinTasks } from "./builtinTasks.ts";
-import { setupLogging } from "./logging.ts";
+import { createConsoleLoggers } from "./logging.ts";
 
 export type ExecResult = {
   success: boolean;
@@ -15,8 +15,6 @@ export async function execContextInit(
   tasks: Task[],
   overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
-  setupLogging();
-
   /// directory of user's entrypoint source as discovered by 'launch' util:
   const dnitDir = args["dnitDir"] || "./dnit";
 
@@ -44,7 +42,7 @@ export async function executeRequestedTask(
       await ctx.manifest.save();
       return { success: true };
     } else {
-      ctx.stderr(`Task ${requestedTaskName} not found`);
+      ctx.taskLogger.error(`Task ${requestedTaskName} not found`);
       return { success: false };
     }
   } catch (err) {
@@ -86,11 +84,21 @@ export async function execContextInitBasicArgs(
   manifest: Manifest,
   overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
-  const ctx = new ExecContext(manifest, args);
+  // Create default loggers if not provided in overrides
+  const defaultLoggers = createConsoleLoggers();
+  const loggers = {
+    internalLogger: overrides?.internalLogger || defaultLoggers.internalLogger,
+    taskLogger: overrides?.taskLogger || defaultLoggers.taskLogger,
+    userLogger: overrides?.userLogger || defaultLoggers.userLogger,
+    cliLogger: overrides?.cliLogger || defaultLoggers.cliLogger,
+  };
 
-  // Apply overrides if provided
+  const ctx = new ExecContext(manifest, args, loggers);
+
+  // Apply other overrides if provided
   if (overrides) {
-    Object.assign(ctx, overrides);
+    const { internalLogger: _, taskLogger: __, userLogger: ___, cliLogger: ____, ...otherOverrides } = overrides;
+    Object.assign(ctx, otherOverrides);
   }
   tasks.forEach((t) => ctx.taskRegister.set(t.name, t));
 

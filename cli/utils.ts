@@ -4,9 +4,9 @@ import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 
 export function showTaskList(ctx: IExecContext, args: Args) {
   if (args["quiet"]) {
-    Array.from(ctx.taskRegister.values()).map((task) => ctx.stdout(task.name));
+    Array.from(ctx.taskRegister.values()).map((task) => ctx.cliLogger.info(task.name));
   } else {
-    ctx.stdout(
+    ctx.cliLogger.info(
       textTable(
         ["Name", "Description"],
         Array.from(ctx.taskRegister.values()).map((t) => [
@@ -19,7 +19,7 @@ export function showTaskList(ctx: IExecContext, args: Args) {
 }
 
 export function echoBashCompletionScript(ctx: IExecContext) {
-  ctx.stdout(
+  ctx.cliLogger.info(
     "# bash completion for dnit\n" +
       "# auto-generate by `dnit tabcompletion`\n" +
       "\n" +

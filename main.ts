@@ -1,4 +1,4 @@
-import { setupLogging } from "./mod.ts";
+import { createConsoleLoggers } from "./cli/logging.ts";
 import { type Args, parseArgs } from "@std/cli/parse-args";
 import * as log from "@std/log";
 import { launch } from "./launch.ts";
@@ -11,16 +11,15 @@ export async function main() {
     Deno.exit(0);
   }
 
-  setupLogging();
-  const internalLogger = log.getLogger("internal");
+  const loggers = createConsoleLoggers();
 
   if (args["verbose"] !== undefined) {
-    internalLogger.levelName = "INFO";
+    loggers.internalLogger.levelName = "INFO";
   }
 
-  internalLogger.info(`starting dnit launch using version: ${version}`);
+  loggers.internalLogger.info(`starting dnit launch using version: ${version}`);
 
-  const st = await launch(internalLogger);
+  const st = await launch(loggers.internalLogger);
   Deno.exit(st.code);
 }
 

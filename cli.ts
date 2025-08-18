@@ -1,5 +1,5 @@
 // Re-export for backward compatibility
-export { getLogger, setupLogging } from "./cli/logging.ts";
+export { getLogger } from "./cli/logging.ts";
 export {
   execCli,
   execContextInitBasic as execBasic,
