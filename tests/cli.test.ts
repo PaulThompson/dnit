@@ -61,3 +61,23 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
   assertEquals(result.success, false);
   assertStringIncludes(output, "Task nonExistentTask not found");
 });
+
+Deno.test("CLI - execCli handles task execution errors", async () => {
+  const failingTask = task({
+    name: "failingTask", 
+    description: "A task that throws an error",
+    action: () => {
+      throw new Error("Task execution failed");
+    },
+    uptodate: runAlways,
+  });
+
+  try {
+    await execCli(["failingTask"], [failingTask]);
+    // Should not reach here - execCli should throw
+    assertEquals(false, true, "execCli should have thrown an error");
+  } catch (error) {
+    // Verify the error was thrown as expected
+    assertStringIncludes((error as Error).message, "Task execution failed");
+  }
+});
