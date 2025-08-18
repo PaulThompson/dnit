@@ -596,6 +596,551 @@ Deno.test("UpToDate - custom uptodate with task context access", async () => {
   assertEquals(taskRunCount, 0); // Should NOT run because uptodate returned true (up-to-date)
 });
 
+Deno.test("UpToDate - custom hash function based on file size", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "size_hash_test.txt",
+    "initial content",
+  );
+
+  // Custom hash function that uses file size as the "hash"
+  const sizeBasedHash = (_filePath: string, stat: Deno.FileInfo) => {
+    return stat.size?.toString() || "0";
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: sizeBasedHash,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "sizeHashTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["sizeHashTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("sizeHashTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Second run - same content, same size, should not run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Change content but keep same size
+  await Deno.writeTextFile(tempFile, "different cont"); // Same length as "initial content"
+
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because file timestamp changed (even though size-based hash is same)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  // Change to different size
+  await Deno.writeTextFile(tempFile, "much longer content than before");
+
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because both size (hash) and timestamp changed
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 3);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - async custom hash function", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "async_hash_test.txt",
+    "async test",
+  );
+
+  // Async custom hash function that simulates a delayed computation
+  const asyncCustomHash = async (filePath: string, _stat: Deno.FileInfo) => {
+    // Simulate async work
+    await new Promise(resolve => setTimeout(resolve, 1));
+    // Return first few characters of content as "hash"
+    const content = await Deno.readTextFile(filePath);
+    return content.substring(0, 3);
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: asyncCustomHash,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "asyncHashTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["asyncHashTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("asyncHashTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Change first characters
+  await Deno.writeTextFile(tempFile, "different content");
+
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because first 3 characters changed from "asy" to "dif"
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - custom hash function error handling", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "error_hash_test.txt",
+    "error test",
+  );
+
+  let shouldThrow = false;
+  const errorProneHash = (_filePath: string, _stat: Deno.FileInfo) => {
+    if (shouldThrow) {
+      throw new Error("Custom hash function failed");
+    }
+    return "stable-hash";
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: errorProneHash,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "errorHashTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["errorHashTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("errorHashTask");
+
+  // First run - should work
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Enable error and try again
+  shouldThrow = true;
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should propagate the error from custom hash function
+  try {
+    if (requestedTask) {
+      await requestedTask.exec(ctx);
+    }
+    assertEquals(true, false, "Should have thrown an error");
+  } catch (error) {
+    // The error might be wrapped, so check if the message contains our custom error
+    const errorMessage = (error as Error).message;
+    if (!errorMessage.includes("Custom hash function failed")) {
+      throw error; // Re-throw unexpected errors
+    }
+  }
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - custom timestamp function", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "custom_timestamp_test.txt",
+    "timestamp test content",
+  );
+
+  let fakeTimestamp = "2023-01-01T00:00:00.000Z";
+  
+  // Custom timestamp function that returns a controllable timestamp
+  const customTimestamp = (_filePath: string, _stat: Deno.FileInfo) => {
+    return fakeTimestamp;
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getTimestamp: customTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "customTimestampTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["customTimestampTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("customTimestampTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Rewrite file content but keep same custom timestamp
+  await Deno.writeTextFile(tempFile, "different content but same timestamp");
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because content hash changed (even though our custom timestamp didn't)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  // Keep same content but change custom timestamp
+  fakeTimestamp = "2023-12-31T23:59:59.999Z";
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should NOT run because content didn't change (hash is the same)
+  // Custom timestamp change alone won't trigger re-run if hash is unchanged
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - async custom timestamp function", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "async_timestamp_test.txt",
+    "async timestamp test",
+  );
+
+  let timestampSuffix = "001Z";
+  
+  // Async custom timestamp function 
+  const asyncCustomTimestamp = async (_filePath: string, stat: Deno.FileInfo) => {
+    // Simulate async work
+    await new Promise(resolve => setTimeout(resolve, 1));
+    // Return modified version of actual timestamp
+    const baseTime = stat.mtime?.toISOString().slice(0, -4) || "2023-01-01T00:00:00.";
+    return baseTime + timestampSuffix;
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getTimestamp: asyncCustomTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "asyncTimestampTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["asyncTimestampTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("asyncTimestampTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Change the timestamp suffix
+  timestampSuffix = "999Z";
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should NOT run because the actual file content/hash hasn't changed  
+  // Custom timestamp change alone doesn't trigger re-run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - custom timestamp function error handling", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "error_timestamp_test.txt",
+    "error timestamp test",
+  );
+
+  let shouldThrow = false;
+  const errorProneTimestamp = (_filePath: string, _stat: Deno.FileInfo) => {
+    if (shouldThrow) {
+      throw new Error("Custom timestamp function failed");
+    }
+    return "2023-01-01T00:00:00.000Z";
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getTimestamp: errorProneTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "errorTimestampTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["errorTimestampTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("errorTimestampTask");
+
+  // First run - should work
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Enable error and try again
+  shouldThrow = true;
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should throw when trying to get timestamp
+  try {
+    if (requestedTask) {
+      await requestedTask.exec(ctx);
+    }
+    assertEquals(true, false, "Should have thrown an error");
+  } catch (error) {
+    assertEquals((error as Error).message, "Custom timestamp function failed");
+  }
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - combined custom hash and timestamp functions", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "combined_custom_test.txt",
+    "combined test content",
+  );
+
+  let customHashValue = "hash-v1";
+  let customTimestampValue = "2023-06-01T12:00:00.000Z";
+  
+  // Custom hash function
+  const customHash = (_filePath: string, _stat: Deno.FileInfo) => {
+    return customHashValue;
+  };
+
+  // Custom timestamp function
+  const customTimestamp = (_filePath: string, _stat: Deno.FileInfo) => {
+    return customTimestampValue;
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: customHash,
+    getTimestamp: customTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "combinedCustomTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["combinedCustomTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("combinedCustomTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Change only the hash by modifying the file content  
+  await Deno.writeTextFile(tempFile, "changed content to trigger hash change");
+  customHashValue = "hash-v2";
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because file content changed (and our custom hash changed)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  // Change only the timestamp (keep same hash and file content)
+  customHashValue = "hash-v2"; // Keep same hash
+  customTimestampValue = "2023-06-02T12:00:00.000Z";
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because timestamp changed (this tests if timestamp affects up-to-date)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 3);
+
+  // Keep both values the same
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should NOT run because both hash and timestamp are unchanged
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 3);
+
+  // Change both at once
+  customHashValue = "hash-v3";
+  customTimestampValue = "2023-06-03T12:00:00.000Z";
+  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Should run because both changed
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 4);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - mixed async custom hash with sync custom timestamp", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "mixed_async_test.txt",
+    "mixed async content",
+  );
+
+  let hashCounter = 0;
+  const timestampValue = "2023-01-01T00:00:00.000Z";
+  
+  // Async custom hash function
+  const asyncCustomHash = async (_filePath: string, _stat: Deno.FileInfo) => {
+    // Simulate async work
+    await new Promise(resolve => setTimeout(resolve, 1));
+    hashCounter++;
+    return `async-hash-${hashCounter}`;
+  };
+
+  // Sync custom timestamp function
+  const syncCustomTimestamp = (_filePath: string, _stat: Deno.FileInfo) => {
+    return timestampValue;
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: asyncCustomHash,
+    getTimestamp: syncCustomTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "mixedAsyncTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["mixedAsyncTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("mixedAsyncTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+  assertEquals(hashCounter, 1);
+
+  // Reset and run again - hash will increment, triggering re-run
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+  assertEquals(hashCounter, 2);
+
+  await cleanup();
+});
+
 Deno.test("UpToDate - file disappears after initial tracking", async () => {
   const { dirPath, cleanup } = await createTempDir();
   const tempFile = await createFileInDir(
