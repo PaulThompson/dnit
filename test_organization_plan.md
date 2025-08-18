@@ -59,11 +59,11 @@ Prioritized test areas from most critical user-facing functionality to internal 
 ## 3. Project Discovery & Setup (User Experience)
 
 ### 3.1 Dnit Project Discovery
-- ❌ Find dnit directory in current path
-- ❌ Find dnit directory in parent paths
-- ❌ Support alternative locations (deno/dnit)
-- ❌ Handle missing dnit directory gracefully
-- ❌ Prefer main.ts over dnit.ts
+- ✅ Find dnit directory in current path
+- ✅ Find dnit directory in parent paths
+- ✅ Support alternative locations (deno/dnit)
+- ✅ Handle missing dnit directory gracefully
+- ✅ Prefer main.ts over dnit.ts
 
 ### 3.2 Source File Discovery
 - ❌ Import map discovery and usage
