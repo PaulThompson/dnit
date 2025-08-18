@@ -39,6 +39,7 @@ export interface IExecContext {
   getTaskByName(name: TaskName): ITask | undefined;
   schedule<T>(action: () => Promise<T>): Promise<T>;
   stdout(message: string): void;
+  stderr(message: string): void;
 }
 
 // Task execution context passed to actions

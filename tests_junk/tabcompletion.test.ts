@@ -1,6 +1,6 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { echoBashCompletionScript, showTaskList } from "../cli/utils.ts";
-import { execContextInitBasic, execCli } from "../cli/cli.ts";
+import { execCli, execContextInitBasic } from "../cli/cli.ts";
 import { Task, task } from "../core/task.ts";
 import type { TaskName } from "../interfaces/core/IManifestTypes.ts";
 import { Manifest } from "../manifest.ts";
@@ -53,7 +53,7 @@ Deno.test("TabCompletion - echoBashCompletionScript generates valid bash script"
   const ctx = await execContextInitBasic([], [], new Manifest(""));
   const stdoutLogs: string[] = [];
   ctx.stdout = (message: string) => stdoutLogs.push(message);
-  
+
   echoBashCompletionScript(ctx);
   const output = stdoutLogs.join("\n");
 

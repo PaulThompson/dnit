@@ -46,7 +46,11 @@ Deno.test("Task - task() function", () => {
 
 Deno.test("Task - task with dependencies", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "dependency content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "dependency content",
+  );
   const trackedFile = new TrackedFile({ path: tempFile });
 
   const depTask = new Task({
@@ -70,7 +74,11 @@ Deno.test("Task - task with dependencies", async () => {
 
 Deno.test("Task - task with targets", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "target content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "target content",
+  );
   const targetFile = new TrackedFile({ path: tempFile });
 
   const testTask = new Task({
@@ -90,8 +98,12 @@ Deno.test("Task - task with targets", async () => {
 
 Deno.test("Task - task with TrackedFilesAsync dependencies", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "async content");
-  
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "async content",
+  );
+
   const generator = async () => {
     // await something to make it actually async
     await new Promise<void>((resolve) => queueMicrotask(resolve));
@@ -108,7 +120,7 @@ Deno.test("Task - task with TrackedFilesAsync dependencies", async () => {
 
   assertEquals(testTask.async_files_deps.size, 1);
   assertEquals(testTask.async_files_deps.has(asyncFiles), true);
-  
+
   await cleanup();
 });
 
@@ -147,7 +159,11 @@ Deno.test("Task - empty task name is allowed", () => {
 
 Deno.test("Task - duplicate target assignment throws error", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "shared target");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "shared target",
+  );
   const sharedTarget = new TrackedFile({ path: tempFile });
 
   const _task1 = new Task({
@@ -173,7 +189,11 @@ Deno.test("Task - duplicate target assignment throws error", async () => {
 
 Deno.test("Task - setup registers targets", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "target content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "target content",
+  );
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
 
@@ -336,7 +356,11 @@ Deno.test("Task - exec with runAlways", async () => {
 
 Deno.test("Task - reset cleans targets", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "target content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "target content",
+  );
   const targetFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
 
@@ -399,7 +423,11 @@ Deno.test("Task - action receives TaskContext", async () => {
 
 Deno.test("Task - exec with file dependencies updates manifest", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "dependency content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "dependency content",
+  );
   const trackedFile = new TrackedFile({ path: tempFile });
   const manifest = new Manifest("");
 
@@ -423,7 +451,11 @@ Deno.test("Task - exec with file dependencies updates manifest", async () => {
 
 Deno.test("Task - task with mixed dependency types", async () => {
   const { dirPath, cleanup } = await createTempDir();
-  const tempFile = await createFileInDir(dirPath, "test_file.txt", "mixed dep content");
+  const tempFile = await createFileInDir(
+    dirPath,
+    "test_file.txt",
+    "mixed dep content",
+  );
   const trackedFile = new TrackedFile({ path: tempFile });
 
   const depTask = new Task({

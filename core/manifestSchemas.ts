@@ -54,4 +54,3 @@ export const ManifestSchema: z.ZodObject<{
 }> = z.object({
   tasks: z.record(TaskNameSchema, TaskDataSchema),
 });
-

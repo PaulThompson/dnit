@@ -75,7 +75,11 @@ Deno.test("filesystem utilities", async (t) => {
   });
 
   await t.step("deletePath - file exists", async () => {
-    const testFile = await createFileInDir(testDir, "to_delete.txt", "delete me");
+    const testFile = await createFileInDir(
+      testDir,
+      "to_delete.txt",
+      "delete me",
+    );
 
     // Verify file exists
     const beforeStat = await statPath(testFile);
@@ -153,7 +157,11 @@ Deno.test("filesystem utilities", async (t) => {
 
   await t.step("getFileSha1Sum - large file", async () => {
     const largeContent = "A".repeat(100000); // 100KB of 'A's
-    const testFile = await createFileInDir(testDir, "large_test.txt", largeContent);
+    const testFile = await createFileInDir(
+      testDir,
+      "large_test.txt",
+      largeContent,
+    );
 
     const hash = await getFileSha1Sum(testFile);
 
@@ -172,7 +180,11 @@ Deno.test("filesystem utilities", async (t) => {
   });
 
   await t.step("getFileTimestamp - valid file", async () => {
-    const testFile = await createFileInDir(testDir, "timestamp_test.txt", "timestamp content");
+    const testFile = await createFileInDir(
+      testDir,
+      "timestamp_test.txt",
+      "timestamp content",
+    );
 
     const fileInfo = await Deno.stat(testFile);
     const timestamp = getFileTimestamp(testFile, fileInfo);
@@ -203,7 +215,7 @@ Deno.test("filesystem utilities", async (t) => {
     const specialFile = await createFileInDir(
       testDir,
       "file with spaces & symbols!.txt",
-      "special content"
+      "special content",
     );
 
     const result = await statPath(specialFile);

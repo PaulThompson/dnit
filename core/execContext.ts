@@ -63,6 +63,10 @@ export class ExecContext implements IExecContext {
     console.log(message);
   }
 
+  stderr(message: string): void {
+    console.error(message);
+  }
+
   get concurrency(): number {
     return this.asyncQueue.concurrency || 4;
   }

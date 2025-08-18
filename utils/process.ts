@@ -29,6 +29,8 @@ export async function runConsole(
 
   const result = await dcmd.output();
   if (!result.success) {
-    throw new Error(`Command failed with exit code ${result.code}: ${cmd.join(' ')}`);
+    throw new Error(
+      `Command failed with exit code ${result.code}: ${cmd.join(" ")}`,
+    );
   }
 }

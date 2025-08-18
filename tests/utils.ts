@@ -1,8 +1,10 @@
 import * as path from "@std/path";
 
-export async function createTempDir(): Promise<{ dirPath: string; cleanup: () => Promise<void> }> {
+export async function createTempDir(): Promise<
+  { dirPath: string; cleanup: () => Promise<void> }
+> {
   const tempDir = await Deno.makeTempDir({ prefix: "dnit_test_" });
-  
+
   return {
     dirPath: tempDir,
     cleanup: async () => {
@@ -27,4 +29,3 @@ export async function createFileInDir(
   await Deno.writeTextFile(filePath, content);
   return filePath;
 }
-

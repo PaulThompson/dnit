@@ -24,16 +24,31 @@ import type {
  */
 
 // Utility types for bidirectional checking
-type And<A extends boolean, B extends boolean> = A extends true ? B extends true ? true : false : false;
-type AllOf<T extends readonly boolean[]> = T[number] extends true ? true : false;
-type Equivalent<A, B> = And<A extends B ? true : false, B extends A ? true : false>;
+type And<A extends boolean, B extends boolean> = A extends true
+  ? B extends true ? true : false
+  : false;
+type AllOf<T extends readonly boolean[]> = T[number] extends true ? true
+  : false;
+type Equivalent<A, B> = And<
+  A extends B ? true : false,
+  B extends A ? true : false
+>;
 
 // Type checks using utility types
 type TaskNameCheck = Equivalent<z.infer<typeof TaskNameSchema>, TaskName>;
-type TrackedFileNameCheck = Equivalent<z.infer<typeof TrackedFileNameSchema>, TrackedFileName>;
-type TrackedFileHashCheck = Equivalent<z.infer<typeof TrackedFileHashSchema>, TrackedFileHash>;
+type TrackedFileNameCheck = Equivalent<
+  z.infer<typeof TrackedFileNameSchema>,
+  TrackedFileName
+>;
+type TrackedFileHashCheck = Equivalent<
+  z.infer<typeof TrackedFileHashSchema>,
+  TrackedFileHash
+>;
 type TimestampCheck = Equivalent<z.infer<typeof TimestampSchema>, Timestamp>;
-type TrackedFileDataCheck = Equivalent<z.infer<typeof TrackedFileDataSchema>, TrackedFileData>;
+type TrackedFileDataCheck = Equivalent<
+  z.infer<typeof TrackedFileDataSchema>,
+  TrackedFileData
+>;
 type TaskDataCheck = Equivalent<z.infer<typeof TaskDataSchema>, TaskData>;
 type ManifestCheck = Equivalent<z.infer<typeof ManifestSchema>, Manifest>;
 
@@ -67,7 +82,7 @@ Deno.test("type checks pass at runtime", () => {
   if (!passed) {
     throw new Error("Type checks failed");
   }
-  
+
   // Verify all checks in the object are true
   for (const [key, value] of Object.entries(allChecks)) {
     if (value !== true) {

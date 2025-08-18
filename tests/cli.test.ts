@@ -53,11 +53,11 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
   let output = "";
 
   const result = await execCli(["nonExistentTask"], [], {
-    stdout: (text: string) => {
+    stderr: (text: string) => {
       output += text;
     },
   });
   
   assertEquals(result.success, false);
-  assertStringIncludes(output, "Task 'nonExistentTask' not found");
+  assertStringIncludes(output, "Task nonExistentTask not found");
 });

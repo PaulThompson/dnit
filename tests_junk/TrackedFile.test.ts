@@ -13,7 +13,6 @@ import {
 } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
 
-
 function createMockTask(name: string): ITask {
   return {
     name: name,

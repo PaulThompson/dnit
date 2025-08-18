@@ -59,7 +59,7 @@ Deno.test("TaskContext - taskContext function creates context", async () => {
 Deno.test("TaskContext - context uses taskLogger from exec context", async () => {
   const task = createMockTask("testTask");
   const ctx = await execContextInitBasic([], [task], new Manifest(""));
-  
+
   const taskCtx = taskContext(ctx, task);
 
   assertEquals(taskCtx.logger, ctx.taskLogger);
@@ -128,7 +128,7 @@ Deno.test("TaskContext - context allows logger access", () => {
   Object.assign(ctx.taskLogger, {
     info: (msg: string) => {
       loggedMessage = msg;
-    }
+    },
   });
   const task = createMockTask("testTask");
   const taskCtx = taskContext(ctx, task);

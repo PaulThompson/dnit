@@ -1,4 +1,4 @@
-import { parseArgs, type Args } from "@std/cli/parse-args";
+import { type Args, parseArgs } from "@std/cli/parse-args";
 import { Manifest } from "../manifest.ts";
 import { ExecContext } from "../core/execContext.ts";
 import type { Task } from "../core/task.ts";
@@ -14,22 +14,23 @@ export async function execContextInit(
   args: Args,
   tasks: Task[],
   overrides?: Partial<ExecContext>,
-) : Promise<ExecContext> {
+): Promise<ExecContext> {
   setupLogging();
 
   /// directory of user's entrypoint source as discovered by 'launch' util:
   const dnitDir = args["dnitDir"] || "./dnit";
-  
+
   const manifest = new Manifest(dnitDir);
-  
+
   const ctx = await execContextInitBasicArgs(args, tasks, manifest, overrides);
-  return ctx
+  return ctx;
 }
 
-
 // Execute a specific task by name, handling manifest load/save and error reporting.
-export async function executeRequestedTask(ctx: ExecContext, requestedTaskName: string) {
-  
+export async function executeRequestedTask(
+  ctx: ExecContext,
+  requestedTaskName: string,
+) {
   try {
     /// Load manifest (dependency tracking data)
     await ctx.manifest.load();
@@ -39,14 +40,13 @@ export async function executeRequestedTask(ctx: ExecContext, requestedTaskName: 
     if (requestedTask !== undefined) {
       /// Execute the requested task:
       await requestedTask.exec(ctx);
+      /// Save manifest (dependency tracking data)
+      await ctx.manifest.save();
+      return { success: true };
     } else {
-      ctx.taskLogger.error(`Task ${requestedTaskName} not found`);
+      ctx.stderr(`Task ${requestedTaskName} not found`);
+      return { success: false };
     }
-
-    /// Save manifest (dependency tracking data)
-    await ctx.manifest.save();
-
-    return { success: true };
   } catch (err) {
     ctx.taskLogger.error("Error", err);
     throw err;
@@ -61,7 +61,7 @@ export function getRequestedTaskName(args: Args) {
   }
 
   // default to show the list for no args
-  return "list"
+  return "list";
 }
 
 /** Execute given commandline args and array of items (task & trackedfile) */
@@ -87,7 +87,7 @@ export async function execContextInitBasicArgs(
   overrides?: Partial<ExecContext>,
 ): Promise<ExecContext> {
   const ctx = new ExecContext(manifest, args);
-  
+
   // Apply overrides if provided
   if (overrides) {
     Object.assign(ctx, overrides);

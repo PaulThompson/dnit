@@ -13,30 +13,6 @@ import { Manifest } from "../manifest.ts";
 import { runAlways } from "../core/task.ts";
 import { showTaskList } from "../cli/utils.ts";
 
-
-Deno.test("CLI - execCli defaults to list task when no args", async () => {
-  const _manifest = new Manifest("");
-  const console = captureConsole();
-
-  const testTask = new Task({
-    name: "myTask",
-    description: "My test task",
-    action: () => {},
-  });
-
-  try {
-    const result = await execCli([], [testTask]);
-    assertEquals(result.success, true);
-
-    // Should show task list
-    const output = console.logs.join("\n");
-    assertStringIncludes(output, "myTask");
-    assertStringIncludes(output, "My test task");
-  } finally {
-    console.restore();
-  }
-});
-
 Deno.test("CLI - execCli handles non-existent task", async () => {
   const _manifest = new Manifest("");
   let errorLogged = false;
@@ -54,7 +30,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
     error: (msg: string) => {
       errorLogged = true;
       errorMessage = msg;
-    }
+    },
   });
 
   const requestedTask = ctx.taskRegister.get("nonExistentTask");

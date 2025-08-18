@@ -49,7 +49,12 @@ export { TaskManifest } from "./core/taskManifest.ts";
 export { type TaskContext, taskContext } from "./core/TaskContext.ts";
 
 // CLI utilities
-export { execContextInitBasic as execBasic, execCli, type ExecResult, main } from "./cli/cli.ts";
+export {
+  execCli,
+  execContextInitBasic as execBasic,
+  type ExecResult,
+  main,
+} from "./cli/cli.ts";
 export { getLogger, setupLogging } from "./cli/logging.ts";
 
 // Manifest handling
