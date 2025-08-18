@@ -41,7 +41,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 - ✅ Handle non-existent task errors
 - ✅ Handle task execution failures
 - ❌ Help command/documentation
-- ❌ Version information
 - ❌ Verbose/quiet mode flags
 
 ### 2.2 Built-in Commands
@@ -64,16 +63,11 @@ Prioritized test areas from most critical user-facing functionality to internal 
 - ❌ Find dnit directory in parent paths
 - ❌ Support alternative locations (deno/dnit)
 - ❌ Handle missing dnit directory gracefully
+- ❌ Prefer main.ts over dnit.ts
 
 ### 3.2 Source File Discovery
-- ❌ Prefer main.ts over dnit.ts
 - ❌ Import map discovery and usage
 - ❌ Handle missing source files
-
-### 3.3 Version Management
-- ❌ Parse .denoversion files
-- ❌ Validate Deno version requirements
-- ❌ Handle version mismatches gracefully
 
 ## 4. File Tracking System (Core Functionality)
 
@@ -209,7 +203,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 - Project discovery/setup
 - Git integration
 - Tab completion
-- Version management
 - Error recovery
 - Performance testing
 - Concurrent operations
@@ -225,7 +218,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 ### Priority 2: Workflow Integration
 1. **Git Integration** - Many workflows depend on git status
 2. **Tab Completion** - Improves developer experience significantly
-3. **Version Management** - Prevents compatibility issues
 
 ### Priority 3: Robustness
 1. **Manifest Corruption Recovery** - Prevents data loss
