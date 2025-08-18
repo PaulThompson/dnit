@@ -76,8 +76,8 @@ Prioritized test areas from most critical user-facing functionality to internal 
 - ✅ Check file existence
 - ✅ Calculate file hash (SHA-1)
 - ✅ Get file timestamp
-- ⚠️ Custom hash functions (partially tested)
-- ⚠️ Custom timestamp functions (partially tested)
+- ✅ Custom hash functions (size-based with constant timestamp)
+- ✅ Custom timestamp functions (extracted from file content with constant hash)
 - ✅ Binary file support
 - ✅ Large file support
 - ❌ Permission denied handling

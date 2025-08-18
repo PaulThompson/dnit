@@ -596,6 +596,237 @@ Deno.test("UpToDate - custom uptodate with task context access", async () => {
   assertEquals(taskRunCount, 0); // Should NOT run because uptodate returned true (up-to-date)
 });
 
+Deno.test("UpToDate - custom hash function based on file size", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "size_hash_test.txt",
+    "initial content",
+  );
+
+  // Custom hash function that uses file size as the "hash"
+  const sizeBasedHash = (_filePath: string, stat: Deno.FileInfo) => {
+    return stat.size?.toString() || "0";
+  };
+
+  // Custom timestamp that always returns the same value
+  const constantTimestamp = (_filePath: string, _stat: Deno.FileInfo) => {
+    return "2023-01-01T00:00:00.000Z";
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: sizeBasedHash,
+    getTimestamp: constantTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "sizeHashTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["sizeHashTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("sizeHashTask");
+
+  // First run - should execute to initialize
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Write different content but same length as "initial content" (15 chars)
+  await Deno.writeTextFile(tempFile, "different conte");
+
+  // Should NOT run because size-based hash is same AND timestamp is constant
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Change to different size
+  await Deno.writeTextFile(tempFile, "much longer content than before");
+
+  // Should run because file size changed
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - custom timestamp from file content", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "timestamp_test.txt",
+    "# Timestamp: 2023-01-01T00:00:00.000Z\nsome content here",
+  );
+
+  // Custom timestamp function that extracts timestamp from file content
+  const extractTimestamp = async (filePath: string, _stat: Deno.FileInfo) => {
+    try {
+      const content = await Deno.readTextFile(filePath);
+      const match = content.match(/# Timestamp: (.+)/);
+      return match ? match[1] : "2000-01-01T00:00:00.000Z";
+    } catch {
+      return "2000-01-01T00:00:00.000Z";
+    }
+  };
+
+  // Custom hash that always returns the same value
+  const constantHash = (_filePath: string, _stat: Deno.FileInfo) => {
+    return "constant-hash";
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: constantHash,
+    getTimestamp: extractTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "timestampTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["timestampTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("timestampTask");
+
+  // First run - should execute to initialize
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Change content but keep same timestamp in file
+  await Deno.writeTextFile(tempFile, "# Timestamp: 2023-01-01T00:00:00.000Z\ndifferent content here");
+
+  // Should NOT run because custom hash is constant and timestamp didn't change
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks  
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Keep same content but change timestamp in file
+  await Deno.writeTextFile(tempFile, "# Timestamp: 2023-12-31T23:59:59.999Z\ndifferent content here");
+
+  // Should run because timestamp changed (now both hash AND timestamp must match)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  await cleanup();
+});
+
+Deno.test("UpToDate - combined custom hash and timestamp functions", async () => {
+  const { dirPath, cleanup } = await createTempDir();
+  const tempFile = await createFileInDir(
+    dirPath,
+    "combined_test.txt",
+    "version: 1\ndata: some content",
+  );
+
+  // Custom hash based on version line
+  const versionHash = async (filePath: string, _stat: Deno.FileInfo) => {
+    try {
+      const content = await Deno.readTextFile(filePath);
+      const match = content.match(/version: (\d+)/);
+      return match ? `v${match[1]}` : "v0";
+    } catch {
+      return "v0";
+    }
+  };
+
+  // Custom timestamp from file size (simple demonstration)
+  const sizeTimestamp = (_filePath: string, stat: Deno.FileInfo) => {
+    return `2023-01-01T00:${stat.size || 0}:00.000Z`;
+  };
+
+  const trackedFile = new TrackedFile({
+    path: tempFile,
+    getHash: versionHash,
+    getTimestamp: sizeTimestamp,
+  });
+
+  const manifest = new Manifest("");
+  let taskRunCount = 0;
+
+  const task = new Task({
+    name: "combinedTask",
+    action: () => {
+      taskRunCount++;
+    },
+    deps: [trackedFile],
+  });
+
+  const ctx = await execBasic(["combinedTask"], [task], manifest);
+  const requestedTask = ctx.taskRegister.get("combinedTask");
+
+  // First run
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 1);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Change version (hash changes) but keep same size (timestamp same) 
+  await Deno.writeTextFile(tempFile, "version: 2\ndata: some content");
+
+  // Should run because hash changed (version: 1 → version: 2)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 2);
+
+  // Reset done tasks
+  ctx.doneTasks.clear();
+  ctx.inprogressTasks.clear();
+
+  // Change size (timestamp changes) but keep same version (hash same)
+  await Deno.writeTextFile(tempFile, "version: 2\ndata: different content here");
+
+  // Should run because timestamp changed (file size changed)
+  if (requestedTask) {
+    await requestedTask.exec(ctx);
+  }
+  assertEquals(taskRunCount, 3);
+
+  await cleanup();
+});
+
 Deno.test("UpToDate - file disappears after initial tracking", async () => {
   const { dirPath, cleanup } = await createTempDir();
   const tempFile = await createFileInDir(

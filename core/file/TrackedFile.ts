@@ -109,6 +109,7 @@ export class TrackedFile {
       statResult = await this.stat();
     }
 
+    // File is up-to-date only if BOTH hash and timestamp match
     // On Windows, check hash first since timestamp caching can be unreliable
     if (Deno.build.os === "windows") {
       const hash = await this.getHash(statResult);
@@ -122,8 +123,8 @@ export class TrackedFile {
 
     // On other platforms, check timestamp first (faster)
     const mtime = await this.getTimestamp(statResult);
-    if (mtime === tData.timestamp) {
-      return true;
+    if (mtime !== tData.timestamp) {
+      return false;
     }
     const hash = await this.getHash(statResult);
     return hash === tData.hash;
