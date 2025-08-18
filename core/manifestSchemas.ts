@@ -1,13 +1,4 @@
 import { z } from "zod";
-import type {
-  Manifest as _Manifest,
-  TaskData as _TaskData,
-  TaskName,
-  Timestamp,
-  TrackedFileData as _TrackedFileData,
-  TrackedFileHash,
-  TrackedFileName,
-} from "../interfaces/core/IManifestTypes.ts";
 
 // Zod schemas for manifest type validation and inference
 export const TaskNameSchema: z.ZodString = z.string();

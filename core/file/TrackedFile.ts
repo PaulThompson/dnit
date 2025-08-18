@@ -146,7 +146,7 @@ export class TrackedFile {
 
   /// return given tData if up to date or re-calculate
   async getFileDataOrCached(
-    ctx: IExecContext,
+    _ctx: IExecContext,
     tData: TrackedFileData | undefined,
     statInput?: StatResult,
   ): Promise<{

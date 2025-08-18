@@ -14,12 +14,6 @@ class StdErrPlainHandler extends log.BaseHandler {
   }
 }
 
-/// StdErr handler on top of ConsoleHandler (which uses colors)
-class StdErrHandler extends log.ConsoleHandler {
-  override log(msg: string): void {
-    Deno.stderr.writeSync(new TextEncoder().encode(msg + "\n"));
-  }
-}
 
 export function createConsoleLoggers(): ILoggers {
   const stderrHandler = new StdErrPlainHandler("DEBUG");

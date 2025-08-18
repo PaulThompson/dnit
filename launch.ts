@@ -3,7 +3,6 @@
 import * as fs from "@std/fs";
 import type * as log from "@std/log";
 import * as path from "@std/path";
-import * as semver from "@std/semver";
 
 type UserSource = {
   baseDir: string;

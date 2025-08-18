@@ -11,7 +11,7 @@ import { assertEquals } from "@std/assert";
 
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";
-import { createFileInDir, createTempDir } from "./utils.ts";
+import { createTempDir } from "./utils.ts";
 
 Deno.test("basic test - two tasks with dependency", async () => {
   const tasksDone: { [key: string]: boolean } = {};
