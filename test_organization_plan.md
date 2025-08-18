@@ -200,7 +200,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 - Circular dependencies
 
 ### Missing Coverage ❌
-- Project discovery/setup
 - Git integration
 - Tab completion
 - Error recovery
@@ -211,7 +210,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 ## Recommendations
 
 ### Priority 1: Critical Gaps (User-Facing)
-1. **Project Discovery Tests** - Users need dnit to find their projects
 2. **Better Error Messages** - Users need clear feedback when things go wrong
 3. **CLI Help/Documentation** - Users need to discover features
 
@@ -234,7 +232,6 @@ Prioritized test areas from most critical user-facing functionality to internal 
 The current test suite is better organized but has lost important coverage. Consider:
 
 1. **Restore Git Tests** - Create `git.test.ts` for git integration
-2. **Restore Launch Tests** - Create `discovery.test.ts` for project discovery
 3. **Expand Manifest Tests** - Add corruption and concurrency tests
 4. **Add Integration Tests** - Test complete workflows end-to-end
 5. **Add Performance Tests** - Benchmark with large projects
