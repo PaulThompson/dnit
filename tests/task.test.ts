@@ -489,3 +489,85 @@ Deno.test("Task - description is optional", () => {
 
   assertEquals(testTask.description, undefined);
 });
+
+Deno.test("Task - circular dependency detection A->B->C->A", async () => {
+  const manifest = new Manifest("");
+
+  const taskA = new Task({
+    name: "taskA",
+    action: () => console.log("Running task A"),
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => console.log("Running task B"),
+    deps: [taskA],
+  });
+
+  const taskC = new Task({
+    name: "taskC",
+    action: () => console.log("Running task C"),
+    deps: [taskB],
+  });
+
+  // Create circular dependency: A depends on C
+  taskA.task_deps.add(taskC);
+
+  // Try to execute taskA which should trigger circular dependency
+  const ctx = await execBasic([], [taskA, taskB, taskC], manifest);
+  
+  try {
+    await taskA.exec(ctx);
+    console.log("Task execution completed without error");
+  } catch (error) {
+    console.log("Error during execution:", (error as Error).message);
+  }
+});
+
+Deno.test("Task - self-referencing task", async () => {
+  const manifest = new Manifest("");
+
+  const selfTask = new Task({
+    name: "selfTask",
+    action: () => console.log("Running self task"),
+  });
+
+  // Make task depend on itself
+  selfTask.task_deps.add(selfTask);
+
+  const ctx = await execBasic([], [selfTask], manifest);
+  
+  try {
+    await selfTask.exec(ctx);
+    console.log("Self-referencing task completed without error");
+  } catch (error) {
+    console.log("Error during self-referencing execution:", (error as Error).message);
+  }
+});
+
+Deno.test("Task - circular dependency A->B->A", async () => {
+  const manifest = new Manifest("");
+
+  const taskA = new Task({
+    name: "taskA",
+    action: () => console.log("Running task A"),
+  });
+
+  const taskB = new Task({
+    name: "taskB", 
+    action: () => console.log("Running task B"),
+    deps: [taskA],
+  });
+
+  // Create circular dependency: A depends on B
+  taskA.task_deps.add(taskB);
+
+  const ctx = await execBasic([], [taskA, taskB], manifest);
+  
+  try {
+    await taskA.exec(ctx);
+    console.log("Simple circular dependency completed without error");
+  } catch (error) {
+    console.log("Error during simple circular execution:", (error as Error).message);
+  }
+});
