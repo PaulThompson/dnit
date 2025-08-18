@@ -50,5 +50,14 @@ Deno.test("CLI - execCli defaults to list task when no args", async () => {
 });
 
 Deno.test("CLI - execCli handles non-existent task", async () => {
-  //
+  let output = "";
+
+  const result = await execCli(["nonExistentTask"], [], {
+    stdout: (text: string) => {
+      output += text;
+    },
+  });
+  
+  assertEquals(result.success, false);
+  assertStringIncludes(output, "Task 'nonExistentTask' not found");
 });
