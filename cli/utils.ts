@@ -33,6 +33,10 @@ function showHelpCommon(logger: { info: (msg: string) => void }) {
   logger.info("  --quiet       Enable quiet mode (minimal output)\n");
 }
 
+function helpFooter(logger: { info: (msg: string) => void }) {
+  logger.info("\nFor more information: https://github.com/PaulThompson/dnit");
+}
+
 export function showHelp(ctx: IExecContext) {
   showHelpCommon(ctx.cliLogger);
   
@@ -53,7 +57,7 @@ export function showHelp(ctx: IExecContext) {
     ctx.cliLogger.info("  No tasks found");
   }
   
-  ctx.cliLogger.info("\nFor more information: https://github.com/PaulThompson/dnit");
+  helpFooter(ctx.cliLogger);
 }
 
 export function showHelpBasic(logger: { info: (msg: string) => void }) {
@@ -61,8 +65,9 @@ export function showHelpBasic(logger: { info: (msg: string) => void }) {
   
   logger.info("DESCRIPTION:");
   logger.info("  Dnit looks for a dnit/ directory with TypeScript task definitions");
-  logger.info("  in dnit/main.ts. Run 'dnit' without arguments to see available tasks.\n");
-  logger.info("For more information: https://github.com/PaulThompson/dnit");
+  logger.info("  in dnit/main.ts. Run 'dnit' without arguments to see available tasks.");
+  
+  helpFooter(logger);
 }
 
 export function echoBashCompletionScript(ctx: IExecContext) {
