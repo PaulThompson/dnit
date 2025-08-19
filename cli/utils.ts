@@ -65,9 +65,9 @@ export function showHelp(ctx: IExecContext) {
 export function showHelpBasic(logger: { info: (msg: string) => void }) {
   showHelpCommon(logger);
   
-  logger.info("DESCRIPTION:");
-  logger.info("  Dnit looks for a dnit/ directory with TypeScript task definitions");
-  logger.info("  in dnit/main.ts.");
+  logger.info("ERROR:");
+  logger.info("  No dnit/ directory found. Create dnit/main.ts with your task definitions");
+  logger.info("  to get started.");
   
   helpFooter(logger);
 }
