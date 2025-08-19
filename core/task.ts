@@ -3,6 +3,7 @@ import { TaskManifest } from "./taskManifest.ts";
 import type {
   IExecContext,
   ITask,
+  ITaskContext,
 } from "../interfaces/core/ICoreInterfaces.ts";
 import type { TaskContext } from "./TaskContext.ts";
 import { taskContext } from "./TaskContext.ts";
@@ -12,8 +13,8 @@ import {
   type TrackedFilesAsync,
 } from "./file/TrackedFilesAsync.ts";
 
-export type Action = (ctx: TaskContext) => Promise<void> | void;
-export type IsUpToDate = (ctx: TaskContext) => Promise<boolean> | boolean;
+export type Action = (ctx: ITaskContext) => Promise<void> | void;
+export type IsUpToDate = (ctx: ITaskContext) => Promise<boolean> | boolean;
 
 /** User definition of a task */
 export type TaskParams = {
