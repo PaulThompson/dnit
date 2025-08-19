@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        deno: ["v2.4.3", "v2.3.10"]
+        deno: ["v2.4.3", "v2.3.7"]
         os: [macOS-latest, windows-latest, ubuntu-latest]
 
     steps:
