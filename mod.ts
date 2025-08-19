@@ -63,3 +63,15 @@ export { Manifest } from "./manifest.ts";
 
 // Utilities
 export * from "./utils/filesystem.ts";
+
+// Git utilities
+export {
+  fetchTags,
+  gitIsClean,
+  gitLastCommitMessage,
+  gitLatestTag,
+  requireCleanGit,
+} from "./utils/git.ts";
+
+// Process utilities
+export { run, runConsole } from "./utils/process.ts";
