@@ -1,4 +1,4 @@
-import { assert, assertEquals, assertExists, assertFalse, assertGreater, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
+import { assert, assertEquals, assertExists, assertFalse, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
 import {
   execBasic,
   file,
@@ -7,7 +7,7 @@ import {
   TrackedFile,
   TrackedFilesAsync,
 } from "../mod.ts";
-import { detectCircularDependencies, type CircularDependency } from "../core/task.ts";
+import { detectCircularDependencies } from "../core/task.ts";
 import { Manifest } from "../manifest.ts";
 import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";

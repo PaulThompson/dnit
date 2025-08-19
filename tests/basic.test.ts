@@ -7,7 +7,7 @@ import {
   trackFile,
 } from "../mod.ts";
 
-import { assert, assertEquals, assertFalse } from "@std/assert";
+import { assert, assertFalse } from "@std/assert";
 
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";

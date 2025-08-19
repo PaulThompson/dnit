@@ -5,7 +5,6 @@ import type {
   ITask,
   ITaskContext,
 } from "../interfaces/core/ICoreInterfaces.ts";
-import type { TaskContext } from "./TaskContext.ts";
 import { taskContext } from "./TaskContext.ts";
 import { isTrackedFile, type TrackedFile } from "./file/TrackedFile.ts";
 import {

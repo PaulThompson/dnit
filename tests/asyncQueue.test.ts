@@ -1,6 +1,6 @@
 import { AsyncQueue } from "../utils/asyncQueue.ts";
 
-import { assert, assertLessOrEqual } from "@std/assert";
+import { assertLessOrEqual } from "@std/assert";
 
 class TestConcurrency {
   numInProgress = 0;
