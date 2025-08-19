@@ -20,16 +20,21 @@ export function showTaskList(ctx: IExecContext, args: Args) {
   }
 }
 
+function showHelpCommon(logger: { info: (msg: string) => void }) {
+  logger.info("dnit - A TypeScript-based task runner for Deno\n");
+  
+  logger.info("USAGE:");
+  logger.info("  dnit [FLAGS] [TASK] [ARGS...]\n");
+  
+  logger.info("FLAGS:");
+  logger.info("  --help        Show this help message");
+  logger.info("  --version     Show version information");
+  logger.info("  --verbose     Enable verbose logging");
+  logger.info("  --quiet       Enable quiet mode (minimal output)\n");
+}
+
 export function showHelp(ctx: IExecContext) {
-  ctx.cliLogger.info("dnit - A TypeScript-based task runner for Deno\n");
-  
-  ctx.cliLogger.info("USAGE:");
-  ctx.cliLogger.info("  dnit [FLAGS] [TASK] [ARGS...]\n");
-  
-  ctx.cliLogger.info("FLAGS:");
-  ctx.cliLogger.info("  --help        Show this help message");
-  ctx.cliLogger.info("  --verbose     Enable verbose logging");
-  ctx.cliLogger.info("  --quiet       Enable quiet mode (minimal output)\n");
+  showHelpCommon(ctx.cliLogger);
   
   ctx.cliLogger.info("AVAILABLE TASKS:");
   const tasks = Array.from(ctx.taskRegister.values()).map((t) => [
@@ -49,6 +54,15 @@ export function showHelp(ctx: IExecContext) {
   }
   
   ctx.cliLogger.info("\nFor more information, run: dnit list");
+}
+
+export function showHelpBasic(logger: { info: (msg: string) => void }) {
+  showHelpCommon(logger);
+  
+  logger.info("DESCRIPTION:");
+  logger.info("  Dnit looks for a dnit/ directory containing task definitions.");
+  logger.info("  Run 'dnit' without arguments to see available tasks.\n");
+  logger.info("For more information, visit: https://github.com/your-org/dnit");
 }
 
 export function echoBashCompletionScript(ctx: IExecContext) {
