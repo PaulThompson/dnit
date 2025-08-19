@@ -82,14 +82,9 @@ const patterns = [
       return `assertLessOrEqual(${left}, ${right})`;
     }
   },
-  {
-    // assertEquals(typeof x, "string") -> assertInstanceOf(x, String) or just type checking
-    pattern: /assertEquals\s*\(\s*typeof\s+(.+?)\s*,\s*["'](\w+)["']\s*\)/g,
-    suggestion: "Consider using assertInstanceOf() or type guards",
-    getImprovement: (match: string, expr: string, type: string) => {
-      return `Consider type-specific assertions for ${type} type`;
-    }
-  },
+  // Note: typeof checks are intentionally excluded as they are the appropriate
+  // pattern for checking primitive types at runtime in tests
+  // e.g., assertEquals(typeof x, "string") is correct for primitives
   {
     // assertEquals(x instanceof Y, true) -> assertInstanceOf(x, Y)
     pattern: /assertEquals\s*\(\s*(.+?)\s+instanceof\s+(.+?)\s*,\s*true\s*\)/g,
