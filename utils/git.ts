@@ -1,7 +1,8 @@
 import { run, runConsole } from "./process.ts";
-import { task, TaskContext } from "../dnit.ts";
+import { type Task, task } from "../core/task.ts";
+import type { TaskContext } from "../core/TaskContext.ts";
 
-export async function gitLatestTag(tagPrefix: string) {
+export async function gitLatestTag(tagPrefix: string): Promise<string> {
   const describeStr = await run(
     ["git", "describe", "--tags", "--match", `${tagPrefix}*`, "--abbrev=0"],
   );
@@ -13,12 +14,12 @@ export function gitLastCommitMessage(): Promise<string> {
   return run(["git", "log", "--pretty=oneline", "--abbrev-commit", "-1"]);
 }
 
-export async function gitIsClean() {
+export async function gitIsClean(): Promise<boolean> {
   const gitStatus = await run(["git", "status", "--porcelain"]);
   return gitStatus.length === 0;
 }
 
-export const fetchTags = task({
+export const fetchTags: Task = task({
   name: "fetch-tags",
   description: "Git remote fetch tags",
   action: async () => {
@@ -27,7 +28,7 @@ export const fetchTags = task({
   uptodate: () => false,
 });
 
-export const requireCleanGit = task({
+export const requireCleanGit: Task = task({
   name: "git-is-clean",
   description: "Check git status is clean",
   action: async (ctx: TaskContext) => {

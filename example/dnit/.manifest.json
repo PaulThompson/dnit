@@ -1,0 +1,33 @@
+{
+  "tasks": {
+    "hello": {
+      "lastExecution": "2025-08-04T09:38:33.314Z",
+      "trackedFiles": {}
+    },
+    "show": {
+      "lastExecution": "2025-08-04T09:38:40.612Z",
+      "trackedFiles": {
+        "/home/pt/pt/dnit/example/hello.txt": {
+          "hash": "60fde9c2310b0d4cad4dab8d126b04387efba289",
+          "timestamp": "2025-08-04T09:38:33.312Z"
+        }
+      }
+    },
+    "cleanup": {
+      "lastExecution": null,
+      "trackedFiles": {}
+    },
+    "clean": {
+      "lastExecution": null,
+      "trackedFiles": {}
+    },
+    "list": {
+      "lastExecution": "2025-08-09T07:52:09.004Z",
+      "trackedFiles": {}
+    },
+    "tabcompletion": {
+      "lastExecution": null,
+      "trackedFiles": {}
+    }
+  }
+}

@@ -27,5 +27,10 @@ export async function runConsole(
     stdout: "inherit",
   });
 
-  await dcmd.output();
+  const result = await dcmd.output();
+  if (!result.success) {
+    throw new Error(
+      `Command failed with exit code ${result.code}: ${cmd.join(" ")}`,
+    );
+  }
 }

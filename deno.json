@@ -1,7 +1,33 @@
 {
-  "fmt": {
+  "name": "@dnit/dnit",
+  "version": "2.0.0",
+  "description": "A TypeScript (Deno) based task runner for complex projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulThompson/dnit.git"
+  },
+  "exports": "./mod.ts",
+  "publish": {
     "exclude": [
-      "adl-gen/"
+      ".claude",
+      ".vscode",
+      ".github",
+      "CLAUDE.md",
+      "dnit",
+      "tests"
     ]
+  },
+  "fmt": {},
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.13",
+    "@std/cli": "jsr:@std/cli@^1.0.21",
+    "@std/crypto": "jsr:@std/crypto@^1.0.5",
+    "@std/encoding": "jsr:@std/encoding@^1.0.10",
+    "@std/fs": "jsr:@std/fs@^1.0.19",
+    "@std/log": "jsr:@std/log@^0.224.14",
+    "@std/path": "jsr:@std/path@^1.1.1",
+    "@std/semver": "jsr:@std/semver@^1.0.5",
+    "zod": "npm:zod@^4.0.16"
   }
 }

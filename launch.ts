@@ -1,6 +1,10 @@
 /// Convenience util to launch a user's dnit.ts
 
-import { fs, log, path, semver } from "./deps.ts";
+import * as fs from "@std/fs";
+import type * as log from "@std/log";
+import * as path from "@std/path";
+import { type Args, parseArgs } from "@std/cli/parse-args";
+import { showHelpBasic } from "./cli/utils.ts";
 
 type UserSource = {
   baseDir: string;
@@ -21,7 +25,7 @@ function findUserSourceContext(dir: string): FindUserSourceContext {
   };
 }
 
-function findUserSource(
+export function findUserSource(
   dir: string,
   startCtxArg: FindUserSourceContext | null,
 ): UserSource | null {
@@ -86,14 +90,6 @@ function findUserSource(
   return findUserSource(path.join(dir, ".."), startCtx);
 }
 
-export async function parseDotDenoVersionFile(fname: string): Promise<string> {
-  const contents = await Deno.readTextFile(fname);
-  const trimmed = contents.split("\n").map((l) => l.trim()).filter((l) =>
-    l.length > 0
-  ).join("\n");
-  return trimmed;
-}
-
 export async function getDenoVersion(): Promise<string> {
   const cmd = new Deno.Command(Deno.execPath(), {
     args: [
@@ -111,13 +107,6 @@ export async function getDenoVersion(): Promise<string> {
   throw new Error("Invalid parse of deno version output");
 }
 
-export function checkValidDenoVersion(
-  denoVersion: string,
-  denoReqSemverRange: string,
-): boolean {
-  return semver.satisfies(denoVersion, denoReqSemverRange);
-}
-
 export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
   const userSource = findUserSource(Deno.cwd(), null);
   if (userSource !== null) {
@@ -128,18 +117,6 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
 
     const denoVersion = await getDenoVersion();
     logger.info("deno version:" + denoVersion);
-
-    const dotDenoVersionFile = path.join(userSource.dnitDir, ".denoversion");
-    if (fs.existsSync(dotDenoVersionFile)) {
-      const reqDenoVerStr = await parseDotDenoVersionFile(dotDenoVersionFile);
-      const validDenoVer = checkValidDenoVersion(denoVersion, reqDenoVerStr);
-      if (!validDenoVer) {
-        throw new Error(
-          `Note that ${dotDenoVersionFile} requires version(s) ${reqDenoVerStr}.  The current version is ${denoVersion}.  Consider editing the .denoversion file and try again`,
-        );
-      }
-      logger.info("deno version ok:" + denoVersion + " for " + reqDenoVerStr);
-    }
 
     Deno.chdir(userSource.baseDir);
 
@@ -155,7 +132,7 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
     ];
     const importmap = userSource.importmap
       ? [
-        "--importmap",
+        "--import-map",
         userSource.importmap,
       ]
       : [];
@@ -192,6 +169,16 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
       signal,
     };
   } else {
+    const args: Args = parseArgs(Deno.args);
+    if (args["help"] === true) {
+      showHelpBasic({ info: console.log });
+      return {
+        success: true,
+        code: 0,
+        signal: null,
+      };
+    }
+
     logger.error("No dnit.ts or dnit directory found");
     return {
       success: false,

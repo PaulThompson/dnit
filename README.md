@@ -9,37 +9,36 @@ across many files or shared between projects.
 ### Pre-Requisites
 
 - [Deno](https://deno.land/#installation)
-- Requires deno v1.16.4 or greater
+- Requires Deno 2.x (tested on recent versions in CI)
 
 ### Install
 
 It is recommended to use `deno install` to install the tool, which provides a
 convenient entrypoint script and aliases the permission flags.
 
-```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit https://deno.land/x/dnit@dnit-v1.14.4/main.ts
-```
-
 Install from source checkout:
 
 ```
-deno install --global --allow-read --allow-write --allow-run -f --name dnit ./main.ts
+deno install --global --allow-read --allow-write --allow-run -f --name dnit --config deno.json ./main.ts
 ```
+
+(Install instructions from JSR will be added pending final release)
 
 - Read, Write and Run permissions are required in order to operate on files and
   execute tasks.
 
+## Example
+
+See the [example/](./example/) directory for a complete working hello world
+example.
+
 ## Sample Usage
 
 ```ts
-import {
-  file,
-  main,
-  task,
-} from "https://deno.land/x/dnit@dnit-v1.14.4/dnit.ts";
+import { main, task, trackFile } from "jsr:@dnit/dnit@2.0.0";
 
 /// A file to be tracked as a target and dependency:
-export const msg = file({
+export const msg = trackFile({
   path: "./msg.txt",
 });
 
@@ -48,12 +47,12 @@ export const helloWorld = task({
   name: "helloWorld",
   description: "foo",
   action: async () => { /// Actions are typescript async ()=> Promise<void> functions.
-    await Deno.run({
-      cmd: ["./writeMsg.sh"],
-    }).status();
+    const command = new Deno.Command("./writeMsg.sh");
+    const { code } = await command.output();
+    if (code !== 0) throw new Error(`Command failed with code ${code}`);
   },
   deps: [
-    file({
+    trackFile({
       path: "./writeMsg.sh",
     }),
   ],
@@ -112,7 +111,7 @@ In verbose mode the tool logs to stderr (fd #2)
 ## Tasks and Files in Detail
 
 Files are tracked by the exported
-`export function file(fileParams: FileParams) : TrackedFile`
+`export function trackFile(fileParams: FileParams) : TrackedFile`
 
 ```ts
 /** User params for a tracked file */
@@ -122,7 +121,10 @@ export type FileParams = {
 
   /// Optional function for how to hash the file.   Defaults to the sha1 hash of the file contents.
   /// A file is out of date if the file timestamp and the hash are different than that in the task manifest
-  gethash?: GetFileHash;
+  getHash?: GetFileHash;
+
+  /// Optional function for how to get the file timestamp. Defaults to the actual file timestamp
+  getTimestamp?: GetFileTimestamp;
 };
 ```
 
@@ -134,7 +136,7 @@ Tasks are created by the exported `function task(taskParams: TaskParams): Task`
 /** User definition of a task */
 export type TaskParams = {
   /// Name: (string) - The key used to initiate a task
-  name: A.TaskName;
+  name: TaskName;
 
   /// Description (string) - Freeform text description shown on help
   description?: string;
@@ -142,14 +144,8 @@ export type TaskParams = {
   /// Action executed on execution of the task (async or sync)
   action: Action;
 
-  /// Optional list of explicit task dependencies
-  task_deps?: Task[];
-
-  /// Optional list of explicit file dependencies
-  file_deps?: TrackedFile[];
-
   /// Optional list of task or file dependencies
-  deps?: (Task | TrackedFile)[];
+  deps?: Dep[];
 
   /// Targets (files which will be produced by execution of this task)
   targets?: TrackedFile[];
@@ -157,15 +153,18 @@ export type TaskParams = {
   /// Custom up-to-date definition - Can be used to make a task *less* up to date.  Eg; use uptodate: runAlways  to run always on request regardless of dependencies being up to date.
   uptodate?: IsUpToDate;
 };
+
+/// The kinds of supported dependencies.
+export type Dep = Task | TrackedFile | TrackedFilesAsync;
 ```
 
 Tasks are passed to the exported
-`export async function exec(cliArgs: string[], tasks: Task[]) : Promise<void>`
-This exposes the tasks for execution by the CLI and executes them according to
-the `cliArgs` passed in.
+`export function main(cliArgs: string[], tasks: Task[]) : Promise<void>` This
+exposes the tasks for execution by the CLI and executes them according to the
+`cliArgs` passed in.
 
 ```ts
-exec(Deno.args, tasks);
+main(Deno.args, tasks);
 ```
 
 ## Larger Scale use of tasks
@@ -180,8 +179,10 @@ definitions across projects.
   place to have a (deno) typescript tree for the task scripting, which
   encourages tasks to be separated into modules and generally organised as a
   typescript project tree.
-- User scripts can have an `import_map.json` file in order to import tasks and
-  utils more flexibly.
+- User scripts can use a `deno.json` file in the `dnit` directory for
+  configuration (import maps, TypeScript options, etc). For legacy
+  compatibility, standalone `import_map.json` or `.import_map.json` files are
+  also supported.
 - The main `dnit` tool can be executed on its own (see section on
   [Installation](#Installation) above)
 
@@ -195,8 +196,10 @@ The `dnit` tool searches for a user script to execute, in order to support the
 - It starts from the current working directory and runs `findUserSource`
 - `findUserSource` looks for subdirectory `dnit` and looks for sources `main.ts`
   or `dnit.ts`
-  - It optionally looks for `import_map.json` or `.import_map.json` to use as
-    the import map.
+  - Deno will automatically discover and use any `deno.json` file in the `dnit`
+    directory or parent directories
+  - For legacy compatibility, it also looks for `import_map.json` or
+    `.import_map.json` to use as the import map
   - If found then it changes working directory and executes the user script.
   - If not found then it recurses into `findUserSource` in the parent directory.
 
@@ -206,7 +209,7 @@ Eg: with a file layout:
 repo
   dnit
     main.ts
-    import_map.json
+    deno.json
   src
     project.ts
   package.json

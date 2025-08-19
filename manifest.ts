@@ -1,70 +1,58 @@
-import { fs, path } from "./deps.ts";
+import * as fs from "@std/fs";
+import * as path from "@std/path";
+import * as log from "@std/log";
+import { TaskManifest } from "./core/taskManifest.ts";
+import type { IManifest } from "./interfaces/core/IManifest.ts";
 
-import * as A from "./adl-gen/dnit/manifest.ts";
-import * as J from "./adl-gen/runtime/json.ts";
+import type { TaskData, TaskName } from "./interfaces/core/IManifestTypes.ts";
+import { ManifestSchema } from "./core/manifestSchemas.ts";
 
-import { RESOLVER } from "./adl-gen/resolver.ts";
-import { ADLMap } from "./ADLMap.ts";
-export class Manifest {
+export class Manifest implements IManifest {
   readonly filename: string;
-  readonly jsonBinding = J.createJsonBinding(RESOLVER, A.texprManifest());
-  tasks: ADLMap<A.TaskName, TaskManifest> = new ADLMap(
-    [],
-    (k1, k2) => k1 === k2,
-  );
+  tasks: Record<TaskName, TaskManifest> = {};
   constructor(dir: string, filename: string = ".manifest.json") {
     this.filename = path.join(dir, filename);
   }
   async load() {
     if (await fs.exists(this.filename)) {
-      const json: J.Json = JSON.parse(
-        await Deno.readTextFile(this.filename),
-      ) as J.Json;
-      const mdata = this.jsonBinding.fromJson(json);
-      for (const p of mdata.tasks) {
-        const taskName: A.TaskName = p.v1;
-        const taskData: A.TaskData = p.v2;
-        this.tasks.set(taskName, new TaskManifest(taskData));
+      try {
+        const jsonText = await Deno.readTextFile(this.filename);
+        const json = JSON.parse(jsonText);
+        const result = ManifestSchema.safeParse(json);
+
+        if (result.success) {
+          for (
+            const [taskName, taskData] of Object.entries(result.data.tasks)
+          ) {
+            this.tasks[taskName] = new TaskManifest(taskData);
+          }
+        } else {
+          log.getLogger("internal").warn(
+            `Manifest file ${this.filename} has invalid schema, creating fresh manifest`,
+          );
+          await this.save();
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error
+          ? error.message
+          : String(error);
+        log.getLogger("internal").warn(
+          `Failed to parse manifest file ${this.filename}: ${errorMessage}, creating fresh manifest`,
+        );
+        await this.save();
       }
     }
   }
   async save() {
     if (!await fs.exists(path.dirname(this.filename))) {
-      await Deno.mkdir(path.dirname(this.filename));
+      await Deno.mkdir(path.dirname(this.filename), { recursive: true });
     }
 
-    const mdata: A.Manifest = {
-      tasks: this.tasks.entries().map((p) => ({ v1: p[0], v2: p[1].toData() })),
-    };
-    const jsonval = this.jsonBinding.toJson(mdata);
-    await Deno.writeTextFile(this.filename, JSON.stringify(jsonval, null, 2));
-  }
-}
-export class TaskManifest {
-  public lastExecution: A.Timestamp | null = null;
-  trackedFiles: ADLMap<A.TrackedFileName, A.TrackedFileData> = new ADLMap(
-    [],
-    (k1, k2) => k1 === k2,
-  );
-  constructor(data: A.TaskData) {
-    this.trackedFiles = new ADLMap(data.trackedFiles, (k1, k2) => k1 === k2);
-    this.lastExecution = data.lastExecution;
-  }
-
-  getFileData(fn: A.TrackedFileName): A.TrackedFileData | undefined {
-    return this.trackedFiles.get(fn);
-  }
-  setFileData(fn: A.TrackedFileName, d: A.TrackedFileData) {
-    this.trackedFiles.set(fn, d);
-  }
-  setExecutionTimestamp() {
-    this.lastExecution = (new Date()).toISOString();
-  }
-
-  toData(): A.TaskData {
-    return {
-      lastExecution: this.lastExecution,
-      trackedFiles: this.trackedFiles.toData(),
-    };
+    const tasks: Record<TaskName, TaskData> = {};
+    for (const [taskName, taskManifest] of Object.entries(this.tasks)) {
+      tasks[taskName] = taskManifest.toData();
+    }
+    const mdata = { tasks };
+    await Deno.writeTextFile(this.filename, JSON.stringify(mdata, null, 2));
   }
 }
