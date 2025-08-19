@@ -1,5 +1,5 @@
 import { assertEquals, assertGreater, assertStringIncludes } from "@std/assert";
-import { textTable } from "../utils/textTable.ts";
+import { textTable, plainTextTable } from "../utils/textTable.ts";
 
 Deno.test("textTable utilities", async (t) => {
   await t.step("basic table with single row", () => {
@@ -187,5 +187,102 @@ Deno.test("textTable utilities", async (t) => {
     // Middle separator should contain cross characters
     assertStringIncludes(lines[2], "├");
     assertStringIncludes(lines[2], "┤");
+  });
+});
+
+Deno.test("plainTextTable utilities", async (t) => {
+  await t.step("basic plain text table with single row", () => {
+    const headings = ["Name", "Age"];
+    const cells = [["John", "30"]];
+    const result = plainTextTable(headings, cells);
+
+    assertEquals(typeof result, "string");
+    assertStringIncludes(result, "Name");
+    assertStringIncludes(result, "Age");
+    assertStringIncludes(result, "John");
+    assertStringIncludes(result, "30");
+    
+    // Should not contain box drawing characters
+    assertEquals(result.includes("┌"), false);
+    assertEquals(result.includes("│"), false);
+    assertEquals(result.includes("─"), false);
+  });
+
+  await t.step("plain text table with multiple rows", () => {
+    const headings = ["Task", "Description"];
+    const cells = [
+      ["test", "Run local unit tests"],
+      ["lint", "Run local lint"],
+      ["fmt", "Run local fmt"],
+    ];
+    const result = plainTextTable(headings, cells);
+
+    const lines = result.split("\n");
+    assertEquals(lines.length, 4); // header + 3 data rows
+
+    // Check header
+    assertStringIncludes(lines[0], "Task");
+    assertStringIncludes(lines[0], "Description");
+
+    // Check data rows
+    assertStringIncludes(lines[1], "test");
+    assertStringIncludes(lines[1], "Run local unit tests");
+    assertStringIncludes(lines[2], "lint");
+    assertStringIncludes(lines[2], "Run local lint");
+    assertStringIncludes(lines[3], "fmt");
+    assertStringIncludes(lines[3], "Run local fmt");
+  });
+
+  await t.step("plain text table alignment", () => {
+    const headings = ["Short", "Very Long Header"];
+    const cells = [
+      ["A", "Short"],
+      ["Very Long Content", "B"],
+    ];
+    const result = plainTextTable(headings, cells);
+
+    const lines = result.split("\n");
+    assertEquals(lines.length, 3); // header + 2 data rows
+    
+    // Check that content is present and properly aligned
+    assertStringIncludes(lines[0], "Short");
+    assertStringIncludes(lines[0], "Very Long Header");
+    assertStringIncludes(lines[1], "A");
+    assertStringIncludes(lines[1], "Short");
+    assertStringIncludes(lines[2], "Very Long Content");
+    assertStringIncludes(lines[2], "B");
+    
+    // Check that columns start at consistent positions
+    const shortPos = lines[0].indexOf("Short");
+    const headerPos = lines[0].indexOf("Very Long Header");
+    assertEquals(shortPos, 0);
+    assertGreater(headerPos, shortPos + 5);
+  });
+
+  await t.step("plain text table with empty cells", () => {
+    const headings = ["Name", "Value"];
+    const cells = [
+      ["Item1", ""],
+      ["", "Value2"],
+    ];
+    const result = plainTextTable(headings, cells);
+
+    assertStringIncludes(result, "Item1");
+    assertStringIncludes(result, "Value2");
+    
+    const lines = result.split("\n");
+    assertEquals(lines.length, 3); // header + 2 data rows
+  });
+
+  await t.step("plain text table with single column", () => {
+    const headings = ["Status"];
+    const cells = [["Active"], ["Inactive"]];
+    const result = plainTextTable(headings, cells);
+
+    const lines = result.split("\n");
+    assertEquals(lines.length, 3); // header + 2 data rows
+    assertEquals(lines[0].trim(), "Status");
+    assertEquals(lines[1].trim(), "Active");
+    assertEquals(lines[2].trim(), "Inactive");
   });
 });

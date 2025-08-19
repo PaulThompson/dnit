@@ -1,3 +1,32 @@
+export function plainTextTable(headings: string[], cells: string[][]): string {
+  const maxWidths: number[] = headings.map((t) => t.length);
+  for (const row of cells) {
+    let colInd = 0;
+    for (const col of row) {
+      maxWidths[colInd] = Math.max(maxWidths[colInd], col.length);
+      ++colInd;
+    }
+  }
+  
+  const output: string[] = [];
+  
+  // Add header row
+  const headerRow = headings.map((h, i) => {
+    return h.padEnd(maxWidths[i]);
+  }).join("  ");
+  output.push(headerRow);
+  
+  // Add data rows
+  for (const row of cells) {
+    const dataRow = row.map((cell, i) => {
+      return cell.padEnd(maxWidths[i]);
+    }).join("  ");
+    output.push(dataRow);
+  }
+  
+  return output.join("\n");
+}
+
 export function textTable(headings: string[], cells: string[][]): string {
   const corners = [["┌", "┐"], ["└", "┘"]];
   const hbar = "─";

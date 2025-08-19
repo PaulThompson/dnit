@@ -1,5 +1,5 @@
 import type { Args } from "@std/cli/parse-args";
-import { textTable } from "../utils/textTable.ts";
+import { plainTextTable } from "../utils/textTable.ts";
 import type { IExecContext } from "../interfaces/core/ICoreInterfaces.ts";
 
 export function showTaskList(ctx: IExecContext, args: Args) {
@@ -9,7 +9,7 @@ export function showTaskList(ctx: IExecContext, args: Args) {
     );
   } else {
     ctx.cliLogger.info(
-      textTable(
+      plainTextTable(
         ["Name", "Description"],
         Array.from(ctx.taskRegister.values()).map((t) => [
           t.name,
