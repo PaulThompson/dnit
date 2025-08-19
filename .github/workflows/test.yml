@@ -24,6 +24,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
+          cache: true
 
       - name: Run Deno lint
         run: deno lint
@@ -44,9 +45,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
-
-      - name: Cache Dependencies
-        run: deno cache deps.ts
+          cache: true
 
       - name: Run Tests
         run: deno test -A
