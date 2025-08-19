@@ -18,6 +18,91 @@ const issues: AssertIssue[] = [];
 
 // Patterns to detect and their suggested improvements
 const patterns = [
+  // Patterns for assert() with comparisons
+  {
+    // assert(x <= y) -> assertLessOrEqual(x, y)
+    pattern: /assert\s*\(\s*(.+?)\s*<=\s*(.+?)\s*\)/g,
+    suggestion: "Use assertLessOrEqual() for better error messages",
+    getImprovement: (match: string, left: string, right: string) => {
+      return `assertLessOrEqual(${left}, ${right})`;
+    }
+  },
+  {
+    // assert(x >= y) -> assertGreaterOrEqual(x, y)
+    pattern: /assert\s*\(\s*(.+?)\s*>=\s*(.+?)\s*\)/g,
+    suggestion: "Use assertGreaterOrEqual() for better error messages",
+    getImprovement: (match: string, left: string, right: string) => {
+      return `assertGreaterOrEqual(${left}, ${right})`;
+    }
+  },
+  {
+    // assert(x < y) -> assertLess(x, y) (but exclude .has() calls)
+    pattern: /assert\s*\(\s*([^<]+?)\s*<\s*(.+?)\s*\)/g,
+    suggestion: "Use assertLess() for better error messages",
+    getImprovement: (match: string, left: string, right: string) => {
+      // Skip if this is a .has() method call
+      if (match.includes('.has(')) {
+        return null;
+      }
+      return `assertLess(${left}, ${right})`;
+    }
+  },
+  {
+    // assert(x > y) -> assertGreater(x, y) (but exclude .has() calls)
+    pattern: /assert\s*\(\s*([^>]+?)\s*>\s*(.+?)\s*\)/g,
+    suggestion: "Use assertGreater() for better error messages",
+    getImprovement: (match: string, left: string, right: string) => {
+      // Skip if this is a .has() method call
+      if (match.includes('.has(')) {
+        return null;
+      }
+      return `assertGreater(${left}, ${right})`;
+    }
+  },
+  {
+    // assert(x !== null) -> assertExists(x)
+    pattern: /assert\s*\(\s*(.+?)\s*!==?\s*null\s*\)/g,
+    suggestion: "Use assertExists() for better null/undefined checks",
+    getImprovement: (match: string, expr: string) => {
+      return `assertExists(${expr})`;
+    }
+  },
+  {
+    // assert(x !== undefined) -> assertExists(x)
+    pattern: /assert\s*\(\s*(.+?)\s*!==?\s*undefined\s*\)/g,
+    suggestion: "Use assertExists() for better null/undefined checks",
+    getImprovement: (match: string, expr: string) => {
+      return `assertExists(${expr})`;
+    }
+  },
+  // Patterns for assertEquals with boolean literals
+  {
+    // assertEquals(x, true) -> assert(x)
+    pattern: /assertEquals\s*\(\s*(.+?)\s*,\s*true\s*\)/g,
+    suggestion: "Use assert() for truthy checks",
+    getImprovement: (match: string, expr: string) => {
+      // Special cases that should use specific assertions
+      if (expr.includes('.exists()')) {
+        return `assert(${expr})`;
+      } else if (expr.includes('.has(')) {
+        return `assert(${expr})`;
+      } else if (expr.includes('!==') || expr.includes('!=')) {
+        return `assert(${expr})`;
+      } else if (expr.includes('===') || expr.includes('==')) {
+        return `assert(${expr})`;
+      }
+      return `assert(${expr})`;
+    }
+  },
+  {
+    // assertEquals(x, false) -> assertFalse(x)
+    pattern: /assertEquals\s*\(\s*(.+?)\s*,\s*false\s*\)/g,
+    suggestion: "Use assertFalse() for falsy checks",
+    getImprovement: (match: string, expr: string) => {
+      return `assertFalse(${expr})`;
+    }
+  },
+  // Original patterns
   {
     // assertEquals(x !== null, true) -> assert(x !== null) or assertExists(x)
     pattern: /assertEquals\s*\(\s*(.+?)\s*!==?\s*null\s*,\s*true\s*\)/g,
@@ -156,6 +241,11 @@ async function analyzeFile(path: string) {
       }
       
       const improvement = getImprovement(match[0], ...match.slice(1));
+      
+      // Skip if improvement function returned null (pattern should be ignored)
+      if (improvement === null) {
+        continue;
+      }
       
       issues.push({
         file: relative(Deno.cwd(), path),
