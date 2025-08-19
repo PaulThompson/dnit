@@ -10,6 +10,7 @@ export async function main() {
     Deno.exit(0);
   }
 
+
   const loggers = createConsoleLoggers();
 
   if (args["verbose"] !== undefined) {

@@ -5,6 +5,7 @@ import type { Task } from "../core/task.ts";
 import { builtinTasks } from "./builtinTasks.ts";
 import { createConsoleLoggers } from "./logging.ts";
 import type { ILoggers } from "../interfaces/core/ICoreInterfaces.ts";
+import { showHelp } from "./utils.ts";
 
 export type ExecResult = {
   success: boolean;
@@ -70,6 +71,13 @@ export async function execCli(
   overrides?: Partial<ExecContext>,
 ): Promise<ExecResult> {
   const args = parseArgs(cliArgs);
+
+  // Handle --help flag early
+  if (args["help"]) {
+    const ctx = await execContextInit(args, tasks, overrides);
+    showHelp(ctx);
+    return { success: true };
+  }
 
   const ctx = await execContextInit(args, tasks, overrides);
 

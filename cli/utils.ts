@@ -20,6 +20,37 @@ export function showTaskList(ctx: IExecContext, args: Args) {
   }
 }
 
+export function showHelp(ctx: IExecContext) {
+  ctx.cliLogger.info("dnit - A TypeScript-based task runner for Deno\n");
+  
+  ctx.cliLogger.info("USAGE:");
+  ctx.cliLogger.info("  dnit [FLAGS] [TASK] [ARGS...]\n");
+  
+  ctx.cliLogger.info("FLAGS:");
+  ctx.cliLogger.info("  --help        Show this help message");
+  ctx.cliLogger.info("  --verbose     Enable verbose logging");
+  ctx.cliLogger.info("  --quiet       Enable quiet mode (minimal output)\n");
+  
+  ctx.cliLogger.info("AVAILABLE TASKS:");
+  const tasks = Array.from(ctx.taskRegister.values()).map((t) => [
+    t.name,
+    t.description || "",
+  ]);
+  
+  if (tasks.length > 0) {
+    ctx.cliLogger.info(
+      plainTextTable(
+        ["Name", "Description"],
+        tasks,
+      ),
+    );
+  } else {
+    ctx.cliLogger.info("  No tasks found");
+  }
+  
+  ctx.cliLogger.info("\nFor more information, run: dnit list");
+}
+
 export function echoBashCompletionScript(ctx: IExecContext) {
   ctx.cliLogger.info(
     "# bash completion for dnit\n" +

@@ -3,6 +3,7 @@
 import * as fs from "@std/fs";
 import type * as log from "@std/log";
 import * as path from "@std/path";
+import { type Args, parseArgs } from "@std/cli/parse-args";
 
 type UserSource = {
   baseDir: string;
@@ -167,6 +168,27 @@ export async function launch(logger: log.Logger): Promise<Deno.CommandStatus> {
       signal,
     };
   } else {
+    const args: Args = parseArgs(Deno.args);
+    if (args["help"] === true) {
+      console.log("dnit - A TypeScript-based task runner for Deno\n");
+      console.log("USAGE:");
+      console.log("  dnit [FLAGS] [TASK] [ARGS...]\n");
+      console.log("FLAGS:");
+      console.log("  --help        Show this help message");
+      console.log("  --version     Show version information");
+      console.log("  --verbose     Enable verbose logging");
+      console.log("  --quiet       Enable quiet mode (minimal output)\n");
+      console.log("DESCRIPTION:");
+      console.log("  Dnit looks for a dnit/ directory containing task definitions.");
+      console.log("  Run 'dnit' without arguments to see available tasks.\n");
+      console.log("For more information, visit: https://github.com/your-org/dnit");
+      return {
+        success: true,
+        code: 0,
+        signal: null,
+      };
+    }
+    
     logger.error("No dnit.ts or dnit directory found");
     return {
       success: false,
