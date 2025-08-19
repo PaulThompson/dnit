@@ -52,8 +52,6 @@ export function showHelp(ctx: IExecContext) {
   } else {
     ctx.cliLogger.info("  No tasks found");
   }
-  
-  ctx.cliLogger.info("\nFor more information, run: dnit list");
 }
 
 export function showHelpBasic(logger: { info: (msg: string) => void }) {
@@ -61,8 +59,7 @@ export function showHelpBasic(logger: { info: (msg: string) => void }) {
   
   logger.info("DESCRIPTION:");
   logger.info("  Dnit looks for a dnit/ directory containing task definitions.");
-  logger.info("  Run 'dnit' without arguments to see available tasks.\n");
-  logger.info("For more information, visit: https://github.com/your-org/dnit");
+  logger.info("  Run 'dnit' without arguments to see available tasks.");
 }
 
 export function echoBashCompletionScript(ctx: IExecContext) {
