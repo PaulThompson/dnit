@@ -7,6 +7,7 @@ import {
   TrackedFile,
   TrackedFilesAsync,
 } from "../mod.ts";
+import { detectCircularDependencies, type CircularDependency } from "../core/task.ts";
 import { Manifest } from "../manifest.ts";
 import { type Action, type IsUpToDate, runAlways } from "../core/task.ts";
 import { type TaskContext, taskContext } from "../core/TaskContext.ts";
@@ -567,4 +568,178 @@ Deno.test("Task - circular dependency A->B->A", async () => {
     Error,
     "Circular dependency detected: taskA -> taskB -> taskA",
   );
+});
+
+// Direct tests for detectCircularDependencies function
+
+Deno.test("detectCircularDependencies - no circular dependency", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  const result = detectCircularDependencies(taskB);
+  assertEquals(result, null);
+});
+
+Deno.test("detectCircularDependencies - self-referencing task", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  // Make task depend on itself
+  taskA.task_deps.add(taskA);
+
+  const result = detectCircularDependencies(taskA);
+  assertEquals(result !== null, true);
+  assertEquals(result!.cycle.length, 2);
+  assertEquals(result!.cycle[0].name, "taskA");
+  assertEquals(result!.cycle[1].name, "taskA");
+});
+
+Deno.test("detectCircularDependencies - simple A->B->A cycle", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  // Create circular dependency: A depends on B
+  taskA.task_deps.add(taskB);
+
+  const result = detectCircularDependencies(taskA);
+  assertEquals(result !== null, true);
+  assertEquals(result!.cycle.length, 3);
+  assertEquals(result!.cycle[0].name, "taskA");
+  assertEquals(result!.cycle[1].name, "taskB");
+  assertEquals(result!.cycle[2].name, "taskA");
+});
+
+Deno.test("detectCircularDependencies - complex A->B->C->A cycle", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  const taskC = new Task({
+    name: "taskC",
+    action: () => {},
+    deps: [taskB],
+  });
+
+  // Create circular dependency: A depends on C
+  taskA.task_deps.add(taskC);
+
+  const result = detectCircularDependencies(taskA);
+  assertEquals(result !== null, true);
+  assertEquals(result!.cycle.length, 4);
+  assertEquals(result!.cycle[0].name, "taskA");
+  assertEquals(result!.cycle[1].name, "taskC");
+  assertEquals(result!.cycle[2].name, "taskB");
+  assertEquals(result!.cycle[3].name, "taskA");
+});
+
+Deno.test("detectCircularDependencies - task with no dependencies", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const result = detectCircularDependencies(taskA);
+  assertEquals(result, null);
+});
+
+Deno.test("detectCircularDependencies - linear chain no cycle", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  const taskC = new Task({
+    name: "taskC",
+    action: () => {},
+    deps: [taskB],
+  });
+
+  const taskD = new Task({
+    name: "taskD",
+    action: () => {},
+    deps: [taskC],
+  });
+
+  const result = detectCircularDependencies(taskD);
+  assertEquals(result, null);
+});
+
+Deno.test("detectCircularDependencies - multiple dependencies no cycle", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+  });
+
+  const taskC = new Task({
+    name: "taskC",
+    action: () => {},
+    deps: [taskA, taskB],
+  });
+
+  const result = detectCircularDependencies(taskC);
+  assertEquals(result, null);
+});
+
+Deno.test("detectCircularDependencies - diamond dependency no cycle", () => {
+  const taskA = new Task({
+    name: "taskA",
+    action: () => {},
+  });
+
+  const taskB = new Task({
+    name: "taskB",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  const taskC = new Task({
+    name: "taskC",
+    action: () => {},
+    deps: [taskA],
+  });
+
+  const taskD = new Task({
+    name: "taskD",
+    action: () => {},
+    deps: [taskB, taskC],
+  });
+
+  const result = detectCircularDependencies(taskD);
+  assertEquals(result, null);
 });

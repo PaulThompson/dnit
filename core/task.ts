@@ -43,12 +43,12 @@ export type Dep = Task | TrackedFile | TrackedFilesAsync;
 export const runAlways: IsUpToDate = () => false;
 
 /** Result of circular dependency detection */
-type CircularDependency = {
+export type CircularDependency = {
   cycle: Task[];
 };
 
 /** Detect circular dependencies in task dependency graph using iterative DFS */
-function detectCircularDependencies(startTask: Task): CircularDependency | null {
+export function detectCircularDependencies(startTask: Task): CircularDependency | null {
   const visited = new Set<Task>();
   const stack: { task: Task; path: Task[] }[] = [{ task: startTask, path: [] }];
 
