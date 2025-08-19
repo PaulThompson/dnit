@@ -9,7 +9,7 @@ across many files or shared between projects.
 ### Pre-Requisites
 
 - [Deno](https://deno.land/#installation)
-- Requires deno v2.1 or greater
+- Requires Deno 2.x (tested on recent versions in CI)
 
 ### Install
 
