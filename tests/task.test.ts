@@ -1,4 +1,4 @@
-import { assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
+import { assert, assertEquals, assertExists, assertFalse, assertGreater, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
 import {
   execBasic,
   file,
@@ -67,8 +67,8 @@ Deno.test("Task - task with dependencies", async () => {
 
   assertEquals(mainTask.task_deps.size, 1);
   assertEquals(mainTask.file_deps.size, 1);
-  assertEquals(mainTask.task_deps.has(depTask), true);
-  assertEquals(mainTask.file_deps.has(trackedFile), true);
+  assert(mainTask.task_deps.has(depTask));
+  assert(mainTask.file_deps.has(trackedFile));
 
   await cleanup();
 });
@@ -89,7 +89,7 @@ Deno.test("Task - task with targets", async () => {
   });
 
   assertEquals(testTask.targets.size, 1);
-  assertEquals(testTask.targets.has(targetFile), true);
+  assert(testTask.targets.has(targetFile));
 
   // Target should have task assigned
   assertEquals(targetFile.getTask(), testTask);
@@ -120,7 +120,7 @@ Deno.test("Task - task with TrackedFilesAsync dependencies", async () => {
   });
 
   assertEquals(testTask.async_files_deps.size, 1);
-  assertEquals(testTask.async_files_deps.has(asyncFiles), true);
+  assert(testTask.async_files_deps.has(asyncFiles));
 
   await cleanup();
 });
@@ -139,14 +139,14 @@ Deno.test("Task - task with custom uptodate function", () => {
   });
 
   assertEquals(testTask.uptodate, customUptodate);
-  assertEquals(uptodateCalled, false); // Should not be called during task creation
+  assertFalse(uptodateCalled); // Should not be called during task creation
 });
 
 Deno.test("Task - runAlways uptodate helper", () => {
   // Create a mock TaskContext to pass to runAlways
   const mockTaskContext = {} as TaskContext;
   const result = runAlways(mockTaskContext);
-  assertEquals(result, false);
+  assertFalse(result);
 });
 
 Deno.test("Task - empty task name is allowed", () => {
@@ -248,9 +248,9 @@ Deno.test("Task - exec marks task as done", async () => {
   const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
-  assertEquals(actionCalled, true);
-  assertEquals(ctx.doneTasks.has(testTask), true);
-  assertEquals(ctx.inprogressTasks.has(testTask), false);
+  assert(actionCalled);
+  assert(ctx.doneTasks.has(testTask));
+  assertFalse(ctx.inprogressTasks.has(testTask));
 });
 
 Deno.test("Task - exec skips already done tasks", async () => {
@@ -270,7 +270,7 @@ Deno.test("Task - exec skips already done tasks", async () => {
   await testTask.exec(ctx); // Second call should be skipped
 
   assertEquals(actionCallCount, 1);
-  assertEquals(ctx.doneTasks.has(testTask), true);
+  assert(ctx.doneTasks.has(testTask));
 });
 
 Deno.test("Task - exec skips in-progress tasks", async () => {
@@ -310,8 +310,8 @@ Deno.test("Task - exec with async action", async () => {
   const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
-  assertEquals(actionCompleted, true);
-  assertEquals(ctx.doneTasks.has(testTask), true);
+  assert(actionCompleted);
+  assert(ctx.doneTasks.has(testTask));
 });
 
 Deno.test("Task - exec with uptodate check", async () => {
@@ -333,8 +333,8 @@ Deno.test("Task - exec with uptodate check", async () => {
   const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
-  assertEquals(uptodateCalled, true);
-  assertEquals(actionCalled, false); // Should not run action if up-to-date
+  assert(uptodateCalled);
+  assertFalse(actionCalled); // Should not run action if up-to-date
 });
 
 Deno.test("Task - exec with runAlways", async () => {
@@ -352,7 +352,7 @@ Deno.test("Task - exec with runAlways", async () => {
   const ctx = await execBasic([], [testTask], manifest);
   await testTask.exec(ctx);
 
-  assertEquals(actionCalled, true); // Should always run
+  assert(actionCalled); // Should always run
 });
 
 Deno.test("Task - reset cleans targets", async () => {
@@ -374,12 +374,12 @@ Deno.test("Task - reset cleans targets", async () => {
   const ctx = await execBasic([], [testTask], manifest);
 
   // Verify file exists
-  assertEquals(await targetFile.exists(), true);
+  assert(await targetFile.exists());
 
   await testTask.reset(ctx);
 
   // File should be deleted
-  assertEquals(await targetFile.exists(), false);
+  assertFalse(await targetFile.exists());
 
   await cleanup();
 });
@@ -598,7 +598,7 @@ Deno.test("detectCircularDependencies - self-referencing task", () => {
   taskA.task_deps.add(taskA);
 
   const result = detectCircularDependencies(taskA);
-  assert(result !== null);
+  assertExists(result);
   assertEquals(result!.cycle.length, 2);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskA");
@@ -620,7 +620,7 @@ Deno.test("detectCircularDependencies - simple A->B->A cycle", () => {
   taskA.task_deps.add(taskB);
 
   const result = detectCircularDependencies(taskA);
-  assert(result !== null);
+  assertExists(result);
   assertEquals(result!.cycle.length, 3);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskB");
@@ -649,7 +649,7 @@ Deno.test("detectCircularDependencies - complex A->B->C->A cycle", () => {
   taskA.task_deps.add(taskC);
 
   const result = detectCircularDependencies(taskA);
-  assert(result !== null);
+  assertExists(result);
   assertEquals(result!.cycle.length, 4);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskC");

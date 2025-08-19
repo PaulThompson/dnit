@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertStringIncludes } from "@std/assert";
+import { assert, assertEquals, assertExists, assertFalse, assertStringIncludes } from "@std/assert";
 import { execCli, runAlways, task } from "../mod.ts";
 import { createTestLoggers } from "./testLogging.ts";
 import type { Args } from "@std/cli/parse-args";
@@ -17,8 +17,8 @@ Deno.test("CLI - execCli executes the requested task", async () => {
 
   const result = await execCli(["testTask"], [testTask]);
 
-  assertEquals(result.success, true);
-  assertEquals(taskRun, true);
+  assert(result.success);
+  assert(taskRun);
 });
 
 Deno.test("CLI - execCli defaults to list task when no args", async () => {
@@ -56,7 +56,7 @@ Deno.test("CLI - execCli handles non-existent task", async () => {
 
   const result = await execCli(["nonExistentTask"], [], logCapture.loggers);
 
-  assertEquals(result.success, false);
+  assertFalse(result.success);
 
   const errorOutput = logCapture.stderr.output.join("\n");
   assertStringIncludes(errorOutput, "Task nonExistentTask not found");
@@ -133,8 +133,8 @@ Deno.test("CLI - task receives named flags", async () => {
 
   assertExists(receivedArgs);
   assertEquals(receivedArgs["_"], ["flagTest"]);
-  assertEquals(receivedArgs["verbose"], true);
-  assertEquals(receivedArgs["dry-run"], true);
+  assert(receivedArgs["verbose"]);
+  assert(receivedArgs["dry-run"]);
   assertEquals(receivedArgs["output"], "file.txt");
   assertEquals(receivedArgs["count"], 42); // parseArgs converts numeric strings to numbers
 });
@@ -222,8 +222,8 @@ Deno.test("CLI - task receives boolean flags correctly", async () => {
 
   assertExists(receivedArgs);
   assertEquals(receivedArgs["_"], ["boolTest"]);
-  assertEquals(receivedArgs["enable"], true);
-  assertEquals(receivedArgs["no-cache"], true);
+  assert(receivedArgs["enable"]);
+  assert(receivedArgs["no-cache"]);
   // When a value follows a flag, it's treated as the flag's value
   assertEquals(receivedArgs["verbose"], "false");
 });

@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import * as path from "@std/path";
 import { execBasic, Task, TrackedFile } from "../mod.ts";
 import { Manifest } from "../manifest.ts";
@@ -124,7 +124,7 @@ Deno.test("UpToDate - timestamp-based change detection", async () => {
 
   // Should detect timestamp change via custom hash function
   const newFileData = await trackedFile.getFileData();
-  assertEquals(initialFileData.hash !== newFileData.hash, true); // Different timestamp-based "hash"
+  assert(initialFileData.hash !== newFileData.hash); // Different timestamp-based "hash"
 
   // Task should run due to timestamp change
   if (requestedTask) {
@@ -592,7 +592,7 @@ Deno.test("UpToDate - custom uptodate with task context access", async () => {
     await requestedTask.exec(ctx);
   }
 
-  assertEquals(contextReceived, true);
+  assert(contextReceived);
   assertEquals(taskRunCount, 0); // Should NOT run because uptodate returned true (up-to-date)
 });
 

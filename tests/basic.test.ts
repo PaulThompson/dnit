@@ -7,7 +7,7 @@ import {
   trackFile,
 } from "../mod.ts";
 
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals, assertFalse } from "@std/assert";
 
 import { Manifest } from "../manifest.ts";
 import * as path from "@std/path";
@@ -39,8 +39,8 @@ Deno.test("basic test - two tasks with dependency", async () => {
   await ctx.getTaskByName("taskB")?.exec(ctx);
 
   // assert that both A and B are done:
-  assertEquals(tasksDone["taskA"], true);
-  assertEquals(tasksDone["taskB"], true);
+  assert(tasksDone["taskA"]);
+  assert(tasksDone["taskB"]);
 });
 
 Deno.test("task up to date", async () => {
@@ -69,7 +69,7 @@ Deno.test("task up to date", async () => {
 
     // run once beforehand to setup manifest
     await ctx.getTaskByName("taskA")?.exec(ctx);
-    assertEquals(tasksDone["taskA"], true);
+    assert(tasksDone["taskA"]);
     tasksDone["taskA"] = false; // clear to reset
   }
 
@@ -78,14 +78,14 @@ Deno.test("task up to date", async () => {
     const ctx = await execBasic([], [taskA], manifest);
     // Test: Run taskA again
     await ctx.getTaskByName("taskA")?.exec(ctx);
-    assertEquals(tasksDone["taskA"], false); // didn't run because of up-to-date
+    assertFalse(tasksDone["taskA"]); // didn't run because of up-to-date
   }
 
   // === THIRD RUN (after file modification) ===
   {
     /// Test: make not-up-to-date again
     tasksDone["taskA"] = false;
-    assertEquals(tasksDone["taskA"], false);
+    assertFalse(tasksDone["taskA"]);
 
     const newContent = "modified-content-" + crypto.randomUUID();
     await Deno.writeTextFile(testFile.path, newContent);
@@ -94,7 +94,7 @@ Deno.test("task up to date", async () => {
     // Test: Run taskA again
     await ctx.getTaskByName("taskA")?.exec(ctx);
 
-    assertEquals(tasksDone["taskA"], true); // ran because of not up-to-date
+    assert(tasksDone["taskA"]); // ran because of not up-to-date
   }
 
   await cleanup();
@@ -133,8 +133,8 @@ Deno.test("async file deps test", async () => {
   const ctx = await execBasic(["taskB"], [taskA, taskB], new Manifest(""));
   await ctx.getTaskByName("taskB")?.exec(ctx);
 
-  assertEquals(tasksDone["taskA"], true);
-  assertEquals(tasksDone["taskB"], true);
+  assert(tasksDone["taskA"]);
+  assert(tasksDone["taskB"]);
 });
 
 Deno.test("tasks with target and clean", async () => {
@@ -165,25 +165,25 @@ Deno.test("tasks with target and clean", async () => {
   });
 
   // precheck nonexists
-  assertEquals(await exampleTarget1.exists(), false);
-  assertEquals(await exampleTarget2.exists(), false);
+  assertFalse(await exampleTarget1.exists());
+  assertFalse(await exampleTarget2.exists());
 
   // setup exec ctx
   const ctx = await execBasic([], [testTask1, testTask2], new Manifest(""));
 
   // run test tasks
   await ctx.getTaskByName("testTask1")?.exec(ctx);
-  assertEquals(await exampleTarget1.exists(), true);
+  assert(await exampleTarget1.exists());
 
   await ctx.getTaskByName("testTask2")?.exec(ctx);
-  assertEquals(await exampleTarget2.exists(), true);
+  assert(await exampleTarget2.exists());
 
   // clean
   await ctx.getTaskByName("clean")?.exec(ctx);
 
   // check nonexists
-  assertEquals(await exampleTarget1.exists(), false);
-  assertEquals(await exampleTarget2.exists(), false);
+  assertFalse(await exampleTarget1.exists());
+  assertFalse(await exampleTarget2.exists());
 
   // clean tempdir
   await cleanup();

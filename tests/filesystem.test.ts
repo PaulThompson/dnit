@@ -1,4 +1,4 @@
-import { assertEquals, assertInstanceOf, assertNotInstanceOf, assertRejects } from "@std/assert";
+import { assert, assertEquals, assertFalse, assertInstanceOf, assertNotInstanceOf, assertRejects } from "@std/assert";
 import * as path from "@std/path";
 import {
   deletePath,
@@ -18,7 +18,7 @@ Deno.test("filesystem utilities", async (t) => {
     const result = await statPath(testFile);
     assertEquals(result.kind, "fileInfo");
     if (result.kind === "fileInfo") {
-      assertEquals(result.fileInfo.isFile, true);
+      assert(result.fileInfo.isFile);
     }
   });
 
@@ -39,7 +39,7 @@ Deno.test("filesystem utilities", async (t) => {
     const result = await statPath(testSubDir);
     assertEquals(result.kind, "fileInfo");
     if (result.kind === "fileInfo") {
-      assertEquals(result.fileInfo.isDirectory, true);
+      assert(result.fileInfo.isDirectory);
     }
   });
 
@@ -192,7 +192,7 @@ Deno.test("filesystem utilities", async (t) => {
     assertEquals(typeof timestamp, "string");
     // Should be a valid ISO string
     const date = new Date(timestamp);
-    assertEquals(isNaN(date.getTime()), false);
+    assertFalse(isNaN(date.getTime()));
 
     // Should match file's mtime
     if (fileInfo.mtime) {

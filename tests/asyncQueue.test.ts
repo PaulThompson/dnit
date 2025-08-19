@@ -1,6 +1,6 @@
 import { AsyncQueue } from "../utils/asyncQueue.ts";
 
-import { assert } from "@std/assert";
+import { assert, assertLessOrEqual } from "@std/assert";
 
 class TestConcurrency {
   numInProgress = 0;
@@ -38,6 +38,6 @@ Deno.test("async queue", async () => {
       promises.push(asyncQueue.schedule(ctx.action));
     }
     await Promise.all(promises);
-    assert(ctx.maxInProgress <= concurrency);
+    assertLessOrEqual(ctx.maxInProgress, concurrency);
   }
 });

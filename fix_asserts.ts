@@ -15,6 +15,66 @@ interface Replacement {
 }
 
 const replacements: Replacement[] = [
+  // Patterns for assert() with comparisons - process these first
+  {
+    // assert(x <= y) -> assertLessOrEqual(x, y)
+    pattern: /assert\s*\(\s*(.+?)\s*<=\s*(.+?)\s*\)/g,
+    replace: (match, left, right) => `assertLessOrEqual(${left}, ${right})`,
+    imports: ["assertLessOrEqual"],
+    description: "Replace <= comparisons with assertLessOrEqual"
+  },
+  {
+    // assert(x >= y) -> assertGreaterOrEqual(x, y)
+    pattern: /assert\s*\(\s*(.+?)\s*>=\s*(.+?)\s*\)/g,
+    replace: (match, left, right) => `assertGreaterOrEqual(${left}, ${right})`,
+    imports: ["assertGreaterOrEqual"],
+    description: "Replace >= comparisons with assertGreaterOrEqual"
+  },
+  {
+    // assert(x < y) -> assertLess(x, y)
+    pattern: /assert\s*\(\s*([^<]+?)\s*<\s*([^=].+?)\s*\)/g,
+    replace: (match, left, right) => `assertLess(${left}, ${right})`,
+    imports: ["assertLess"],
+    description: "Replace < comparisons with assertLess"
+  },
+  {
+    // assert(x > y) -> assertGreater(x, y)
+    pattern: /assert\s*\(\s*([^>]+?)\s*>\s*([^=].+?)\s*\)/g,
+    replace: (match, left, right) => `assertGreater(${left}, ${right})`,
+    imports: ["assertGreater"],
+    description: "Replace > comparisons with assertGreater"
+  },
+  {
+    // assert(x !== null) -> assertExists(x)
+    pattern: /assert\s*\(\s*(.+?)\s*!==?\s*null\s*\)/g,
+    replace: (match, expr) => `assertExists(${expr})`,
+    imports: ["assertExists"],
+    description: "Replace null checks with assertExists"
+  },
+  {
+    // assert(x !== undefined) -> assertExists(x)
+    pattern: /assert\s*\(\s*(.+?)\s*!==?\s*undefined\s*\)/g,
+    replace: (match, expr) => `assertExists(${expr})`,
+    imports: ["assertExists"],
+    description: "Replace undefined checks with assertExists"
+  },
+  
+  // Patterns for assertEquals with boolean literals
+  {
+    // assertEquals(x, true) -> assert(x)
+    pattern: /assertEquals\s*\(\s*(.+?)\s*,\s*true\s*\)/g,
+    replace: (match, expr) => `assert(${expr})`,
+    imports: ["assert"],
+    description: "Replace assertEquals(x, true) with assert"
+  },
+  {
+    // assertEquals(x, false) -> assertFalse(x)
+    pattern: /assertEquals\s*\(\s*(.+?)\s*,\s*false\s*\)/g,
+    replace: (match, expr) => `assertFalse(${expr})`,
+    imports: ["assertFalse"],
+    description: "Replace assertEquals(x, false) with assertFalse"
+  },
+  
   // assertEquals(x.includes(y), true) -> assertStringIncludes(x, y)
   {
     pattern: /assertEquals\s*\(\s*(.+?)\.includes\s*\(\s*(.+?)\s*\)\s*,\s*true\s*\)/g,
