@@ -28,6 +28,7 @@ export {
   type TaskParams,
 } from "./core/task.ts";
 export {
+  /** @deprecated Use trackFile() instead */
   file,
   type FileParams,
   type GetFileHash,

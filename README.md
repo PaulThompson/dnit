@@ -35,10 +35,10 @@ example.
 ## Sample Usage
 
 ```ts
-import { file, main, task } from "jsr:@dnit/dnit@2.0.0";
+import { main, task, trackFile } from "jsr:@dnit/dnit@2.0.0";
 
 /// A file to be tracked as a target and dependency:
-export const msg = file({
+export const msg = trackFile({
   path: "./msg.txt",
 });
 
@@ -52,7 +52,7 @@ export const helloWorld = task({
     if (code !== 0) throw new Error(`Command failed with code ${code}`);
   },
   deps: [
-    file({
+    trackFile({
       path: "./writeMsg.sh",
     }),
   ],
@@ -111,7 +111,7 @@ In verbose mode the tool logs to stderr (fd #2)
 ## Tasks and Files in Detail
 
 Files are tracked by the exported
-`export function file(fileParams: FileParams) : TrackedFile`
+`export function trackFile(fileParams: FileParams) : TrackedFile`
 
 ```ts
 /** User params for a tracked file */

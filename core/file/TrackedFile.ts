@@ -186,15 +186,16 @@ export class TrackedFile {
 }
 
 /** Generate a trackedfile for tracking */
-export function file(fileParams: FileParams | string): TrackedFile {
+export function trackFile(fileParams: FileParams | string): TrackedFile {
   if (typeof fileParams === "string") {
     return new TrackedFile({ path: fileParams });
   }
   return new TrackedFile(fileParams);
 }
 
-export function trackFile(fileParams: FileParams | string): TrackedFile {
-  return file(fileParams);
+/** @deprecated Use trackFile() instead */
+export function file(fileParams: FileParams | string): TrackedFile {
+  return trackFile(fileParams);
 }
 
 export function isTrackedFile(
