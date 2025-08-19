@@ -1,4 +1,12 @@
-import { assert, assertEquals, assertExists, assertFalse, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
+import {
+  assert,
+  assertEquals,
+  assertExists,
+  assertFalse,
+  assertInstanceOf,
+  assertRejects,
+  assertThrows,
+} from "@std/assert";
 import {
   execBasic,
   file,
@@ -553,7 +561,7 @@ Deno.test("Task - circular dependency A->B->A", async () => {
   });
 
   const taskB = new Task({
-    name: "taskB", 
+    name: "taskB",
     action: () => console.log("Running task B"),
     deps: [taskA],
   });

@@ -22,16 +22,16 @@ export function showTaskList(ctx: IExecContext, args: Args) {
 
 function showHelpCommon(logger: { info: (msg: string) => void }) {
   logger.info("dnit - A TypeScript-based task runner for Deno\n");
-  
+
   logger.info("USAGE:");
   logger.info("  dnit [FLAGS] [TASK] [ARGS...]\n");
-  
+
   logger.info("FLAGS:");
   logger.info("  --help        Show this help message");
   logger.info("  --version     Show version information");
   logger.info("  --verbose     Enable verbose logging");
   logger.info("  --quiet       Enable quiet mode (minimal output)\n");
-  
+
   logger.info("Run 'dnit' without arguments to see available tasks.\n");
 }
 
@@ -41,13 +41,13 @@ function helpFooter(logger: { info: (msg: string) => void }) {
 
 export function showHelp(ctx: IExecContext) {
   showHelpCommon(ctx.cliLogger);
-  
+
   ctx.cliLogger.info("AVAILABLE TASKS:");
   const tasks = Array.from(ctx.taskRegister.values()).map((t) => [
     t.name,
     t.description || "",
   ]);
-  
+
   if (tasks.length > 0) {
     ctx.cliLogger.info(
       plainTextTable(
@@ -58,17 +58,19 @@ export function showHelp(ctx: IExecContext) {
   } else {
     ctx.cliLogger.info("  No tasks found");
   }
-  
+
   helpFooter(ctx.cliLogger);
 }
 
 export function showHelpBasic(logger: { info: (msg: string) => void }) {
   showHelpCommon(logger);
-  
+
   logger.info("ERROR:");
-  logger.info("  No dnit/ directory found. Create dnit/main.ts with your task definitions");
+  logger.info(
+    "  No dnit/ directory found. Create dnit/main.ts with your task definitions",
+  );
   logger.info("  to get started.");
-  
+
   helpFooter(logger);
 }
 

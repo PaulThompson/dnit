@@ -1,4 +1,11 @@
-import { assert, assertEquals, assertFalse, assertInstanceOf, assertNotInstanceOf, assertRejects } from "@std/assert";
+import {
+  assert,
+  assertEquals,
+  assertFalse,
+  assertInstanceOf,
+  assertNotInstanceOf,
+  assertRejects,
+} from "@std/assert";
 import * as path from "@std/path";
 import {
   deletePath,

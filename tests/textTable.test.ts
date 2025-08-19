@@ -1,5 +1,10 @@
-import { assertEquals, assertFalse, assertGreater, assertStringIncludes } from "@std/assert";
-import { textTable, plainTextTable } from "../utils/textTable.ts";
+import {
+  assertEquals,
+  assertFalse,
+  assertGreater,
+  assertStringIncludes,
+} from "@std/assert";
+import { plainTextTable, textTable } from "../utils/textTable.ts";
 
 Deno.test("textTable utilities", async (t) => {
   await t.step("basic table with single row", () => {
@@ -199,12 +204,12 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertEquals(typeof result, "string");
     assertStringIncludes(result, "John");
     assertStringIncludes(result, "30");
-    
+
     // Should not contain box drawing characters
     assertFalse(result.includes("┌"));
     assertFalse(result.includes("│"));
     assertFalse(result.includes("─"));
-    
+
     // Should not contain header names
     assertFalse(result.includes("Name"));
     assertFalse(result.includes("Age"));
@@ -229,7 +234,7 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertStringIncludes(lines[1], "Run local lint");
     assertStringIncludes(lines[2], "fmt");
     assertStringIncludes(lines[2], "Run local fmt");
-    
+
     // Should not contain header names
     assertFalse(result.includes("Task"));
     assertFalse(result.includes("Description"));
@@ -245,13 +250,13 @@ Deno.test("plainTextTable utilities", async (t) => {
 
     const lines = result.split("\n");
     assertEquals(lines.length, 2); // 2 data rows only (no header)
-    
+
     // Check that content is present and properly aligned
     assertStringIncludes(lines[0], "A");
     assertStringIncludes(lines[0], "Short");
     assertStringIncludes(lines[1], "Very Long Content");
     assertStringIncludes(lines[1], "B");
-    
+
     // Check that columns start at consistent positions
     const aPos = lines[0].indexOf("A");
     const shortPos = lines[0].indexOf("Short");
@@ -269,7 +274,7 @@ Deno.test("plainTextTable utilities", async (t) => {
 
     assertStringIncludes(result, "Item1");
     assertStringIncludes(result, "Value2");
-    
+
     const lines = result.split("\n");
     assertEquals(lines.length, 2); // 2 data rows only (no header)
   });
@@ -283,7 +288,7 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertEquals(lines.length, 2); // 2 data rows only (no header)
     assertEquals(lines[0].trim(), "Active");
     assertEquals(lines[1].trim(), "Inactive");
-    
+
     // Should not contain header name
     assertFalse(result.includes("Status"));
   });

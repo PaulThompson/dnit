@@ -1,4 +1,10 @@
-import { assert, assertEquals, assertExists, assertFalse, assertStringIncludes } from "@std/assert";
+import {
+  assert,
+  assertEquals,
+  assertExists,
+  assertFalse,
+  assertStringIncludes,
+} from "@std/assert";
 import { execCli, runAlways, task } from "../mod.ts";
 import { createTestLoggers } from "./testLogging.ts";
 import type { Args } from "@std/cli/parse-args";

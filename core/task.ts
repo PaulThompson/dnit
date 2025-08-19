@@ -48,7 +48,9 @@ export type CircularDependency = {
 };
 
 /** Detect circular dependencies in task dependency graph using iterative DFS */
-export function detectCircularDependencies(startTask: Task): CircularDependency | null {
+export function detectCircularDependencies(
+  startTask: Task,
+): CircularDependency | null {
   const visited = new Set<Task>();
   const stack: { task: Task; path: Task[] }[] = [{ task: startTask, path: [] }];
 
@@ -180,7 +182,9 @@ export class Task implements ITask {
     const circularDep = detectCircularDependencies(this);
     if (circularDep) {
       throw new Error(
-        `Circular dependency detected: ${circularDep.cycle.map((t) => t.name).join(" -> ")}`,
+        `Circular dependency detected: ${
+          circularDep.cycle.map((t) => t.name).join(" -> ")
+        }`,
       );
     }
 

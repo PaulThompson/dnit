@@ -7,9 +7,9 @@ export function plainTextTable(headings: string[], cells: string[][]): string {
       ++colInd;
     }
   }
-  
+
   const output: string[] = [];
-  
+
   // Add data rows only (no header)
   for (const row of cells) {
     const dataRow = row.map((cell, i) => {
@@ -17,7 +17,7 @@ export function plainTextTable(headings: string[], cells: string[][]): string {
     }).join("  ");
     output.push(dataRow);
   }
-  
+
   return output.join("\n");
 }
 
