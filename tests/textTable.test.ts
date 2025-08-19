@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertGreater, assertStringIncludes } from "@std/assert";
 import { textTable } from "../utils/textTable.ts";
 
 Deno.test("textTable utilities", async (t) => {
@@ -9,18 +9,18 @@ Deno.test("textTable utilities", async (t) => {
 
     // Should contain proper box drawing characters
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("┌"), true);
-    assertEquals(result.includes("┐"), true);
-    assertEquals(result.includes("└"), true);
-    assertEquals(result.includes("┘"), true);
-    assertEquals(result.includes("│"), true);
-    assertEquals(result.includes("─"), true);
+    assertStringIncludes(result, "┌");
+    assertStringIncludes(result, "┐");
+    assertStringIncludes(result, "└");
+    assertStringIncludes(result, "┘");
+    assertStringIncludes(result, "│");
+    assertStringIncludes(result, "─");
 
     // Should contain the data
-    assertEquals(result.includes("Name"), true);
-    assertEquals(result.includes("Age"), true);
-    assertEquals(result.includes("John"), true);
-    assertEquals(result.includes("30"), true);
+    assertStringIncludes(result, "Name");
+    assertStringIncludes(result, "Age");
+    assertStringIncludes(result, "John");
+    assertStringIncludes(result, "30");
   });
 
   await t.step("empty table with headers only", () => {
@@ -29,11 +29,11 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("Column1"), true);
-    assertEquals(result.includes("Column2"), true);
+    assertStringIncludes(result, "Column1");
+    assertStringIncludes(result, "Column2");
     // Should still have proper table structure
-    assertEquals(result.includes("┌"), true);
-    assertEquals(result.includes("┐"), true);
+    assertStringIncludes(result, "┌");
+    assertStringIncludes(result, "┐");
   });
 
   await t.step("multiple rows with varying lengths", () => {
@@ -45,13 +45,13 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("Short"), true);
-    assertEquals(result.includes("Very Long Header"), true);
-    assertEquals(result.includes("Very Long Content"), true);
+    assertStringIncludes(result, "Short");
+    assertStringIncludes(result, "Very Long Header");
+    assertStringIncludes(result, "Very Long Content");
 
     // Should handle alignment properly
     const lines = result.split("\n");
-    assertEquals(lines.length > 3, true); // At least headers, separator, and rows
+    assertGreater(lines.length, 3); // At least headers, separator, and rows
   });
 
   await t.step("single column table", () => {
@@ -60,10 +60,10 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("Status"), true);
-    assertEquals(result.includes("Active"), true);
-    assertEquals(result.includes("Inactive"), true);
-    assertEquals(result.includes("Pending"), true);
+    assertStringIncludes(result, "Status");
+    assertStringIncludes(result, "Active");
+    assertStringIncludes(result, "Inactive");
+    assertStringIncludes(result, "Pending");
   });
 
   await t.step("table with special characters", () => {
@@ -75,10 +75,10 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("!@#$%"), true);
-    assertEquals(result.includes("αβγδε"), true);
-    assertEquals(result.includes("^&*()"), true);
-    assertEquals(result.includes("中文测试"), true);
+    assertStringIncludes(result, "!@#$%");
+    assertStringIncludes(result, "αβγδε");
+    assertStringIncludes(result, "^&*()");
+    assertStringIncludes(result, "中文测试");
   });
 
   await t.step("table with empty cells", () => {
@@ -91,10 +91,10 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("Item1"), true);
-    assertEquals(result.includes("Value2"), true);
-    assertEquals(result.includes("Item3"), true);
-    assertEquals(result.includes("Value3"), true);
+    assertStringIncludes(result, "Item1");
+    assertStringIncludes(result, "Value2");
+    assertStringIncludes(result, "Item3");
+    assertStringIncludes(result, "Value3");
   });
 
   await t.step("large table structure", () => {
@@ -110,12 +110,12 @@ Deno.test("textTable utilities", async (t) => {
 
     // Check all numbers are present
     for (let i = 1; i <= 15; i++) {
-      assertEquals(result.includes(i.toString()), true);
+      assertStringIncludes(result, i.toString());
     }
 
     // Check all headers are present
     ["A", "B", "C", "D", "E"].forEach((header) => {
-      assertEquals(result.includes(header), true);
+      assertStringIncludes(result, header);
     });
   });
 
@@ -135,8 +135,8 @@ Deno.test("textTable utilities", async (t) => {
     });
 
     // Should contain proper spacing around content
-    assertEquals(result.includes(" ID "), true);
-    assertEquals(result.includes(" Description "), true);
+    assertStringIncludes(result, " ID ");
+    assertStringIncludes(result, " Description ");
   });
 
   await t.step("table with numbers and mixed content", () => {
@@ -149,9 +149,9 @@ Deno.test("textTable utilities", async (t) => {
     const result = textTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertEquals(result.includes("Alice"), true);
-    assertEquals(result.includes("95.5"), true);
-    assertEquals(result.includes("false"), true);
+    assertStringIncludes(result, "Alice");
+    assertStringIncludes(result, "95.5");
+    assertStringIncludes(result, "false");
 
     // Check that the table has proper structure
     const lines = result.split("\n");
@@ -179,13 +179,13 @@ Deno.test("textTable utilities", async (t) => {
     assertEquals(lines.length, 5);
 
     // First and last lines should be borders
-    assertEquals(lines[0].includes("┌"), true);
-    assertEquals(lines[0].includes("┐"), true);
-    assertEquals(lines[lines.length - 1].includes("└"), true);
-    assertEquals(lines[lines.length - 1].includes("┘"), true);
+    assertStringIncludes(lines[0], "┌");
+    assertStringIncludes(lines[0], "┐");
+    assertStringIncludes(lines[lines.length - 1], "└");
+    assertStringIncludes(lines[lines.length - 1], "┘");
 
     // Middle separator should contain cross characters
-    assertEquals(lines[2].includes("├"), true);
-    assertEquals(lines[2].includes("┤"), true);
+    assertStringIncludes(lines[2], "├");
+    assertStringIncludes(lines[2], "┤");
   });
 });

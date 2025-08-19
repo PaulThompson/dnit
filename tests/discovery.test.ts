@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertInstanceOf } from "@std/assert";
 import * as path from "@std/path";
 import { findUserSource } from "../launch.ts";
 import { createFileInDir, createTempDir } from "./utils.ts";
@@ -167,7 +167,7 @@ Deno.test("Discovery - returns null when directory doesn't exist", () => {
     assertEquals(result, null);
   } catch (error) {
     // It's also acceptable to throw an error for non-existent paths
-    assertEquals(error instanceof Deno.errors.NotFound, true);
+    assertInstanceOf(error, Deno.errors.NotFound);
   }
 });
 

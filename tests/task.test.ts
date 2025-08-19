@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertRejects, assertThrows } from "@std/assert";
+import { assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrows } from "@std/assert";
 import {
   execBasic,
   file,
@@ -40,7 +40,7 @@ Deno.test("Task - task() function", () => {
     action: testAction,
   });
 
-  assertEquals(testTask instanceof Task, true);
+  assertInstanceOf(testTask, Task);
   assertEquals(testTask.name, "testTask");
   assertEquals(testTask.description, "A test task");
 });
@@ -598,7 +598,7 @@ Deno.test("detectCircularDependencies - self-referencing task", () => {
   taskA.task_deps.add(taskA);
 
   const result = detectCircularDependencies(taskA);
-  assertEquals(result !== null, true);
+  assert(result !== null);
   assertEquals(result!.cycle.length, 2);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskA");
@@ -620,7 +620,7 @@ Deno.test("detectCircularDependencies - simple A->B->A cycle", () => {
   taskA.task_deps.add(taskB);
 
   const result = detectCircularDependencies(taskA);
-  assertEquals(result !== null, true);
+  assert(result !== null);
   assertEquals(result!.cycle.length, 3);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskB");
@@ -649,7 +649,7 @@ Deno.test("detectCircularDependencies - complex A->B->C->A cycle", () => {
   taskA.task_deps.add(taskC);
 
   const result = detectCircularDependencies(taskA);
-  assertEquals(result !== null, true);
+  assert(result !== null);
   assertEquals(result!.cycle.length, 4);
   assertEquals(result!.cycle[0].name, "taskA");
   assertEquals(result!.cycle[1].name, "taskC");

@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertEquals, assertInstanceOf, assertNotInstanceOf, assertRejects } from "@std/assert";
 import * as path from "@std/path";
 import {
   deletePath,
@@ -63,13 +63,13 @@ Deno.test("filesystem utilities", async (t) => {
     } catch (err) {
       // Should throw an error, and it should NOT be NotFound
       // (it should be a permission error instead)
-      assertEquals(err instanceof Error, true);
+      assertInstanceOf(err, Error);
       if (err instanceof Deno.errors.NotFound) {
         // This is fine - the path doesn't exist, which is also a valid test case
         // since it confirms statPath handles Deno.errors.NotFound properly
       } else {
         // This is what we're testing for - non-NotFound errors should propagate
-        assertEquals(err instanceof Deno.errors.NotFound, false);
+        assertNotInstanceOf(err, Deno.errors.NotFound);
       }
     }
   });
