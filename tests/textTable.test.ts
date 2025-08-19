@@ -1,4 +1,4 @@
-import { assertEquals, assertGreater, assertStringIncludes } from "@std/assert";
+import { assertEquals, assertFalse, assertGreater, assertStringIncludes } from "@std/assert";
 import { textTable, plainTextTable } from "../utils/textTable.ts";
 
 Deno.test("textTable utilities", async (t) => {
@@ -203,9 +203,9 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertStringIncludes(result, "30");
     
     // Should not contain box drawing characters
-    assertEquals(result.includes("┌"), false);
-    assertEquals(result.includes("│"), false);
-    assertEquals(result.includes("─"), false);
+    assertFalse(result.includes("┌"));
+    assertFalse(result.includes("│"));
+    assertFalse(result.includes("─"));
   });
 
   await t.step("plain text table with multiple rows", () => {
