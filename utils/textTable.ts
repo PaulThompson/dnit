@@ -10,13 +10,7 @@ export function plainTextTable(headings: string[], cells: string[][]): string {
   
   const output: string[] = [];
   
-  // Add header row
-  const headerRow = headings.map((h, i) => {
-    return h.padEnd(maxWidths[i]);
-  }).join("  ");
-  output.push(headerRow);
-  
-  // Add data rows
+  // Add data rows only (no header)
   for (const row of cells) {
     const dataRow = row.map((cell, i) => {
       return cell.padEnd(maxWidths[i]);

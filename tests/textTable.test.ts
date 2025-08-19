@@ -197,8 +197,6 @@ Deno.test("plainTextTable utilities", async (t) => {
     const result = plainTextTable(headings, cells);
 
     assertEquals(typeof result, "string");
-    assertStringIncludes(result, "Name");
-    assertStringIncludes(result, "Age");
     assertStringIncludes(result, "John");
     assertStringIncludes(result, "30");
     
@@ -206,6 +204,10 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertFalse(result.includes("┌"));
     assertFalse(result.includes("│"));
     assertFalse(result.includes("─"));
+    
+    // Should not contain header names
+    assertFalse(result.includes("Name"));
+    assertFalse(result.includes("Age"));
   });
 
   await t.step("plain text table with multiple rows", () => {
@@ -218,19 +220,19 @@ Deno.test("plainTextTable utilities", async (t) => {
     const result = plainTextTable(headings, cells);
 
     const lines = result.split("\n");
-    assertEquals(lines.length, 4); // header + 3 data rows
-
-    // Check header
-    assertStringIncludes(lines[0], "Task");
-    assertStringIncludes(lines[0], "Description");
+    assertEquals(lines.length, 3); // 3 data rows only (no header)
 
     // Check data rows
-    assertStringIncludes(lines[1], "test");
-    assertStringIncludes(lines[1], "Run local unit tests");
-    assertStringIncludes(lines[2], "lint");
-    assertStringIncludes(lines[2], "Run local lint");
-    assertStringIncludes(lines[3], "fmt");
-    assertStringIncludes(lines[3], "Run local fmt");
+    assertStringIncludes(lines[0], "test");
+    assertStringIncludes(lines[0], "Run local unit tests");
+    assertStringIncludes(lines[1], "lint");
+    assertStringIncludes(lines[1], "Run local lint");
+    assertStringIncludes(lines[2], "fmt");
+    assertStringIncludes(lines[2], "Run local fmt");
+    
+    // Should not contain header names
+    assertFalse(result.includes("Task"));
+    assertFalse(result.includes("Description"));
   });
 
   await t.step("plain text table alignment", () => {
@@ -242,21 +244,19 @@ Deno.test("plainTextTable utilities", async (t) => {
     const result = plainTextTable(headings, cells);
 
     const lines = result.split("\n");
-    assertEquals(lines.length, 3); // header + 2 data rows
+    assertEquals(lines.length, 2); // 2 data rows only (no header)
     
     // Check that content is present and properly aligned
+    assertStringIncludes(lines[0], "A");
     assertStringIncludes(lines[0], "Short");
-    assertStringIncludes(lines[0], "Very Long Header");
-    assertStringIncludes(lines[1], "A");
-    assertStringIncludes(lines[1], "Short");
-    assertStringIncludes(lines[2], "Very Long Content");
-    assertStringIncludes(lines[2], "B");
+    assertStringIncludes(lines[1], "Very Long Content");
+    assertStringIncludes(lines[1], "B");
     
     // Check that columns start at consistent positions
+    const aPos = lines[0].indexOf("A");
     const shortPos = lines[0].indexOf("Short");
-    const headerPos = lines[0].indexOf("Very Long Header");
-    assertEquals(shortPos, 0);
-    assertGreater(headerPos, shortPos + 5);
+    assertEquals(aPos, 0);
+    assertGreater(shortPos, aPos + 5);
   });
 
   await t.step("plain text table with empty cells", () => {
@@ -271,7 +271,7 @@ Deno.test("plainTextTable utilities", async (t) => {
     assertStringIncludes(result, "Value2");
     
     const lines = result.split("\n");
-    assertEquals(lines.length, 3); // header + 2 data rows
+    assertEquals(lines.length, 2); // 2 data rows only (no header)
   });
 
   await t.step("plain text table with single column", () => {
@@ -280,9 +280,11 @@ Deno.test("plainTextTable utilities", async (t) => {
     const result = plainTextTable(headings, cells);
 
     const lines = result.split("\n");
-    assertEquals(lines.length, 3); // header + 2 data rows
-    assertEquals(lines[0].trim(), "Status");
-    assertEquals(lines[1].trim(), "Active");
-    assertEquals(lines[2].trim(), "Inactive");
+    assertEquals(lines.length, 2); // 2 data rows only (no header)
+    assertEquals(lines[0].trim(), "Active");
+    assertEquals(lines[1].trim(), "Inactive");
+    
+    // Should not contain header name
+    assertFalse(result.includes("Status"));
   });
 });
