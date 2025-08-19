@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertThrows } from "@std/assert";
+import { assertEquals, assertExists, assertRejects, assertThrows } from "@std/assert";
 import {
   execBasic,
   file,
@@ -515,13 +515,12 @@ Deno.test("Task - circular dependency detection A->B->C->A", async () => {
 
   // Try to execute taskA which should trigger circular dependency
   const ctx = await execBasic([], [taskA, taskB, taskC], manifest);
-  
-  try {
-    await taskA.exec(ctx);
-    console.log("Task execution completed without error");
-  } catch (error) {
-    console.log("Error during execution:", (error as Error).message);
-  }
+
+  await assertRejects(
+    () => taskA.exec(ctx),
+    Error,
+    "Circular dependency detected: taskA -> taskC -> taskB -> taskA",
+  );
 });
 
 Deno.test("Task - self-referencing task", async () => {
@@ -536,13 +535,12 @@ Deno.test("Task - self-referencing task", async () => {
   selfTask.task_deps.add(selfTask);
 
   const ctx = await execBasic([], [selfTask], manifest);
-  
-  try {
-    await selfTask.exec(ctx);
-    console.log("Self-referencing task completed without error");
-  } catch (error) {
-    console.log("Error during self-referencing execution:", (error as Error).message);
-  }
+
+  await assertRejects(
+    () => selfTask.exec(ctx),
+    Error,
+    "Circular dependency detected: selfTask -> selfTask",
+  );
 });
 
 Deno.test("Task - circular dependency A->B->A", async () => {
@@ -563,11 +561,10 @@ Deno.test("Task - circular dependency A->B->A", async () => {
   taskA.task_deps.add(taskB);
 
   const ctx = await execBasic([], [taskA, taskB], manifest);
-  
-  try {
-    await taskA.exec(ctx);
-    console.log("Simple circular dependency completed without error");
-  } catch (error) {
-    console.log("Error during simple circular execution:", (error as Error).message);
-  }
+
+  await assertRejects(
+    () => taskA.exec(ctx),
+    Error,
+    "Circular dependency detected: taskA -> taskB -> taskA",
+  );
 });

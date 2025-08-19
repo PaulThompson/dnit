@@ -42,6 +42,40 @@ export type Dep = Task | TrackedFile | TrackedFilesAsync;
 /// Convenience function: an up to date always false to run always
 export const runAlways: IsUpToDate = () => false;
 
+/** Result of circular dependency detection */
+type CircularDependency = {
+  cycle: Task[];
+};
+
+/** Detect circular dependencies in task dependency graph using iterative DFS */
+function detectCircularDependencies(startTask: Task): CircularDependency | null {
+  const visited = new Set<Task>();
+  const stack: { task: Task; path: Task[] }[] = [{ task: startTask, path: [] }];
+
+  while (stack.length > 0) {
+    const { task, path } = stack.pop()!;
+
+    // Check if task is already in the current path (circular dependency)
+    if (path.includes(task)) {
+      const cycleStart = path.indexOf(task);
+      const cycle = path.slice(cycleStart).concat([task]);
+      return { cycle };
+    }
+
+    if (visited.has(task)) continue;
+
+    visited.add(task);
+    const newPath = [...path, task];
+
+    // Add all task dependencies to stack
+    for (const dep of task.task_deps) {
+      stack.push({ task: dep, path: newPath });
+    }
+  }
+
+  return null;
+}
+
 function isTask(dep: Task | TrackedFile | TrackedFilesAsync): dep is Task {
   return dep instanceof Task;
 }
@@ -140,6 +174,14 @@ export class Task implements ITask {
       if (t !== undefined && t instanceof Task) {
         this.task_deps.add(t);
       }
+    }
+
+    // detect circular dependencies after all dynamic dependencies are resolved
+    const circularDep = detectCircularDependencies(this);
+    if (circularDep) {
+      throw new Error(
+        `Circular dependency detected: ${circularDep.cycle.map((t) => t.name).join(" -> ")}`,
+      );
     }
 
     await this.execDependencies(ctx);
